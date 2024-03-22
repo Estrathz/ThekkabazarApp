@@ -1,20 +1,24 @@
-import {Button, Text, View} from 'react-native';
-import React from 'react';
+import {Button, FlatList, RefreshControl, Text, View} from 'react-native';
+import React, {useEffect, useState} from 'react';
 import styles from './cardStyle';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Custombutton from '../Button/button';
 
-const Card = ({title, data}) => {
+const Card = ({title, navigation, data}) => {
   return (
     <View style={styles.container}>
-      <Text style={styles.titletext}>{title}</Text>
+      <Text
+        style={styles.titletext}
+        onPress={() => navigation.navigate('Bazar')}>
+        {title}
+      </Text>
 
-      {data?.map((items, index) => (
+      {data?.map((item, index) => (
         <View key={index} style={styles.Card}>
           <View style={styles.CardHeading}>
             <Icon name="calendar-month" size={24} color="black" />
             <Text style={styles.CardText}>
-              Published Date : {items.published_date}
+              Published Date : {item.published_date}
             </Text>
           </View>
           <Text
@@ -23,14 +27,15 @@ const Card = ({title, data}) => {
               fontSize: 18,
               fontWeight: 'bold',
               marginTop: 10,
-            }}>
-            {items.title}
+            }}
+            onPress={() => navigation.navigate('HomeDetails', {id: item.pk})}>
+            {item.title}
           </Text>
           <Text style={{color: 'black', fontSize: 15, marginTop: 10}}>
-            {items.description}
+            {item.description}
           </Text>
           <View style={styles.Cardbodytext}>
-            {items.district?.map((location, index) => (
+            {item.district?.map((location, index) => (
               <Text
                 key={index}
                 style={{
@@ -54,9 +59,9 @@ const Card = ({title, data}) => {
                 borderRadius: 8,
                 marginLeft: 15,
               }}>
-              Source: {items.source}
+              Source: {item.source}
             </Text>
-            {items.project_type?.map((project, index) => (
+            {item.project_type?.map((project, index) => (
               <Text
                 key={index}
                 style={{

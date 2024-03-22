@@ -13,8 +13,11 @@ export const fetchTenderListData = createAsyncThunk(
     date,
     category,
     page,
+    search,
   } = {}) => {
     const params = new URLSearchParams();
+
+    console.log('organ', organization_sector);
 
     if (organization_sector) {
       params.append('organization_sector', organization_sector);
@@ -37,10 +40,14 @@ export const fetchTenderListData = createAsyncThunk(
     if (page) {
       params.append('page', page);
     }
+    if (search) {
+      params.append('search', search);
+    }
     const response = await axios.get(
       ` ${BASE_URL}/tender/apis/tender/list/?${params.toString()}`,
     );
     const data = response.data.data;
+
     return data;
   },
 );
@@ -51,7 +58,7 @@ export const fetchOneTenderData = createAsyncThunk(
     const response = await axios.get(
       `   ${BASE_URL}/tender/apis/tenders/${tenderId}/`,
     );
-    console.log(response);
+
     const data = response.data;
     return data;
   },
@@ -59,7 +66,6 @@ export const fetchOneTenderData = createAsyncThunk(
 
 export const savebid = createAsyncThunk('data/savebid', async ({id}) => {
   const response = await axios.get(`${BASE_URL}/tender/apis/tenders/${id}/`);
-  console.log(response);
   const data = response.data;
   return data;
 });

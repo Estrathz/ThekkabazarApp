@@ -2,29 +2,57 @@ import {View, Text} from 'react-native';
 import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
+import MainScreens from './src/Containers/Routes/MainScreens';
 
 import Login from './src/components/Login/login';
-import HomeDashboard from './src/components/Home/home';
-import Footer from './src/Containers/Footer/footer';
-import Result from './src/components/Result/result';
-import PrivateWork from './src/components/PrivateWorks/privateWork';
-import Bazar from './src/components/Bazar/bazar';
+import Toast, {BaseToast, ErrorToast} from 'react-native-toast-message';
+
+import Detail from './src/components/Home/Detail/detail';
 
 export default function App() {
   const Stack = createStackNavigator();
 
+  const toastConfig = {
+    success: props => (
+      <BaseToast
+        {...props}
+        style={{borderLeftColor: 'pink'}}
+        contentContainerStyle={{paddingHorizontal: 15}}
+        text1Style={{
+          fontSize: 16,
+          fontWeight: '400',
+        }}
+        text2Style={{
+          fontSize: 16,
+          fontWeight: '400',
+        }}
+      />
+    ),
+    error: props => (
+      <ErrorToast
+        {...props}
+        text1Style={{
+          fontSize: 17,
+        }}
+        text2Style={{
+          fontSize: 15,
+        }}
+      />
+    ),
+  };
+
   return (
-    <NavigationContainer>
-      <Stack.Navigator
-        screenOptions={{
-          headerShown: false,
-        }}>
-        <Stack.Screen name="Login" component={Login} />
-        <Stack.Screen name="Home" component={HomeDashboard} />
-        <Stack.Screen name="Result" component={Result} />
-        <Stack.Screen name="PrivateWork" component={PrivateWork} />
-        <Stack.Screen name="Bazar" component={Bazar} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <>
+      <NavigationContainer>
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false,
+          }}>
+          <Stack.Screen name="Login" component={Login} />
+          <Stack.Screen name="MainScreen" component={MainScreens} />
+        </Stack.Navigator>
+      </NavigationContainer>
+      <Toast config={toastConfig} />
+    </>
   );
 }

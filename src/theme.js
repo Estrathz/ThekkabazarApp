@@ -5,6 +5,8 @@ const colors = {
   background: '#e8e9fc', // light blue
   text: '#1682FD', // dark blue
   white: '#fff', // white
+  gray: '#808080',
+  black: '#000',
 };
 
 const fonts = {

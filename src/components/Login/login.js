@@ -6,8 +6,10 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import {login} from '../../reducers/userSlice';
 import {useDispatch, useSelector} from 'react-redux';
 import Custombutton from '../../Containers/Button/button';
+import {useNavigation} from '@react-navigation/native';
 
-const Login = ({navigation}) => {
+const Login = () => {
+  const navigation = useNavigation();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -26,7 +28,11 @@ const Login = ({navigation}) => {
 
   const handleLogin = () => {
     console.log('Logging in with:', username, password);
-    navigation.navigate('Home');
+    // navigation.navigate('Home');
+    navigation.navigate('MainScreen', {
+      screen: 'BottomNav',
+      params: {screen: 'Home'},
+    });
     // dispatch(login({username, password}));
   };
 
@@ -80,7 +86,7 @@ const Login = ({navigation}) => {
         {/* <TouchableOpacity style={styles.button} onPress={handleLogin}>
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity> */}
-        <Custombutton title="Login" onClick={handleLogin} />
+        <Custombutton title="Login" onPress={handleLogin} />
 
         <View style={styles.lineform}></View>
         <View style={styles.textContainer}>

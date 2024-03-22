@@ -2,30 +2,14 @@ import {StyleSheet} from 'react-native';
 import {colors, fonts} from '../../theme';
 
 const styles = StyleSheet.create({
-  HomeContainer: {
-    backgroundColor: colors.background,
+  ResultContainer: {
     flex: 1,
-  },
-  navcontainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 20,
-    height: '100px',
-  },
-  iconsContainer: {
-    flexDirection: 'row',
-    width: '25%',
-    justifyContent: 'space-between',
-    marginRight: 10,
-  },
-  logo: {
-    width: 70,
-    aspectRatio: 2 / 1,
+    backgroundColor: colors.background,
   },
   SearchContainer: {
     flexDirection: 'row',
-    // padding: 20,
+    marginTop: 15,
+    marginBottom: 15,
     height: '100px',
   },
   searchSection: {

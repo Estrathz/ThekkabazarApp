@@ -10,10 +10,16 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import Detail from '../../components/Home/Detail/detail';
 import ResultDetails from '../../components/Result/ResultDetail/resultDetail';
 import {createStackNavigator} from '@react-navigation/stack';
+import Price from '../../components/Pricing/price';
+import Notice from './../../components/Notice/notice';
+import UserProfile from '../../components/Profile/UserProfile/userProfile';
+import Login from '../../components/Login/login';
+import EditProfile from '../../components/Profile/UserProfile/EditProfile/editProfile';
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createStackNavigator();
 const ResultStack = createStackNavigator();
+const ProfileStack = createStackNavigator();
 
 const HomeStackScreen = () => {
   return (
@@ -46,6 +52,38 @@ const ResultStackScreen = () => {
         options={{headerShown: false}}
       />
     </ResultStack.Navigator>
+  );
+};
+
+const ProfileStackScreen = () => {
+  return (
+    <ProfileStack.Navigator>
+      <ProfileStack.Screen
+        name="Profile"
+        component={Profile}
+        options={{headerShown: false}}
+      />
+      <ProfileStack.Screen
+        name="Pricing"
+        component={Price}
+        options={{headerShown: false}}
+      />
+      <ProfileStack.Screen
+        name="Notice"
+        component={Notice}
+        options={{headerShown: false}}
+      />
+      <ProfileStack.Screen
+        name="UserProfile"
+        component={UserProfile}
+        options={{headerShown: false}}
+      />
+      <ProfileStack.Screen
+        name="EditProfile"
+        component={EditProfile}
+        options={{headerShown: false}}
+      />
+    </ProfileStack.Navigator>
   );
 };
 
@@ -92,6 +130,7 @@ const BottomNav = () => {
           headerBackTitleVisible: false,
           tabBarInactiveTintColor: 'gray',
           tabBarLabelStyle: {fontSize: 14},
+          unmountOnBlur: true,
         }}
       />
       <Tab.Screen
@@ -129,6 +168,7 @@ const BottomNav = () => {
           headerBackTitleVisible: false,
           tabBarInactiveTintColor: 'gray',
           tabBarLabelStyle: {fontSize: 14},
+          unmountOnBlur: true,
         }}
       />
       <Tab.Screen
@@ -153,8 +193,8 @@ const BottomNav = () => {
       />
 
       <Tab.Screen
-        name="More"
-        component={Profile}
+        name="MoreScreen"
+        component={ProfileStackScreen}
         options={{
           headerShown: false,
           tabBarIcon: ({focused, color}) => {
@@ -170,6 +210,7 @@ const BottomNav = () => {
           headerBackTitleVisible: false,
           tabBarInactiveTintColor: 'gray',
           tabBarLabelStyle: {fontSize: 14},
+          unmountOnBlur: true,
         }}
       />
     </Tab.Navigator>

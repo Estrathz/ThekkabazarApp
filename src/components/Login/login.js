@@ -7,6 +7,7 @@ import {login} from '../../reducers/userSlice';
 import {useDispatch, useSelector} from 'react-redux';
 import Custombutton from '../../Containers/Button/button';
 import {useNavigation} from '@react-navigation/native';
+import Toast from 'react-native-toast-message';
 
 const Login = () => {
   const navigation = useNavigation();
@@ -15,25 +16,29 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
 
-  const {isAuthenticated, error} = useSelector(state => state.users);
+  const {isAuthenticated} = useSelector(state => state.users);
 
-  // useEffect(() => {
-  //   if (isAuthenticated) {
-  //     navigation.navigate('Home');
-  //   }
-  //   if (error) {
-  //     console.log(error);
-  //   }
-  // }, [dispatch, isAuthenticated, error]);
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigation.navigate('MainScreen', {
+        screen: 'BottomNav',
+        params: {screen: 'Home'},
+      });
+    }
+  }, [dispatch, isAuthenticated]);
 
   const handleLogin = () => {
-    console.log('Logging in with:', username, password);
-    // navigation.navigate('Home');
-    navigation.navigate('MainScreen', {
-      screen: 'BottomNav',
-      params: {screen: 'Home'},
-    });
-    // dispatch(login({username, password}));
+    if (!username || !password) {
+      return Toast.show({
+        type: 'error',
+        text1: 'Username and Password are required',
+        text2: 'Please fill all fields',
+        visibilityTime: 3000,
+        autoHide: true,
+      });
+    }
+
+    dispatch(login({username, password}));
   };
 
   const togglePasswordVisibility = () => {

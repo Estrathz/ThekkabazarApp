@@ -42,6 +42,10 @@ const Home = ({navigation}) => {
     if (dropdownerror) {
       console.log(dropdownerror);
     }
+
+    if (error) {
+      console.log(error);
+    }
   }, [dispatch]);
 
   useEffect(() => {

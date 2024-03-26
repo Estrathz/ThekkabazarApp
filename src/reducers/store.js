@@ -4,6 +4,9 @@ import cardSlice from './cardSlice';
 import dropdownSlice from './dropdownSlice';
 import resultSlice from './resultSlice';
 import privateWorkSlice from './privateWorkSlice';
+import priceSlice from './priceSlice';
+import noticeSlice from './noticeSlice';
+import profileSlice from './profileSlice';
 
 const store = configureStore({
   reducer: {
@@ -12,6 +15,9 @@ const store = configureStore({
     dropdown: dropdownSlice,
     result: resultSlice,
     privateWork: privateWorkSlice,
+    price: priceSlice,
+    notice: noticeSlice,
+    userprofile: profileSlice,
   },
 });
 

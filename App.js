@@ -1,16 +1,26 @@
 import {View, Text} from 'react-native';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import MainScreens from './src/Containers/Routes/MainScreens';
 
 import Login from './src/components/Login/login';
 import Toast, {BaseToast, ErrorToast} from 'react-native-toast-message';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import Detail from './src/components/Home/Detail/detail';
 
 export default function App() {
   const Stack = createStackNavigator();
+  const [user, setUser] = useState('');
+
+  const getInfo = async () => {
+    setUser(await AsyncStorage.getItem('access_token'));
+  };
+
+  useEffect(() => {
+    getInfo();
+  }, []);
 
   const toastConfig = {
     success: props => (
@@ -48,7 +58,12 @@ export default function App() {
           screenOptions={{
             headerShown: false,
           }}>
-          <Stack.Screen name="Login" component={Login} />
+          {/* {user ? (
+            <Stack.Screen name="MainScreen" component={MainScreens} />
+          ) : (
+            <Stack.Screen name="Login" component={Login} />
+          )} */}
+          <Stack.Screen name="Login2" component={Login} />
           <Stack.Screen name="MainScreen" component={MainScreens} />
         </Stack.Navigator>
       </NavigationContainer>

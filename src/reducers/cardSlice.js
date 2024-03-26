@@ -47,7 +47,6 @@ export const fetchTenderListData = createAsyncThunk(
       ` ${BASE_URL}/tender/apis/tender/list/?${params.toString()}`,
     );
     const data = response.data.data;
-
     return data;
   },
 );

@@ -7,15 +7,16 @@ import MainScreens from './src/Containers/Routes/MainScreens';
 import Login from './src/components/Login/login';
 import Toast, {BaseToast, ErrorToast} from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-import Detail from './src/components/Home/Detail/detail';
+import LoadingScreen from './src/Containers/Loading/loading';
 
 export default function App() {
   const Stack = createStackNavigator();
   const [user, setUser] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
   const getInfo = async () => {
     setUser(await AsyncStorage.getItem('access_token'));
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -26,7 +27,7 @@ export default function App() {
     success: props => (
       <BaseToast
         {...props}
-        style={{borderLeftColor: 'pink'}}
+        style={{borderLeftColor: 'blue'}}
         contentContainerStyle={{paddingHorizontal: 15}}
         text1Style={{
           fontSize: 16,
@@ -51,6 +52,10 @@ export default function App() {
     ),
   };
 
+  if (isLoading) {
+    return <LoadingScreen />; // Render loading screen while retrieving token
+  }
+
   return (
     <>
       <NavigationContainer>
@@ -58,12 +63,12 @@ export default function App() {
           screenOptions={{
             headerShown: false,
           }}>
-          {/* {user ? (
-            <Stack.Screen name="MainScreen" component={MainScreens} />
+          {user ? (
+            <Stack.Screen name="MainScreen2" component={MainScreens} />
           ) : (
-            <Stack.Screen name="Login" component={Login} />
-          )} */}
-          <Stack.Screen name="Login2" component={Login} />
+            <Stack.Screen name="Login2" component={Login} />
+          )}
+          <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="MainScreen" component={MainScreens} />
         </Stack.Navigator>
       </NavigationContainer>

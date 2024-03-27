@@ -34,6 +34,7 @@ const Home = ({navigation}) => {
   const [procurementsType, setProcurementsType] = useState('');
   const [search, setSearch] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     dispatch(fetchTenderListData({page: page}));
@@ -49,13 +50,14 @@ const Home = ({navigation}) => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (data && data.length > 0) {
-      setAllData(data);
+    if (data?.data && data?.data.length > 0) {
+      setAllData(data.data);
     }
+
+    console.log('asvdjsad', data.total_pages);
   }, [data]);
 
   useEffect(() => {
-    console.log('page in component ', page);
     if (page > 1) {
       setLoading(true);
 
@@ -121,6 +123,16 @@ const Home = ({navigation}) => {
     setRefreshing(false);
   };
 
+  const handleProfileNavi = () => {
+    navigation.navigate('MainScreen', {
+      screen: 'BottomNav',
+      params: {
+        screen: 'MoreScreen',
+        params: {screen: 'Profile'},
+      },
+    });
+  };
+
   return (
     <ScrollView
       onScroll={handleScroll}
@@ -138,7 +150,13 @@ const Home = ({navigation}) => {
             color="black"
             style={styles.icon}
           />
-          <Icon name="person" size={28} color="black" style={styles.icon} />
+          <Icon
+            name="person"
+            size={28}
+            color="black"
+            style={styles.icon}
+            onPress={() => handleProfileNavi()}
+          />
         </View>
       </View>
       <View style={styles.SearchContainer}>

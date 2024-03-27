@@ -16,14 +16,14 @@ const Card = ({title, navigation, data}) => {
       {data?.map((item, index) => (
         <View key={index} style={styles.Card}>
           <View style={styles.CardHeading}>
-            <Icon name="calendar-month" size={24} color="black" />
+            <Icon name="calendar-month" size={20} color="black" />
             <Text style={styles.CardText}>
               Published Date : {item.published_date}
             </Text>
           </View>
           <Text
             style={{
-              color: 'black',
+              color: '#0375B7',
               fontSize: 18,
               fontWeight: 'bold',
               marginTop: 10,
@@ -32,7 +32,7 @@ const Card = ({title, navigation, data}) => {
             {item.title}
           </Text>
           <Text style={{color: 'black', fontSize: 15, marginTop: 10}}>
-            {item.description}
+            {item.public_entry_name}
           </Text>
           <View style={styles.Cardbodytext}>
             {item.district?.map((location, index) => (
@@ -41,10 +41,11 @@ const Card = ({title, navigation, data}) => {
                 style={{
                   color: '#185CAB',
                   backgroundColor: '#F0F7FF',
-                  padding: 15,
+                  padding: 10,
                   marginTop: 20,
                   borderRadius: 8,
                   marginLeft: 15,
+                  alignSelf: 'center',
                 }}>
                 {location.name}
               </Text>
@@ -54,10 +55,11 @@ const Card = ({title, navigation, data}) => {
               style={{
                 color: '#0F9E1D',
                 backgroundColor: '#E2FBE4',
-                padding: 15,
+                padding: 10,
                 marginTop: 20,
                 borderRadius: 8,
                 marginLeft: 15,
+                alignSelf: 'center',
               }}>
               Source: {item.source}
             </Text>
@@ -67,10 +69,11 @@ const Card = ({title, navigation, data}) => {
                 style={{
                   color: '#FF7A00',
                   backgroundColor: '#FFF2F0',
-                  padding: 15,
+                  padding: 10,
                   marginTop: 20,
                   borderRadius: 8,
                   marginLeft: 15,
+                  alignSelf: 'center',
                 }}>
                 {project.name}
               </Text>

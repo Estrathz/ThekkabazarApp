@@ -12,8 +12,6 @@ const Detail = ({route, navigation}) => {
   const {one, error} = useSelector(state => state.card);
 
   useEffect(() => {
-    // const {id} = route.params;
-    console.log(route.params, 'route');
     const id = route.params.id;
 
     dispatch(fetchOneTenderData({tenderId: id}));
@@ -23,6 +21,10 @@ const Detail = ({route, navigation}) => {
   }, [dispatch, error]);
 
   const items = one;
+
+  if (!items || !items.image) {
+    return null;
+  }
 
   return (
     <ScrollView>
@@ -41,73 +43,18 @@ const Detail = ({route, navigation}) => {
 
         <View style={styles.detailCardContainer}>
           <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-            <View style={{flexDirection: 'row'}}>
-              <Icon name="calendar-month" size={30} color="red" />
-              <Text
-                style={{
-                  color: '#808080',
-                  fontSize: 18,
-                  marginLeft: 8,
-                  marginTop: 4,
-                }}>
-                Published Date: {items.published_date}
-              </Text>
-            </View>
-            <Icon name="file-copy" size={30} color="#0375B7" />
-          </View>
-          <View style={styles.Cardbodytext}>
-            {items?.district?.map((location, index) => (
-              <Text
-                key={index}
-                style={{
-                  color: '#185CAB',
-                  backgroundColor: '#F0F7FF',
-                  padding: 15,
-                  marginTop: 20,
-                  borderRadius: 8,
-                  marginLeft: 15,
-                }}>
-                {location.name}
-              </Text>
-            ))}
             <Text
               style={{
-                color: '#0F9E1D',
-                backgroundColor: '#E2FBE4',
-                padding: 15,
-                marginTop: 20,
-                borderRadius: 8,
-                marginLeft: 15,
+                display: 'flex',
+                color: '#000',
+                fontSize: 20,
+                fontWeight: 'bold',
+                marginTop: 15,
               }}>
-              Source: {items.source}
+              Tender Details
             </Text>
-            {items?.project_type?.map((project, index) => (
-              <Text
-                key={index}
-                style={{
-                  color: '#FF7A00',
-                  backgroundColor: '#FFF2F0',
-                  padding: 15,
-                  marginTop: 20,
-                  borderRadius: 8,
-                  marginLeft: 15,
-                }}>
-                {project.name}
-              </Text>
-            ))}
+            <Icon name="file-copy" size={25} color="#0375B7" />
           </View>
-          <Text
-            style={{
-              color: 'black',
-              fontSize: 18,
-              fontWeight: 'bold',
-              marginTop: 10,
-            }}>
-            {items.title}
-          </Text>
-          <Text style={{color: 'black', fontSize: 15, marginTop: 10}}>
-            {items.description}
-          </Text>
 
           <Text
             style={{
@@ -121,6 +68,7 @@ const Detail = ({route, navigation}) => {
           <Image
             source={{uri: items.image}}
             style={{flex: 1, height: 200, width: '100%', marginTop: 10}}
+            alt="pitcure"
           />
 
           <View
@@ -130,6 +78,110 @@ const Detail = ({route, navigation}) => {
               marginTop: 20,
             }}>
             <Custombutton title="Download Brochure" onPress={() => {}} />
+          </View>
+
+          <View style={styles.detailContainer}>
+            <Text style={{color: '#bf0a7f', fontSize: 18}}>
+              <Text style={{fontWeight: 'bold'}}>Tender Title: </Text>
+              {items.title}
+            </Text>
+            <Text style={{color: '#bf0a7f', fontSize: 18, marginTop: 10}}>
+              <Text style={{fontWeight: 'bold'}}>Public Entity Name: </Text>
+              {items.public_entry_name}
+            </Text>
+
+            <View style={{flexDirection: 'row', marginTop: 10}}>
+              <Icon name="calendar-month" size={23} color="red" />
+              <Text
+                style={{
+                  color: '#bf0a7f',
+                  fontSize: 16,
+                  marginLeft: 8,
+                  marginTop: 4,
+                }}>
+                Published Date: {items.published_date}
+              </Text>
+            </View>
+
+            <View style={{flexDirection: 'row', marginTop: 10}}>
+              <Icon name="calendar-month" size={23} color="red" />
+              <Text
+                style={{
+                  color: '#bf0a7f',
+                  fontSize: 16,
+                  marginLeft: 8,
+                  marginTop: 4,
+                }}>
+                Last Date To Apply: {items.last_date_to_apply}
+              </Text>
+            </View>
+
+            <Text
+              style={{
+                color: '#0F9E1D',
+                marginTop: 10,
+                fontSize: 18,
+              }}>
+              Source: {items.source}
+            </Text>
+
+            {items?.organization_sector?.map((org, index) => (
+              <Text
+                key={index}
+                style={{
+                  color: '#0F9E1D',
+                  marginTop: 10,
+                  fontSize: 18,
+                }}>
+                OrganizationSector: {org.name}
+              </Text>
+            ))}
+
+            {items?.district?.map((location, index) => (
+              <Text
+                key={index}
+                style={{
+                  color: '#0F9E1D',
+                  marginTop: 10,
+                  fontSize: 18,
+                }}>
+                Location: {location.name}
+              </Text>
+            ))}
+
+            {items?.project_type?.map((project, index) => (
+              <Text
+                key={index}
+                style={{
+                  color: '#0F9E1D',
+                  marginTop: 10,
+                  fontSize: 18,
+                }}>
+                Project Type: {project.name}
+              </Text>
+            ))}
+
+            {items?.procurement_type?.map((pro, index) => (
+              <Text
+                key={index}
+                style={{
+                  color: '#bf0a7f',
+                  marginTop: 10,
+                  fontSize: 18,
+                }}>
+                Procurement Type: {pro.name}
+              </Text>
+            ))}
+
+            <Text
+              style={{
+                color: 'black',
+                fontSize: 19,
+                fontWeight: 'bold',
+                marginTop: 10,
+              }}>
+              Works
+            </Text>
           </View>
         </View>
       </View>

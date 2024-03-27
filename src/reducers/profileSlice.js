@@ -1,6 +1,7 @@
 import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import axios from 'axios';
 const BASE_URL = 'https://thekkabazar.itnepalsolutions.com';
+import Toast from 'react-native-toast-message';
 
 export const getProfile = createAsyncThunk(
   'data/getProfile',
@@ -57,6 +58,8 @@ export const updateProfile = createAsyncThunk(
     website_url,
     district,
     municipality,
+    phone_number,
+    gender,
   }) => {
     const config = {
       headers: {
@@ -74,6 +77,8 @@ export const updateProfile = createAsyncThunk(
         website_url,
         district,
         municipality,
+        phone_number,
+        gender,
       },
       config,
     );
@@ -106,6 +111,7 @@ const profileSlice = createSlice({
     error: null,
     message: '',
     userInterest: [],
+    updateSuccess: false,
   },
   reducers: {},
   extraReducers: builder => {
@@ -136,13 +142,22 @@ const profileSlice = createSlice({
       })
       .addCase(updateProfile.pending, state => {
         state.status = 'loading';
+        state.updateSuccess = false;
       })
       .addCase(updateProfile.fulfilled, (state, action) => {
         state.status = 'succeeded';
+        state.updateSuccess = true;
+        Toast.show({
+          type: 'success',
+          text1: 'Success!!!',
+          text2: 'Profile Updated Successful',
+          visibilityTime: 2000,
+        });
       })
       .addCase(updateProfile.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message;
+        state.updateSuccess = false;
       })
       .addCase(getUserInterest.pending, state => {
         state.status = 'loading';

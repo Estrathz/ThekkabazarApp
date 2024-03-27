@@ -60,7 +60,7 @@ const Profile = ({navigation}) => {
           <Icon name="person-circle" size={50} color="black" />
           <View style={{marginLeft: 10}}>
             <Text style={{fontSize: 20, color: 'black', alignSelf: 'center'}}>
-              {data?.username}
+              {data?.fullname}
             </Text>
             <Text style={{fontSize: 15, color: 'black'}}>Free Account</Text>
           </View>

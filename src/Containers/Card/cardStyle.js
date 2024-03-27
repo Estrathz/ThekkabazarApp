@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
   },
   CardText: {
     color: '#808080',
-    fontSize: 18,
+    fontSize: 14,
     marginLeft: 8,
   },
   CardHeading: {

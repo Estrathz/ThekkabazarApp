@@ -124,8 +124,8 @@ const Home = ({navigation}) => {
     navigation.navigate('MainScreen', {
       screen: 'BottomNav',
       params: {
-        screen: 'MoreScreen',
-        params: {screen: 'Profile'},
+        screen: 'More',
+        params: {screen: 'ProfileScreen'},
       },
     });
   };

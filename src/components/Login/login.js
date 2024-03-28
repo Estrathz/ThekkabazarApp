@@ -22,7 +22,7 @@ const Login = () => {
     if (isAuthenticated) {
       navigation.navigate('MainScreen', {
         screen: 'BottomNav',
-        params: {screen: 'Home'},
+        params: {screen: 'HomeScreen'},
       });
     }
   }, [dispatch, isAuthenticated]);

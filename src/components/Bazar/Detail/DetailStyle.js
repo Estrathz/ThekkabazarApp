@@ -69,6 +69,31 @@ const styles = StyleSheet.create({
       height: 3,
     },
   },
+  modalContainer: {
+    height: '90%',
+    backgroundColor: colors.white,
+    bottom: 0,
+    right: 0,
+    left: 0,
+    position: 'absolute',
+  },
+  modalContent: {
+    width: '100%',
+    padding: 15,
+  },
+  relatedCategory: {
+    marginTop: 10,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 10,
+    elevation: 8,
+    shadowColor: '#E5E7EB',
+    shadowOffset: {
+      width: 3,
+      height: 3,
+    },
+  },
 });
 
 export default styles;

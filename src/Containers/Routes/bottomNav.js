@@ -27,7 +27,7 @@ const HomeStackScreen = () => {
   return (
     <HomeStack.Navigator>
       <HomeStack.Screen
-        name="Home"
+        name="HomeScreen"
         component={Home}
         options={{headerShown: false}}
       />
@@ -44,7 +44,7 @@ const ResultStackScreen = () => {
   return (
     <ResultStack.Navigator>
       <ResultStack.Screen
-        name="Result"
+        name="ResultScreen"
         component={Result}
         options={{headerShown: false}}
       />
@@ -93,7 +93,7 @@ const BazarStackScreen = () => {
   return (
     <Bazarstack.Navigator>
       <Bazarstack.Screen
-        name="Bazar"
+        name="BazarScreen"
         component={Bazar}
         options={{headerShown: false}}
       />
@@ -110,7 +110,7 @@ const BottomNav = () => {
   return (
     <Tab.Navigator detachInactiveScreens={true}>
       <Tab.Screen
-        name="HomestackScreen"
+        name="Home"
         component={HomeStackScreen}
         options={{
           headerShown: false,
@@ -126,13 +126,13 @@ const BottomNav = () => {
           tabBarActiveTintColor: '#0375B7',
           headerBackTitleVisible: false,
           tabBarInactiveTintColor: 'gray',
-          tabBarLabelStyle: {fontSize: 14},
+          tabBarLabelStyle: {fontSize: 16},
           tabBarStyle: {padding: 5},
           unmountOnBlur: true,
         }}
       />
       <Tab.Screen
-        name="ResultStack"
+        name="Result"
         component={ResultStackScreen}
         options={{
           headerShown: false,
@@ -153,7 +153,7 @@ const BottomNav = () => {
         }}
       />
       <Tab.Screen
-        name="Bazarstack"
+        name="Bazar"
         component={BazarStackScreen}
         options={{
           headerShown: false,
@@ -212,7 +212,7 @@ const BottomNav = () => {
       />
 
       <Tab.Screen
-        name="MoreScreen"
+        name="More"
         component={ProfileStackScreen}
         options={{
           headerShown: false,

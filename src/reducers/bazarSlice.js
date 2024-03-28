@@ -18,10 +18,8 @@ export const updateSearchQuery = createAction('data/updateSearchQuery');
 
 export const fetchproductListData = createAsyncThunk(
   'data/fetchproductListData',
-  async ({mainCategory, businessType, location, subcategory}) => {
+  async ({mainCategory, businessType, location, subcategory, page}) => {
     const params = new URLSearchParams();
-
-    console.log({mainCategory, businessType, location, subcategory});
 
     if (mainCategory) {
       params.append('maincategory', mainCategory);
@@ -37,6 +35,10 @@ export const fetchproductListData = createAsyncThunk(
 
     if (subcategory) {
       params.append('subcategory', subcategory);
+    }
+
+    if (page) {
+      params.append('page', page);
     }
 
     const response = await axios.get(

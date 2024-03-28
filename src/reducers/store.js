@@ -7,6 +7,7 @@ import privateWorkSlice from './privateWorkSlice';
 import priceSlice from './priceSlice';
 import noticeSlice from './noticeSlice';
 import profileSlice from './profileSlice';
+import bazarSlice from './bazarSlice';
 
 const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ const store = configureStore({
     price: priceSlice,
     notice: noticeSlice,
     userprofile: profileSlice,
+    bazar: bazarSlice,
   },
 });
 

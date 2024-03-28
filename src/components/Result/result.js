@@ -1,4 +1,11 @@
-import {View, Text, TouchableOpacity, Modal, TextInput} from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Modal,
+  TextInput,
+  RefreshControl,
+} from 'react-native';
 import React, {useEffect, useState} from 'react';
 
 import styles from './resultStyle';
@@ -15,6 +22,16 @@ const Result = ({navigation}) => {
   const dispatch = useDispatch();
   const {data, error} = useSelector(state => state.result);
   const {dropdowndata, dropdownerror} = useSelector(state => state.dropdown);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [allData, setAllData] = useState([]);
+  const [organization, setOrganization] = useState('');
+  const [category, setCategory] = useState('');
+  const [location, setLocation] = useState('');
+  const [projectType, setProjectType] = useState('');
+  const [procurementsType, setProcurementsType] = useState('');
+  const [search, setSearch] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     dispatch(fetchDropdownData());
@@ -23,11 +40,43 @@ const Result = ({navigation}) => {
     if (error) {
       console.log(error);
     }
-  }, [dispatch]);
 
-  // useEffect(() => {
-  //   console.log(data, 'asgdvjasdgh');
-  // }, []);
+    if (dropdownerror) {
+      console.log(dropdownerror);
+    }
+  }, [dispatch, error, dropdownerror]);
+
+  useEffect(() => {
+    if (data && data.length > 0) {
+      setAllData(data);
+    }
+  }, [data]);
+
+  useEffect(() => {
+    if (page > 1) {
+      setLoading(true);
+
+      dispatch(fetchTenderListData({page: page}))
+        .then(() => {
+          setLoading(false);
+          setAllData(prevData => [...data, ...prevData]);
+        })
+        .catch(err => {
+          console.log('Error in fetching data:', err);
+        });
+    }
+  }, [page]);
+
+  const handleScroll = event => {
+    const {layoutMeasurement, contentOffset, contentSize} = event.nativeEvent;
+    const paddingToBottom = 200;
+    if (
+      layoutMeasurement.height + contentOffset.y >=
+      contentSize.height - paddingToBottom
+    ) {
+      setPage(page + 1);
+    }
+  };
 
   const openModal = () => {
     setModalVisible(true);
@@ -47,8 +96,34 @@ const Result = ({navigation}) => {
     item => item.name,
   );
 
+  const handleFilter = () => {
+    closeModal();
+    // Reset page to show the first
+    setPage(1);
+    dispatch(
+      fetchresultData({
+        organization_sector: organization,
+        location: location,
+        project_type: projectType,
+        procurement_type: procurementsType,
+        category: category,
+        search: search,
+      }),
+    );
+  };
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    dispatch(fetchTenderListData({page: 1}));
+    setRefreshing(false);
+  };
+
   return (
-    <View style={styles.ResultContainer}>
+    <View
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+      style={styles.ResultContainer}>
       <View style={styles.SearchContainer}>
         <Icon
           name="menu"
@@ -75,7 +150,7 @@ const Result = ({navigation}) => {
         </TouchableOpacity>
       </View>
 
-      <ResultCard title="All Bids" data={data.data} navigation={navigation} />
+      <ResultCard title="All Bids" data={allData} navigation={navigation} />
 
       {/* 
       // modal   */}

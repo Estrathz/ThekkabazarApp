@@ -34,7 +34,6 @@ const Home = ({navigation}) => {
   const [procurementsType, setProcurementsType] = useState('');
   const [search, setSearch] = useState('');
   const [refreshing, setRefreshing] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     dispatch(fetchTenderListData({page: page}));
@@ -50,11 +49,9 @@ const Home = ({navigation}) => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (data?.data && data?.data.length > 0) {
-      setAllData(data.data);
+    if (data && data.length > 0) {
+      setAllData(data);
     }
-
-    console.log('asvdjsad', data.total_pages);
   }, [data]);
 
   useEffect(() => {
@@ -74,7 +71,7 @@ const Home = ({navigation}) => {
 
   const handleScroll = event => {
     const {layoutMeasurement, contentOffset, contentSize} = event.nativeEvent;
-    const paddingToBottom = 20;
+    const paddingToBottom = 200;
     if (
       layoutMeasurement.height + contentOffset.y >=
       contentSize.height - paddingToBottom
@@ -144,12 +141,6 @@ const Home = ({navigation}) => {
       <View style={styles.navcontainer}>
         <Image source={require('../../assets/logo.png')} style={styles.logo} />
         <View style={styles.iconsContainer}>
-          <Icon
-            name="notifications-outline"
-            size={28}
-            color="black"
-            style={styles.icon}
-          />
           <Icon
             name="person"
             size={28}

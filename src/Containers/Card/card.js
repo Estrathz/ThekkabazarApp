@@ -1,10 +1,27 @@
-import {Button, FlatList, RefreshControl, Text, View} from 'react-native';
+import {Text, View, Modal, Image, TouchableOpacity} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import styles from './cardStyle';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Custombutton from '../Button/button';
-
+import Icon2 from 'react-native-vector-icons/Ionicons';
+import {savebid} from '../../reducers/cardSlice';
+import {useDispatch} from 'react-redux';
 const Card = ({title, navigation, data}) => {
+  const [isImageVisible, setIsImageVisible] = useState(null);
+  const dispatch = useDispatch();
+
+  const openModal = index => {
+    setIsImageVisible(index);
+  };
+
+  const closeModal = () => {
+    setIsImageVisible(null);
+  };
+
+  const handleSaveBids = pk => {
+    dispatch(savebid({id: pk}));
+  };
+
   return (
     <View style={styles.container}>
       <Text
@@ -80,9 +97,43 @@ const Card = ({title, navigation, data}) => {
             ))}
           </View>
           <View style={styles.CardFooter}>
-            <Icon name="file-multiple-outline" size={30} style={styles.Icons} />
-            <Custombutton title="Save Bids" />
+            <Icon
+              name="file-multiple-outline"
+              size={30}
+              style={styles.Icons}
+              onPress={() => openModal(index)}
+            />
+            <Custombutton
+              title="Save Bids"
+              onPress={() => handleSaveBids(item.pk)}
+            />
           </View>
+          <Modal
+            visible={isImageVisible === index}
+            animationType="slide"
+            transparent={true}>
+            <View
+              style={{
+                backgroundColor: 'white',
+                height: '80%',
+                bottom: 0,
+                right: 0,
+                left: 0,
+                position: 'absolute',
+              }}>
+              <TouchableOpacity
+                onPress={closeModal}
+                style={{alignSelf: 'flex-end', margin: 10}}>
+                <Icon2 name="close" size={30} color="black" />
+              </TouchableOpacity>
+              <Image
+                source={{uri: item.image}}
+                alt="tenderpicture"
+                style={{height: '80%', width: '80%', alignSelf: 'center'}}
+                resizeMode="contain"
+              />
+            </View>
+          </Modal>
         </View>
       ))}
     </View>

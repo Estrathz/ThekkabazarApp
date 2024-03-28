@@ -2,6 +2,7 @@ import {createSlice} from '@reduxjs/toolkit';
 import {createAsyncThunk} from '@reduxjs/toolkit';
 import axios from 'axios';
 const BASE_URL = 'https://thekkabazar.itnepalsolutions.com';
+import Toast from 'react-native-toast-message';
 
 export const fetchTenderListData = createAsyncThunk(
   'data/fetchTenderListData',
@@ -46,7 +47,7 @@ export const fetchTenderListData = createAsyncThunk(
     const response = await axios.get(
       ` ${BASE_URL}/tender/apis/tender/list/?${params.toString()}`,
     );
-    const data = response.data;
+    const data = response.data.data;
     return data;
   },
 );
@@ -69,23 +70,11 @@ export const savebid = createAsyncThunk('data/savebid', async ({id}) => {
   return data;
 });
 
-// export const fetchTableData = createAsyncThunk(
-//   "data/fetchTableData",
-//   async () => {
-//     const response = await axios.get(
-//       "${BASE_URL}/tender/apis/tender/list/"
-//     );
-//     const data = response.data;
-//     return data;
-//   }
-// );
-
 const cardSlice = createSlice({
   name: 'card',
   initialState: {
     data: [],
     one: [],
-    // tableData: [],
     status: 'idle',
     error: null,
     message: '',
@@ -121,21 +110,17 @@ const cardSlice = createSlice({
       .addCase(savebid.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.message = action.payload.message;
+        Toast.show({
+          type: 'success',
+          text1: 'Bids Saved Successful',
+          text2: '',
+          visibilityTime: 2000,
+        });
       })
       .addCase(savebid.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message;
       });
-    // .addCase(fetchTableData.pending, (state) => {
-    //   state.status = "loading";
-    // })
-    // .addCase(fetchTableData.fulfilled, (state, action) => {
-    //   state.status = "succeeded";
-    //   state.tableData = action.payload;
-    // })
-    // .addCase(fetchTableData.rejected, (state, action) => {
-    //   state.status = "failed";
-    // });
   },
 });
 

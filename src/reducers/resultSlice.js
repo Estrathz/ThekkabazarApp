@@ -40,7 +40,7 @@ export const fetchresultData = createAsyncThunk(
     const response = await axios.get(
       `${BASE_URL}/tender/apis/tender-awarded-to/?${params.toString()}`,
     );
-    const data = response.data;
+    const data = response.data.data;
     return data;
   },
 );

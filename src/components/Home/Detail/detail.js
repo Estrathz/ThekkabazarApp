@@ -178,7 +178,7 @@ const Detail = ({route, navigation}) => {
                 color: 'black',
                 fontSize: 19,
                 fontWeight: 'bold',
-                marginTop: 10,
+                marginTop: 20,
               }}>
               Works
             </Text>

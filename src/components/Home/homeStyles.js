@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
   iconsContainer: {
     flexDirection: 'row',
     width: '25%',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     marginRight: 10,
   },
   logo: {

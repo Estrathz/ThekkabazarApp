@@ -15,11 +15,13 @@ import Notice from './../../components/Notice/notice';
 import UserProfile from '../../components/Profile/UserProfile/userProfile';
 import Login from '../../components/Login/login';
 import EditProfile from '../../components/Profile/UserProfile/EditProfile/editProfile';
+import BazarDetail from '../../components/Bazar/Detail/Detail';
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createStackNavigator();
 const ResultStack = createStackNavigator();
 const ProfileStack = createStackNavigator();
+const Bazarstack = createStackNavigator();
 
 const HomeStackScreen = () => {
   return (
@@ -87,6 +89,23 @@ const ProfileStackScreen = () => {
   );
 };
 
+const BazarStackScreen = () => {
+  return (
+    <Bazarstack.Navigator>
+      <Bazarstack.Screen
+        name="Bazar"
+        component={Bazar}
+        options={{headerShown: false}}
+      />
+      <Bazarstack.Screen
+        name="BazarDetail"
+        component={BazarDetail}
+        options={{headerShown: false}}
+      />
+    </Bazarstack.Navigator>
+  );
+};
+
 const BottomNav = () => {
   return (
     <Tab.Navigator detachInactiveScreens={true}>
@@ -134,8 +153,8 @@ const BottomNav = () => {
         }}
       />
       <Tab.Screen
-        name="Bazar"
-        component={Bazar}
+        name="Bazarstack"
+        component={BazarStackScreen}
         options={{
           headerShown: false,
           tabBarIcon: ({focused}) => {

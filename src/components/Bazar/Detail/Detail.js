@@ -23,24 +23,34 @@ const Detail = ({route, navigation}) => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const pathname = route.params.pathname;
-  // const [mainCategory, setMainCategory] = useState('');
+
   const [relatedCategory, setRelatedCategory] = useState('');
   const [location, setLocation] = useState('');
   const [filtering, setFiltering] = useState(false);
   const [businessType, setBusinessType] = useState('');
   const [page, setPage] = useState(1);
   const mainCategory = route.params.name;
+  const [allProducts, setAllProducts] = useState([]);
 
   useEffect(() => {
     // setMainCategory(route.params.name);
     getProductData();
-  }, [dispatch, route, mainCategory]);
+  }, [dispatch, route, page]);
+
+  useEffect(() => {
+    if (productList && productList.data) {
+      // setAllProducts(productList.data);
+      setAllProducts(prevdata => {
+        return {...prevdata, ...productList.data};
+      });
+    }
+  }, [productList]);
 
   const getProductData = () => {
     if (pathname === 'mainProduct') {
-      dispatch(fetchproductListData({mainCategory: mainCategory}));
+      dispatch(fetchproductListData({mainCategory: mainCategory, page: page}));
     } else if (pathname === 'subProduct') {
-      dispatch(fetchproductListData({subcategory: mainCategory}));
+      dispatch(fetchproductListData({subcategory: mainCategory, page: page}));
     }
   };
 
@@ -69,12 +79,18 @@ const Detail = ({route, navigation}) => {
         businessType: businessType,
       }),
     );
+    closeModal();
   };
 
   const handleEndReached = () => {
-    if (!filtering) {
+    console.log('end reached', page);
+    setPage(page + 1);
+    if (page < productList.total_pages) {
       getProductData();
     }
+    // if (!filtering) {
+    //   getProductData();
+    // }
   };
 
   const EmptyListMessage = () => {
@@ -167,7 +183,7 @@ const Detail = ({route, navigation}) => {
             </View>
           </>
         }
-        data={productList.products}
+        data={allProducts.products}
         renderItem={({item, index}) => (
           <View key={index} style={styles.productCardList}>
             <View style={{flexDirection: 'row'}}>
@@ -302,7 +318,7 @@ const Detail = ({route, navigation}) => {
                   Related Category
                 </Text>
               </View>
-              {productList?.related_categories?.map((items, index) => (
+              {allProducts?.related_categories?.map((items, index) => (
                 <View key={index} style={{marginTop: 8}}>
                   <TouchableOpacity
                     style={{
@@ -311,7 +327,6 @@ const Detail = ({route, navigation}) => {
                     }}
                     onPress={() => {
                       setRelatedCategory(items.name);
-                      closeModal();
                     }}>
                     <Icon2
                       name="dot-fill"
@@ -320,7 +335,12 @@ const Detail = ({route, navigation}) => {
                       style={{alignSelf: 'center'}}
                     />
                     <Text
-                      style={{marginLeft: 10, color: '#0375B7', fontSize: 18}}>
+                      style={{
+                        marginLeft: 10,
+                        fontSize: 18,
+                        color:
+                          relatedCategory === items.name ? 'red' : '#0375B7',
+                      }}>
                       {items.name}
                     </Text>
                   </TouchableOpacity>
@@ -346,7 +366,7 @@ const Detail = ({route, navigation}) => {
                   Location
                 </Text>
               </View>
-              {productList?.location?.map((items, index) => (
+              {allProducts?.location?.map((items, index) => (
                 <View key={index} style={{marginTop: 8}}>
                   <TouchableOpacity
                     style={{
@@ -355,7 +375,6 @@ const Detail = ({route, navigation}) => {
                     }}
                     onPress={() => {
                       setLocation(items.name);
-                      closeModal();
                     }}>
                     <Icon2
                       name="dot-fill"
@@ -364,7 +383,11 @@ const Detail = ({route, navigation}) => {
                       style={{alignSelf: 'center'}}
                     />
                     <Text
-                      style={{marginLeft: 10, color: '#0375B7', fontSize: 18}}>
+                      style={{
+                        marginLeft: 10,
+                        color: location === items.name ? 'red' : '#0375B7',
+                        fontSize: 18,
+                      }}>
                       {items.name}
                     </Text>
                   </TouchableOpacity>
@@ -390,7 +413,7 @@ const Detail = ({route, navigation}) => {
                   Business Type
                 </Text>
               </View>
-              {productList?.businesstype?.map((items, index) => (
+              {allProducts?.businesstype?.map((items, index) => (
                 <View key={index} style={{marginTop: 8}}>
                   <TouchableOpacity
                     style={{
@@ -399,7 +422,6 @@ const Detail = ({route, navigation}) => {
                     }}
                     onPress={() => {
                       setBusinessType(items.name);
-                      closeModal();
                     }}>
                     <Icon2
                       name="dot-fill"
@@ -408,7 +430,11 @@ const Detail = ({route, navigation}) => {
                       style={{alignSelf: 'center'}}
                     />
                     <Text
-                      style={{marginLeft: 10, color: '#0375B7', fontSize: 18}}>
+                      style={{
+                        marginLeft: 10,
+                        color: businessType === items.name ? 'red' : '#0375B7',
+                        fontSize: 18,
+                      }}>
                       {items.name}
                     </Text>
                   </TouchableOpacity>

@@ -16,6 +16,8 @@ import UserProfile from '../../components/Profile/UserProfile/userProfile';
 import Login from '../../components/Login/login';
 import EditProfile from '../../components/Profile/UserProfile/EditProfile/editProfile';
 import BazarDetail from '../../components/Bazar/Detail/Detail';
+import SavedBids from '../../components/BidsSaved/Index';
+import AboutUs from '../../components/AboutUs/About';
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createStackNavigator();
@@ -83,6 +85,16 @@ const ProfileStackScreen = () => {
       <ProfileStack.Screen
         name="EditProfile"
         component={EditProfile}
+        options={{headerShown: false}}
+      />
+      <ProfileStack.Screen
+        name="SavedBids"
+        component={SavedBids}
+        options={{headerShown: false}}
+      />
+      <ProfileStack.Screen
+        name="Aboutus"
+        component={AboutUs}
         options={{headerShown: false}}
       />
     </ProfileStack.Navigator>

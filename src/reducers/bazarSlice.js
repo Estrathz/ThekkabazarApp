@@ -46,7 +46,7 @@ export const fetchproductListData = createAsyncThunk(
     );
 
     const data = response.data;
-    return data.data;
+    return data;
   },
 );
 

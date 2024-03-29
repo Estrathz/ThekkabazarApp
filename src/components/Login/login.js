@@ -96,7 +96,11 @@ const Login = () => {
         <View style={styles.lineform}></View>
         <View style={styles.textContainer}>
           <Text style={styles.text6}>Don't have an account?</Text>
-          <Text style={styles.text7}>Register Now</Text>
+          <Text
+            style={styles.text7}
+            onPress={() => navigation.navigate('Register')}>
+            Register Now
+          </Text>
         </View>
       </View>
     </View>

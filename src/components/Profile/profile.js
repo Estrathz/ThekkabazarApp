@@ -118,11 +118,18 @@ const Profile = ({navigation}) => {
           }}>
           <View style={{display: 'flex', flexDirection: 'row'}}>
             <Icon name="hammer" size={25} color="black" />
-            <Text style={{marginLeft: 10, color: 'black', fontSize: 18}}>
+            <Text
+              style={{marginLeft: 10, color: 'black', fontSize: 18}}
+              onPress={() => navigation.navigate('SavedBids')}>
               Saved Bids
             </Text>
           </View>
-          <Icon2 name="arrow-forward-ios" size={20} color="black" />
+          <Icon2
+            name="arrow-forward-ios"
+            size={20}
+            color="black"
+            onPress={() => navigation.navigate('SavedBids')}
+          />
         </View>
 
         <View
@@ -134,14 +141,21 @@ const Profile = ({navigation}) => {
           }}>
           <View style={{display: 'flex', flexDirection: 'row'}}>
             <Icon name="hammer" size={25} color="black" />
-            <Text style={{marginLeft: 10, color: 'black', fontSize: 18}}>
+            <Text
+              onPress={() => navigation.navigate('Aboutus')}
+              style={{marginLeft: 10, color: 'black', fontSize: 18}}>
               About us
             </Text>
           </View>
-          <Icon2 name="arrow-forward-ios" size={20} color="black" />
+          <Icon2
+            name="arrow-forward-ios"
+            size={20}
+            color="black"
+            onPress={() => navigation.navigate('Aboutus')}
+          />
         </View>
 
-        <View
+        {/* <View
           style={{
             display: 'flex',
             flexDirection: 'row',
@@ -155,7 +169,7 @@ const Profile = ({navigation}) => {
             </Text>
           </View>
           <Icon2 name="arrow-forward-ios" size={20} color="black" />
-        </View>
+        </View> */}
 
         <View
           style={{

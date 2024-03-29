@@ -47,7 +47,7 @@ export const fetchTenderListData = createAsyncThunk(
     const response = await axios.get(
       ` ${BASE_URL}/tender/apis/tender/list/?${params.toString()}`,
     );
-    const data = response.data.data;
+    const data = response.data;
     return data;
   },
 );

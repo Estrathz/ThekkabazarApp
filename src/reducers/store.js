@@ -8,6 +8,8 @@ import priceSlice from './priceSlice';
 import noticeSlice from './noticeSlice';
 import profileSlice from './profileSlice';
 import bazarSlice from './bazarSlice';
+import interestSlice from './interestSlice';
+import aboutSlice from './aboutSlice';
 
 const store = configureStore({
   reducer: {
@@ -20,6 +22,8 @@ const store = configureStore({
     notice: noticeSlice,
     userprofile: profileSlice,
     bazar: bazarSlice,
+    interest: interestSlice,
+    about: aboutSlice,
   },
 });
 

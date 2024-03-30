@@ -22,6 +22,21 @@ const styles = StyleSheet.create({
     // flexGrow: 1,
     flexWrap: 'wrap',
   },
+  detailContainer: {
+    flex: 1,
+    backgroundColor: colors.white,
+    padding: 10,
+    marginTop: 15,
+    marginBottom: 20,
+    borderRadius: 10,
+    shadowColor: colors.black,
+    shadowOffset: {
+      width: 2,
+      height: 2,
+    },
+    elevation: 4,
+    shadowOpacity: 0.5,
+  },
 });
 
 export default styles;

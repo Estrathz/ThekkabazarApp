@@ -25,6 +25,34 @@ export const login = createAsyncThunk(
   },
 );
 
+export const register = createAsyncThunk(
+  'data/register',
+  async ({
+    username,
+    fullname,
+    password,
+    email,
+    password2,
+    phone_number,
+    company_name,
+  }) => {
+    const response = await axios.post(
+      `https://thekkabazar.itnepalsolutions.com/accounts/apis/usermanagement/create/user/`,
+      {
+        username,
+        fullname,
+        password,
+        email,
+        password2,
+        phone_number,
+        company_name,
+      },
+    );
+    const data = response.data;
+    return data;
+  },
+);
+
 const usersSlice = createSlice({
   name: 'users',
   initialState: {
@@ -61,6 +89,28 @@ const usersSlice = createSlice({
           type: 'error',
           text1: 'Login Failed',
           text2: 'Username and Password incorrect',
+          visibilityTime: 3000,
+        });
+      })
+      .addCase(register.pending, state => {
+        state.status = 'loading';
+      })
+      .addCase(register.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        Toast.show({
+          type: 'success',
+          text1: 'Registration Successful',
+          text2: '',
+          visibilityTime: 2000,
+        });
+      })
+      .addCase(register.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+        Toast.show({
+          type: 'error',
+          text1: 'Registration Failed',
+          text2: action.error.message,
           visibilityTime: 3000,
         });
       });

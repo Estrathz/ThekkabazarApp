@@ -1,11 +1,13 @@
-import {View, Text, Image, TouchableOpacity, ScrollView} from 'react-native';
-import React, {useEffect} from 'react';
+import {View, Text, Image, ScrollView, Platform, Linking} from 'react-native';
+
+import React, {useEffect, useRef} from 'react';
 import styles from './detailStyle';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import {useDispatch, useSelector} from 'react-redux';
 import {fetchOneTenderData} from '../../../reducers/cardSlice';
 import Custombutton from '../../../Containers/Button/button';
+import {PDFDocument, rgb, StandardFonts, PageSizes} from 'react-native-pdf-lib';
 
 const Detail = ({route, navigation}) => {
   const dispatch = useDispatch();
@@ -77,7 +79,10 @@ const Detail = ({route, navigation}) => {
               alignItems: 'center',
               marginTop: 20,
             }}>
-            <Custombutton title="Download Brochure" onPress={() => {}} />
+            <Custombutton
+              title="Download Brochure"
+              onPress={() => createPDF()}
+            />
           </View>
 
           <View style={styles.detailContainer}>

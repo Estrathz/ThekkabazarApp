@@ -87,6 +87,43 @@ const styles = StyleSheet.create({
     fontSize: 18,
     padding: 15,
   },
+  Card: {
+    backgroundColor: colors.white,
+    padding: 15,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    marginBottom: 15,
+  },
+  CardText: {
+    color: '#808080',
+    fontSize: 16,
+    marginLeft: 8,
+  },
+  CardHeading: {
+    display: 'flex',
+    flexDirection: 'row',
+  },
+  Cardbodytext: {
+    display: 'flex',
+    flexDirection: 'row',
+    // justifyContent: 'space-between',
+    // flexGrow: 1,
+    flexWrap: 'wrap',
+  },
+  CardFooter: {
+    display: 'flex',
+    flexDirection: 'row',
+    borderTopWidth: 2,
+    borderTopColor: '#C6C1C1',
+    padding: 10,
+    marginTop: 15,
+    alignItems: 'center',
+  },
 });
 
 export default styles;

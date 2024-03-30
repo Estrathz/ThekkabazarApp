@@ -5,6 +5,7 @@ import {
   Modal,
   TextInput,
   RefreshControl,
+  FlatList,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 
@@ -15,7 +16,7 @@ import SelectDropdown from 'react-native-select-dropdown';
 import Custombutton from '../../Containers/Button/button';
 import {fetchDropdownData} from '../../reducers/dropdownSlice';
 import {fetchresultData} from '../../reducers/resultSlice';
-import ResultCard from './Card/resultCard';
+import Icon2 from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const Result = ({navigation}) => {
   const [isModalVisible, setModalVisible] = useState(false);
@@ -47,36 +48,19 @@ const Result = ({navigation}) => {
   }, [dispatch, error, dropdownerror]);
 
   useEffect(() => {
-    if (data && data.length > 0) {
-      setAllData(data);
-    }
-  }, [data]);
-
-  useEffect(() => {
-    if (page > 1) {
-      setLoading(true);
-
-      dispatch(fetchTenderListData({page: page}))
-        .then(() => {
-          setLoading(false);
-          setAllData(prevData => [...data, ...prevData]);
-        })
-        .catch(err => {
-          console.log('Error in fetching data:', err);
+    if (data?.data && data.data.length > 0) {
+      if (page === 1) {
+        setAllData(data.data);
+      } else {
+        setAllData(prevData => {
+          const newData = data.data.filter(
+            newItem => !prevData.some(prevItem => prevItem.pk === newItem.pk),
+          );
+          return [...prevData, ...newData];
         });
+      }
     }
-  }, [page]);
-
-  const handleScroll = event => {
-    const {layoutMeasurement, contentOffset, contentSize} = event.nativeEvent;
-    const paddingToBottom = 200;
-    if (
-      layoutMeasurement.height + contentOffset.y >=
-      contentSize.height - paddingToBottom
-    ) {
-      setPage(page + 1);
-    }
-  };
+  }, [data, page]);
 
   const openModal = () => {
     setModalVisible(true);
@@ -98,7 +82,6 @@ const Result = ({navigation}) => {
 
   const handleFilter = () => {
     closeModal();
-    // Reset page to show the first
     setPage(1);
     dispatch(
       fetchresultData({
@@ -114,43 +97,143 @@ const Result = ({navigation}) => {
 
   const onRefresh = () => {
     setRefreshing(true);
-    dispatch(fetchTenderListData({page: 1}));
+    dispatch(fetchresultData({page: 1}));
     setRefreshing(false);
   };
 
+  const handleEndReached = () => {
+    const nextPage = page + 1;
+    console.log('handleEndReached', nextPage, data.total_pages);
+    if (nextPage <= data.total_pages) {
+      dispatch(fetchresultData({page: nextPage}));
+      setPage(nextPage); // Update the page state
+    }
+  };
+
   return (
-    <View
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }
-      style={styles.ResultContainer}>
-      <View style={styles.SearchContainer}>
-        <Icon
-          name="menu"
-          size={35}
-          color="#0375B7"
-          style={{paddingLeft: 10, paddingRight: 10, top: 5}}
-          onPress={() => navigation.openDrawer()}
-        />
-        <TouchableOpacity onPress={openModal} style={styles.searchSection}>
-          <Icon
-            style={styles.searchIcon}
-            name="search"
-            size={20}
-            color="#000"
-          />
+    <View style={styles.ResultContainer}>
+      <FlatList
+        data={allData}
+        ListHeaderComponent={
+          <>
+            <View style={styles.SearchContainer}>
+              <Icon
+                name="menu"
+                size={35}
+                color="#0375B7"
+                style={{paddingLeft: 10, paddingRight: 10, top: 5}}
+                onPress={() => navigation.openDrawer()}
+              />
+              <TouchableOpacity
+                onPress={openModal}
+                style={styles.searchSection}>
+                <Icon
+                  style={styles.searchIcon}
+                  name="search"
+                  size={20}
+                  color="#000"
+                />
 
-          <Text
-            style={styles.input}
-            // onChangeText={searchString => this.setState({searchString})}
-            underlineColorAndroid="transparent"
-            placeholderTextColor={'#424242'}>
-            Search
-          </Text>
-        </TouchableOpacity>
-      </View>
+                <Text
+                  style={styles.input}
+                  // onChangeText={searchString => this.setState({searchString})}
+                  underlineColorAndroid="transparent"
+                  placeholderTextColor={'#424242'}>
+                  Search
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        }
+        renderItem={({item, index}) => (
+          <View key={index} style={styles.Card}>
+            <View style={styles.CardHeading}>
+              <Icon2 name="calendar-month" size={24} color="black" />
+              <Text style={styles.CardText}>
+                Published Date : {item?.published_date}
+              </Text>
+            </View>
+            <Text
+              style={{
+                color: '#0375B7',
+                fontSize: 22,
+                fontWeight: 'bold',
+                marginTop: 10,
+              }}
+              onPress={() =>
+                navigation.navigate('ResultDetails', {id: item?.pk})
+              }>
+              {item?.title}
+            </Text>
+            <Text style={{color: 'black', fontSize: 15, marginTop: 10}}>
+              {item?.public_entry_name}
+            </Text>
+            <View style={styles.Cardbodytext}>
+              {item?.district?.map((location, index) => (
+                <Text
+                  key={index}
+                  style={{
+                    color: '#185CAB',
+                    backgroundColor: '#F0F7FF',
+                    padding: 10,
+                    marginTop: 20,
+                    borderRadius: 8,
+                    alignSelf: 'center',
+                  }}>
+                  {location.name}
+                </Text>
+              ))}
 
-      <ResultCard title="All Bids" data={allData} navigation={navigation} />
+              <Text
+                style={{
+                  color: '#0F9E1D',
+                  backgroundColor: '#E2FBE4',
+                  padding: 10,
+                  marginTop: 20,
+                  borderRadius: 8,
+                  marginLeft: 15,
+                  alignSelf: 'center',
+                }}>
+                Source: {item?.source}
+              </Text>
+              {item?.project_type?.map((project, index) => (
+                <Text
+                  key={index}
+                  style={{
+                    color: '#FF7A00',
+                    backgroundColor: '#FFF2F0',
+                    padding: 10,
+                    marginTop: 20,
+                    borderRadius: 8,
+                    marginLeft: 15,
+                    alignSelf: 'center',
+                  }}>
+                  {project.name}
+                </Text>
+              ))}
+            </View>
+            <View style={styles.CardFooter}>
+              <Icon name="medal" size={35} color="#0375B7" />
+              <View style={{padding: 15}}>
+                <Text
+                  style={{color: 'black', fontSize: 16, fontWeight: 'bold'}}>
+                  {' '}
+                  Awarded To:
+                </Text>
+                <Text style={{color: 'black', fontSize: 16}}>
+                  {item?.awarded_to}
+                </Text>
+              </View>
+            </View>
+          </View>
+        )}
+        keyExtractor={item => item.pk}
+        onMomentumScrollEnd={handleEndReached}
+        onEndReachedThreshold={0.8}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      />
 
       {/* 
       // modal   */}
@@ -362,7 +445,10 @@ const Result = ({navigation}) => {
                   return <Icon name="search" color={'#444'} size={18} />;
                 }}
               />
-              <Custombutton title="Apply Filter" />
+              <Custombutton
+                title="Apply Filter"
+                onPress={() => handleFilter()}
+              />
             </View>
           </View>
         </View>

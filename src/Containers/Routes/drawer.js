@@ -10,13 +10,6 @@ const Drawer = ({navigation}) => {
         <Image source={require('../../assets/logo.png')} style={styles.logo} />
       </View>
       <View style={styles.drawerItemContainer}>
-        <Icon
-          name="arrow-back-sharp"
-          size={30}
-          color="black"
-          style={{right: 0, position: 'absolute'}}
-          onPress={() => navigation.closeDrawer()}
-        />
         <Pressable style={styles.drawerItem}>
           <Icon name="home" size={25} color="#0375B7" />
           <Text

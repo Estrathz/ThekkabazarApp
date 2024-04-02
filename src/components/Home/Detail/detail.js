@@ -7,7 +7,8 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import {useDispatch, useSelector} from 'react-redux';
 import {fetchOneTenderData} from '../../../reducers/cardSlice';
 import Custombutton from '../../../Containers/Button/button';
-import {PDFDocument, rgb, StandardFonts, PageSizes} from 'react-native-pdf-lib';
+
+import {Toast} from 'react-native-toast-message';
 
 const Detail = ({route, navigation}) => {
   const dispatch = useDispatch();
@@ -21,6 +22,8 @@ const Detail = ({route, navigation}) => {
       console.log(error);
     }
   }, [dispatch, error]);
+
+  const createPDF = () => {};
 
   const items = one;
 

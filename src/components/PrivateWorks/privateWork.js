@@ -248,7 +248,7 @@ const PrivateWork = ({navigation}) => {
         ))}
       </View>
       <Modal visible={isModalVisible} animationType="slide" transparent={true}>
-        <View style={styles.modalContainer}>
+        <ScrollView style={styles.modalContainer}>
           <View
             style={{
               display: 'flex',
@@ -317,7 +317,7 @@ const PrivateWork = ({navigation}) => {
             </View>
             <Custombutton title="Submit Petty" onPress={handleFormSubmit} />
           </View>
-        </View>
+        </ScrollView>
       </Modal>
     </ScrollView>
   );

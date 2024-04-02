@@ -8,6 +8,7 @@ import {
   RefreshControl,
   Modal,
   ScrollView,
+  TextInput,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import styles from './DetailStyle';
@@ -26,7 +27,7 @@ const Detail = ({route, navigation}) => {
 
   const [relatedCategory, setRelatedCategory] = useState('');
   const [location, setLocation] = useState('');
-  const [filtering, setFiltering] = useState(false);
+  const [search, setSearch] = useState('');
   const [businessType, setBusinessType] = useState('');
   const [page, setPage] = useState(1);
   const mainCategory = route.params.name;
@@ -34,6 +35,7 @@ const Detail = ({route, navigation}) => {
 
   useEffect(() => {
     // setMainCategory(route.params.name);
+    console.log('akdhbajsdbh');
     getProductData();
   }, [dispatch, route, page]);
 
@@ -47,10 +49,21 @@ const Detail = ({route, navigation}) => {
   }, [productList]);
 
   const getProductData = () => {
+    console.log('akdhbajsdbh', pathname, mainCategory);
     if (pathname === 'mainProduct') {
-      dispatch(fetchproductListData({mainCategory: mainCategory, page: page}));
+      dispatch(
+        fetchproductListData({
+          mainCategory: mainCategory,
+          page: page,
+        }),
+      );
     } else if (pathname === 'subProduct') {
-      dispatch(fetchproductListData({subcategory: mainCategory, page: page}));
+      dispatch(
+        fetchproductListData({
+          subcategory: mainCategory,
+          page: page,
+        }),
+      );
     }
   };
 
@@ -64,7 +77,8 @@ const Detail = ({route, navigation}) => {
 
   const handleRefresh = () => {
     setRefreshing(true);
-    getProductData();
+    setSearch('');
+    setAllProducts(productList.data);
 
     setTimeout(() => {
       setRefreshing(false);
@@ -103,6 +117,17 @@ const Detail = ({route, navigation}) => {
     );
   };
 
+  const handleSearch = text => {
+    if (allProducts && allProducts.products) {
+      const filteredProducts = allProducts.products.filter(product =>
+        product.name.toLowerCase().includes(text.toLowerCase()),
+      );
+      setAllProducts({...allProducts, products: filteredProducts});
+    } else {
+      console.log('No products available for search.');
+    }
+  };
+
   return (
     <>
       <FlatList
@@ -128,10 +153,10 @@ const Detail = ({route, navigation}) => {
                   size={35}
                   color="#0375B7"
                   style={{paddingLeft: 10, paddingRight: 10, top: 5}}
-                  onPress={() => navigation.openDrawer()}
+                  onPress={() => openModal()}
                 />
-                <TouchableOpacity
-                  onPress={openModal}
+                <View
+                  // onPress={openModal}
                   style={styles.searchSection}>
                   <Icon
                     style={styles.searchIcon}
@@ -140,14 +165,20 @@ const Detail = ({route, navigation}) => {
                     color="#000"
                   />
 
-                  <Text
+                  <TextInput
                     style={styles.input}
                     // onChangeText={searchString => this.setState({searchString})}
                     underlineColorAndroid="transparent"
-                    placeholderTextColor={'#424242'}>
-                    Search Product
-                  </Text>
-                </TouchableOpacity>
+                    placeholder="Search Products"
+                    placeholderTextColor={'#424242'}
+                    autoCapitalize="none"
+                    value={search}
+                    onChangeText={text => {
+                      setSearch(text);
+                      handleSearch(text);
+                    }}
+                  />
+                </View>
               </View>
 
               <Text
@@ -158,7 +189,7 @@ const Detail = ({route, navigation}) => {
                   marginTop: 10,
                   marginLeft: 10,
                 }}>
-                Equipment, Machinery, Tools & Vehicle
+                {mainCategory}
               </Text>
 
               <View style={{flexDirection: 'row', padding: 10, marginTop: 10}}>

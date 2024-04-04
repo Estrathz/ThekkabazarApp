@@ -1,4 +1,12 @@
-import {View, Text, Image, ScrollView, Platform, Linking} from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  ScrollView,
+  Platform,
+  PermissionsAndroid,
+  Alert,
+} from 'react-native';
 
 import React, {useEffect, useRef} from 'react';
 import styles from './detailStyle';
@@ -7,7 +15,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import {useDispatch, useSelector} from 'react-redux';
 import {fetchOneTenderData} from '../../../reducers/cardSlice';
 import Custombutton from '../../../Containers/Button/button';
-
+import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import {Toast} from 'react-native-toast-message';
 
 const Detail = ({route, navigation}) => {
@@ -23,22 +31,74 @@ const Detail = ({route, navigation}) => {
     }
   }, [dispatch, error]);
 
-  const createPDF = () => {};
-
   const items = one;
 
   if (!items || !items.image) {
     return null;
   }
 
+  const dataToHtml = data => {
+    return `
+    <html>
+      <head>
+        <title>${data.title}</title>
+      </head>
+      <body>
+        <h1>${data.title}</h1>
+        <p>Public Entity Name: ${data.public_entry_name}</p>
+        <p>Published Date: ${data.published_date}</p>
+        <p>Last Date To Apply: ${data.last_date_to_apply}</p>
+        <p>Source: ${data.source}</p>
+        <p>Organization Sector: ${data.organization_sector
+          .map(org => org.name)
+          .join(', ')}</p>
+        <p>Location: ${data.district
+          .map(location => location.name)
+          .join(', ')}</p>
+        <p>Project Type: ${data.project_type
+          .map(project => project.name)
+          .join(', ')}</p>
+        <p>Procurement Type: ${data.procurement_type
+          .map(pro => pro.name)
+          .join(', ')}</p>
+          <img src="${data.image}" alt="Tender Image" />
+      </body>
+    </html>
+ `;
+  };
   const handleDownload = async () => {
-    const granted = await request(PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE);
-    if (granted !== 'granted') {
-      Toast.show({
-        type: 'error',
-        text1: 'Permission Denied',
-      });
-      return;
+    try {
+      // Request storage permission for Android
+      if (Platform.OS === 'android') {
+        const granted = await PermissionsAndroid.requestMultiple([
+          PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        ]);
+        if (
+          granted['android.permission.READ_EXTERNAL_STORAGE'] !== 'granted' ||
+          granted['android.permission.WRITE_EXTERNAL_STORAGE'] !== 'granted'
+        ) {
+          console.log('Storage permission denied');
+          return;
+        }
+      }
+
+      const html = dataToHtml(items);
+
+      // Generate PDF options
+      const options = {
+        html,
+        fileName: 'tender_details',
+        directory: 'downloads',
+      };
+
+      const file = await RNHTMLtoPDF.convert(options);
+      console.log('PDF created at', file.filePath);
+
+      Alert.alert('PDF Downloaded', 'PDF has been downloaded successfully');
+      console.log('PDF downloaded successfully');
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
     }
   };
 
@@ -95,7 +155,7 @@ const Detail = ({route, navigation}) => {
             }}>
             <Custombutton
               title="Download Brochure"
-              onPress={() => createPDF()}
+              onPress={() => handleDownload()}
             />
           </View>
 

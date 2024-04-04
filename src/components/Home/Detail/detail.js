@@ -31,6 +31,17 @@ const Detail = ({route, navigation}) => {
     return null;
   }
 
+  const handleDownload = async () => {
+    const granted = await request(PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE);
+    if (granted !== 'granted') {
+      Toast.show({
+        type: 'error',
+        text1: 'Permission Denied',
+      });
+      return;
+    }
+  };
+
   return (
     <ScrollView>
       <View style={styles.container}>

@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   RefreshControl,
   FlatList,
+  Button,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import styles from './homeStyles';
@@ -21,6 +22,7 @@ import Custombutton from '../../Containers/Button/button';
 import {fetchTenderListData} from '../../reducers/cardSlice';
 import Icon2 from 'react-native-vector-icons/Ionicons';
 import Icon3 from 'react-native-vector-icons/MaterialCommunityIcons';
+import DatePicker from 'react-native-date-picker';
 
 const Home = ({navigation}) => {
   const dispatch = useDispatch();
@@ -36,6 +38,8 @@ const Home = ({navigation}) => {
   const [projectType, setProjectType] = useState('');
   const [procurementsType, setProcurementsType] = useState('');
   const [search, setSearch] = useState('');
+  const [date, setDate] = useState(new Date());
+  const [datepicker, setDatepicker] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [isImageVisible, setIsImageVisible] = useState(null);
 
@@ -87,7 +91,9 @@ const Home = ({navigation}) => {
 
   const handleFilter = () => {
     closeModal();
+    console.log('handleFilter', date);
     setPage(1);
+    const formattedDate = moment(date).format('YYYY-MM-DD');
     dispatch(
       fetchTenderListData({
         organization_sector: organization,
@@ -96,6 +102,7 @@ const Home = ({navigation}) => {
         procurement_type: procurementsType,
         category: category,
         search: search,
+        published_date: formattedDate,
       }),
     );
   };
@@ -104,6 +111,11 @@ const Home = ({navigation}) => {
     setRefreshing(true);
     dispatch(fetchTenderListData());
     setRefreshing(false);
+  };
+
+  const removeHtmlTags = htmlString => {
+    const regex = /(<([^>]+)>)/gi;
+    return htmlString.replace(regex, '');
   };
 
   const handleProfileNavi = () => {
@@ -259,6 +271,19 @@ const Home = ({navigation}) => {
                   </Text>
                 ))}
               </View>
+              <View>
+                <Text style={{color: '#000', fontSize: 18}}>Works:</Text>
+                <Text
+                  style={{
+                    color: 'black',
+                    fontSize: 15,
+                    marginTop: 10,
+                    textAlign: 'justify',
+                  }}>
+                  {removeHtmlTags(item.description)}
+                </Text>
+              </View>
+
               <View style={styles.CardFooter}>
                 <Icon3
                   name="file-multiple-outline"
@@ -438,6 +463,24 @@ const Home = ({navigation}) => {
                   return <Icon name="search" color={'#444'} size={18} />;
                 }}
               />
+              <Text
+                style={styles.datepicker}
+                onPress={() => setDatepicker(true)}>
+                <DatePicker
+                  modal
+                  mode="date"
+                  open={datepicker}
+                  date={date}
+                  onConfirm={date => {
+                    setDatepicker(false);
+                    setDate(date);
+                  }}
+                  onCancel={() => {
+                    setDatepicker(false);
+                  }}
+                />
+                Select Date
+              </Text>
               <SelectDropdown
                 data={projectTypeData}
                 onSelect={(selectedItem, index) => {

@@ -6,9 +6,10 @@ import {
   TextInput,
   RefreshControl,
   FlatList,
+  ScrollView,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
-
+import DatePicker from 'react-native-date-picker';
 import styles from './resultStyle';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {useDispatch, useSelector} from 'react-redux';
@@ -33,6 +34,8 @@ const Result = ({navigation}) => {
   const [procurementsType, setProcurementsType] = useState('');
   const [search, setSearch] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+  const [date, setDate] = useState(new Date());
+  const [datepicker, setDatepicker] = useState(false);
 
   useEffect(() => {
     dispatch(fetchDropdownData());
@@ -238,7 +241,7 @@ const Result = ({navigation}) => {
       {/* 
       // modal   */}
       <Modal visible={isModalVisible} animationType="slide" transparent={true}>
-        <View style={styles.modalContainer}>
+        <ScrollView style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <TouchableOpacity
               onPress={closeModal}
@@ -369,6 +372,24 @@ const Result = ({navigation}) => {
                   return <Icon name="search" color={'#444'} size={18} />;
                 }}
               />
+              <Text
+                style={styles.datepicker}
+                onPress={() => setDatepicker(true)}>
+                <DatePicker
+                  modal
+                  mode="date"
+                  open={datepicker}
+                  date={date}
+                  onConfirm={date => {
+                    setDatepicker(false);
+                    setDate(date);
+                  }}
+                  onCancel={() => {
+                    setDatepicker(false);
+                  }}
+                />
+                Select Date
+              </Text>
               <SelectDropdown
                 data={projectTypeData}
                 // defaultValueByIndex={1}
@@ -451,7 +472,7 @@ const Result = ({navigation}) => {
               />
             </View>
           </View>
-        </View>
+        </ScrollView>
       </Modal>
     </View>
   );

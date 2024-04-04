@@ -124,6 +124,19 @@ const styles = StyleSheet.create({
     marginTop: 15,
     alignItems: 'center',
   },
+  datepicker: {
+    width: '100%',
+    height: 50,
+    backgroundColor: colors.background,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#D4D4D4',
+    marginBottom: 15,
+    color: 'black',
+    padding: 15,
+    fontSize: 18,
+    textAlign: 'left',
+  },
 });
 
 export default styles;

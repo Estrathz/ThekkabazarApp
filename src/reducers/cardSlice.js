@@ -11,7 +11,7 @@ export const fetchTenderListData = createAsyncThunk(
     location,
     project_type,
     procurement_type,
-    date,
+    published_date,
     category,
     page,
     search,
@@ -43,6 +43,10 @@ export const fetchTenderListData = createAsyncThunk(
     }
     if (search) {
       params.append('search', search);
+    }
+
+    if (published_date) {
+      params.append('published_date', published_date);
     }
     const response = await axios.get(
       ` ${BASE_URL}/tender/apis/tender/list/?${params.toString()}`,

@@ -10,7 +10,7 @@ export const fetchresultData = createAsyncThunk(
     location,
     project_type,
     procurement_type,
-    date,
+    published_date,
     category,
     page,
   } = {}) => {
@@ -36,6 +36,10 @@ export const fetchresultData = createAsyncThunk(
     }
     if (page) {
       params.append('page', page);
+    }
+
+    if (published_date) {
+      params.append('published_date', published_date);
     }
     const response = await axios.get(
       `${BASE_URL}/tender/apis/tender-awarded-to/?${params.toString()}`,

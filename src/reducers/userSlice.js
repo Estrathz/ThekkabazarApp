@@ -2,13 +2,14 @@ import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
+import {BASE_URL} from './apiUrl';
 
 export const login = createAsyncThunk(
   'users/login',
   async ({username, password}) => {
     try {
       const response = await axios.post(
-        'https://thekkabazar.itnepalsolutions.com/accounts/apis/usermanagement/login/',
+        `${BASE_URL}/accounts/apis/usermanagement/login/`,
         {username, password},
       );
       const data = response.data;
@@ -37,7 +38,7 @@ export const register = createAsyncThunk(
     company_name,
   }) => {
     const response = await axios.post(
-      `https://thekkabazar.itnepalsolutions.com/accounts/apis/usermanagement/create/user/`,
+      `${BASE_URL}/accounts/apis/usermanagement/create/user/`,
       {
         username,
         fullname,

@@ -3,7 +3,7 @@ import {createAsyncThunk} from '@reduxjs/toolkit';
 
 import axios from 'axios';
 
-const BASE_URL = 'https://thekkabazar.itnepalsolutions.com';
+import {BASE_URL} from './apiUrl';
 
 export const postPrivateWork = createAsyncThunk(
   'data/postprivateWorkS',

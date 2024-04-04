@@ -1,7 +1,8 @@
 import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import axios from 'axios';
-const BASE_URL = 'https://thekkabazar.itnepalsolutions.com';
+// const BASE_URL = 'https://thekkabazar.itnepalsolutions.com';
 import Toast from 'react-native-toast-message';
+import {BASE_URL} from './apiUrl';
 
 export const aboutUsform = createAsyncThunk(
   'data/aboutUsform',

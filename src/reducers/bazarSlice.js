@@ -1,7 +1,8 @@
 import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import axios from 'axios';
 import {createAction} from '@reduxjs/toolkit';
-const BASE_URL = 'https://thekkabazar.itnepalsolutions.com';
+// const BASE_URL = 'https://thekkabazar.itnepalsolutions.com';
+import {BASE_URL} from './apiUrl';
 
 export const fetchbazarData = createAsyncThunk(
   'data/fetchbazarData',

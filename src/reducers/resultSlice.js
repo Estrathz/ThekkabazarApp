@@ -1,7 +1,7 @@
 import {createSlice} from '@reduxjs/toolkit';
 import {createAsyncThunk} from '@reduxjs/toolkit';
 import axios from 'axios';
-const BASE_URL = 'https://thekkabazar.itnepalsolutions.com';
+import {BASE_URL} from './apiUrl';
 
 export const fetchresultData = createAsyncThunk(
   'data/fetchresultData',

@@ -1,7 +1,7 @@
 import {createSlice} from '@reduxjs/toolkit';
 import {createAsyncThunk} from '@reduxjs/toolkit';
 import axios from 'axios';
-const BASE_URL = 'https://thekkabazar.itnepalsolutions.com';
+import {BASE_URL} from './apiUrl';
 import Toast from 'react-native-toast-message';
 
 export const fetchTenderListData = createAsyncThunk(

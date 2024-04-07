@@ -73,8 +73,6 @@ const Detail = ({route, navigation}) => {
       if (Platform.OS === 'android') {
         const granted = await PermissionsAndroid.requestMultiple([
           PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
-          PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
         ]);
         if (granted['android.permission.READ_MEDIA_IMAGES'] !== 'granted') {
           Alert.alert('Storage permission denied');

@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
     borderRadius: 50,
-    width: 340,
+    width: '100%',
     height: 45,
   },
   searchIcon: {
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 2,
     borderTopColor: '#C6C1C1',
     padding: 10,
-    marginTop: 15,
+    marginTop: 10,
     alignItems: 'center',
   },
   Icons: {

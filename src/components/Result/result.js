@@ -120,13 +120,6 @@ const Result = ({navigation}) => {
         ListHeaderComponent={
           <>
             <View style={styles.SearchContainer}>
-              <Icon
-                name="menu"
-                size={35}
-                color="#0375B7"
-                style={{paddingLeft: 10, paddingRight: 10, top: 5}}
-                onPress={() => navigation.openDrawer()}
-              />
               <TouchableOpacity
                 onPress={openModal}
                 style={styles.searchSection}>

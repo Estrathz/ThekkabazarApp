@@ -19,10 +19,12 @@ import {fetchDropdownData} from '../../reducers/dropdownSlice';
 import {useDispatch, useSelector} from 'react-redux';
 import SelectDropdown from 'react-native-select-dropdown';
 import Custombutton from '../../Containers/Button/button';
-import {fetchTenderListData} from '../../reducers/cardSlice';
+import {fetchTenderListData, savebid} from '../../reducers/cardSlice';
 import Icon2 from 'react-native-vector-icons/Ionicons';
 import Icon3 from 'react-native-vector-icons/MaterialCommunityIcons';
 import DatePicker from 'react-native-date-picker';
+import HTML from 'react-native-render-html';
+import {useWindowDimensions} from 'react-native';
 
 const Home = ({navigation}) => {
   const dispatch = useDispatch();
@@ -42,7 +44,7 @@ const Home = ({navigation}) => {
   const [datepicker, setDatepicker] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [isImageVisible, setIsImageVisible] = useState(null);
-
+  const {width} = useWindowDimensions();
   useEffect(() => {
     dispatch(fetchTenderListData());
     dispatch(fetchDropdownData());
@@ -113,11 +115,6 @@ const Home = ({navigation}) => {
     setRefreshing(false);
   };
 
-  const removeHtmlTags = htmlString => {
-    const regex = /(<([^>]+)>)/gi;
-    return htmlString.replace(regex, '');
-  };
-
   const handleProfileNavi = () => {
     navigation.navigate('MainScreen', {
       screen: 'BottomNav',
@@ -172,13 +169,6 @@ const Home = ({navigation}) => {
                 </View>
               </View>
               <View style={styles.SearchContainer}>
-                <Icon
-                  name="menu"
-                  size={35}
-                  color="#0375B7"
-                  style={{paddingLeft: 10, paddingRight: 10, top: 5}}
-                  onPress={() => navigation.openDrawer()}
-                />
                 <TouchableOpacity
                   onPress={openModal}
                   style={styles.searchSection}>
@@ -216,14 +206,14 @@ const Home = ({navigation}) => {
                   color: '#0375B7',
                   fontSize: 18,
                   fontWeight: 'bold',
-                  marginTop: 10,
+                  marginTop: 8,
                 }}
                 onPress={() =>
                   navigation.navigate('HomeDetails', {id: item.pk})
                 }>
                 {item.title}
               </Text>
-              <Text style={{color: 'black', fontSize: 15, marginTop: 10}}>
+              <Text style={{color: 'black', fontSize: 15, marginTop: 7}}>
                 {item.public_entry_name}
               </Text>
               <View style={styles.Cardbodytext}>
@@ -236,7 +226,6 @@ const Home = ({navigation}) => {
                       padding: 10,
                       marginTop: 20,
                       borderRadius: 8,
-                      marginLeft: 15,
                       alignSelf: 'center',
                     }}>
                     {location.name}
@@ -250,7 +239,7 @@ const Home = ({navigation}) => {
                     padding: 10,
                     marginTop: 20,
                     borderRadius: 8,
-                    marginLeft: 15,
+                    marginLeft: 8,
                     alignSelf: 'center',
                   }}>
                   Source: {item.source}
@@ -262,9 +251,9 @@ const Home = ({navigation}) => {
                       color: '#FF7A00',
                       backgroundColor: '#FFF2F0',
                       padding: 10,
-                      marginTop: 20,
+                      marginTop: 8,
                       borderRadius: 8,
-                      marginLeft: 15,
+                      marginLeft: 8,
                       alignSelf: 'center',
                     }}>
                     {project.name}
@@ -273,28 +262,26 @@ const Home = ({navigation}) => {
               </View>
               <View>
                 <Text style={{color: '#000', fontSize: 18}}>Works:</Text>
-                <Text
-                  style={{
-                    color: 'black',
-                    fontSize: 15,
-                    marginTop: 10,
-                    textAlign: 'justify',
-                  }}>
-                  {removeHtmlTags(item.description)}
-                </Text>
+                <HTML
+                  contentWidth={width}
+                  source={{html: item.description}}
+                  style={{fontSize: 12, color: 'black'}}
+                />
               </View>
 
               <View style={styles.CardFooter}>
                 <Icon3
                   name="file-multiple-outline"
-                  size={30}
+                  size={25}
                   style={styles.Icons}
                   onPress={() => openImageModal(index)}
                 />
-                <Custombutton
-                  title="Save Bids"
-                  onPress={() => handleSaveBids(item.pk)}
-                />
+                <View style={{height: 40, width: '50%'}}>
+                  <Custombutton
+                    title="Save Bids"
+                    onPress={() => handleSaveBids(item.pk)}
+                  />
+                </View>
               </View>
               <Modal
                 visible={isImageVisible === index}

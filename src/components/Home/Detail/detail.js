@@ -66,39 +66,40 @@ const Detail = ({route, navigation}) => {
     </html>
  `;
   };
-  const handleDownload = async () => {
+
+  const handleDownload = async imageUrl => {
     try {
       // Request storage permission for Android
       if (Platform.OS === 'android') {
         const granted = await PermissionsAndroid.requestMultiple([
+          PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
           PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
           PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
         ]);
-        if (
-          granted['android.permission.READ_EXTERNAL_STORAGE'] !== 'granted' ||
-          granted['android.permission.WRITE_EXTERNAL_STORAGE'] !== 'granted'
-        ) {
-          console.log('Storage permission denied');
+        if (granted['android.permission.READ_MEDIA_IMAGES'] !== 'granted') {
+          Alert.alert('Storage permission denied');
           return;
         }
       }
+      const imageName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
+      const path = `${RNFS.DownloadDirectoryPath}/${imageName}`;
+      const image = await RNFS.downloadFile({
+        fromUrl: imageUrl,
+        toFile: path,
+      }).promise;
 
-      const html = dataToHtml(items);
-
-      // Generate PDF options
-      const options = {
-        html,
-        fileName: 'tender_details',
-        directory: 'downloads',
-      };
-
-      const file = await RNHTMLtoPDF.convert(options);
-      console.log('PDF created at', file.filePath);
-
-      Alert.alert('PDF Downloaded', 'PDF has been downloaded successfully');
-      console.log('PDF downloaded successfully');
+      if (image.statusCode === 200) {
+        console.log('Image downloaded successfully:', path);
+        Alert.alert(
+          'Download Successful',
+          'Image has been saved to your downloads folder.',
+        );
+      } else {
+        console.log('Failed to download image:', image.statusCode);
+        Alert.alert('Download Failed', 'Failed to download image.');
+      }
     } catch (error) {
-      console.error('Error downloading PDF:', error);
+      console.error('Could not download image', error);
     }
   };
 
@@ -155,7 +156,7 @@ const Detail = ({route, navigation}) => {
             }}>
             <Custombutton
               title="Download Brochure"
-              onPress={() => handleDownload()}
+              onPress={() => handleDownload(items.image)}
             />
           </View>
 

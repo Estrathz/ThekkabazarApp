@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
     borderRadius: 50,
-    width: 340,
+    width: '100%',
     height: 45,
   },
   searchIcon: {

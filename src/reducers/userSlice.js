@@ -8,6 +8,7 @@ export const login = createAsyncThunk(
   'users/login',
   async ({username, password}) => {
     try {
+      console.log(username, password);
       const response = await axios.post(
         `${BASE_URL}/accounts/apis/usermanagement/login/`,
         {username, password},

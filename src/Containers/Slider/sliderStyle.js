@@ -4,6 +4,7 @@ const styles = StyleSheet.create({
   sliderContainer: {
     height: 200,
     padding: 10,
+    borderRadius: 20,
   },
   wrapper: {},
   slide: {
@@ -19,10 +20,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     padding: 2,
+    borderRadius: 20,
+    overflow: 'hidden',
   },
   carouselImage: {
     width: '30%',
     height: 130,
+    borderRadius: 20,
   },
 });
 

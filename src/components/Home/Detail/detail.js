@@ -17,10 +17,14 @@ import {fetchOneTenderData} from '../../../reducers/cardSlice';
 import Custombutton from '../../../Containers/Button/button';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import {Toast} from 'react-native-toast-message';
+import RNFS from 'react-native-fs';
+import HTML from 'react-native-render-html';
+import {useWindowDimensions} from 'react-native';
 
 const Detail = ({route, navigation}) => {
   const dispatch = useDispatch();
   const {one, error} = useSelector(state => state.card);
+  const {width} = useWindowDimensions();
 
   useEffect(() => {
     const id = route.params.id;
@@ -260,6 +264,11 @@ const Detail = ({route, navigation}) => {
               }}>
               Works
             </Text>
+            <HTML
+              contentWidth={width}
+              source={{html: items.description}}
+              style={{fontSize: 12, color: 'black'}}
+            />
           </View>
         </View>
       </View>

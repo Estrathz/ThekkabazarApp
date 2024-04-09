@@ -23,6 +23,9 @@ const Profile = ({navigation}) => {
     }
   }, [dispatch, token]);
 
+  useEffect(() => {
+    console.log(data.fullname, 'dadfahsgdfasjkdvjafvajls');
+  }, [data]);
   const getToken = async () => {
     try {
       const token = await AsyncStorage.getItem('access_token');

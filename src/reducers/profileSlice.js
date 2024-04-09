@@ -6,7 +6,6 @@ import Toast from 'react-native-toast-message';
 export const getProfile = createAsyncThunk(
   'data/getProfile',
   async ({access_token}) => {
-    console.log(access_token, 'sdfvkajsdvfkajsdv');
     const config = {
       headers: {
         Authorization: `Bearer ${access_token}`,
@@ -15,9 +14,7 @@ export const getProfile = createAsyncThunk(
     try {
       const response = await axios.get(
         `${BASE_URL}/accounts/apis/usermanagement/view/profile/`,
-        {
-          Authorization: `Bearer ${access_token}`,
-        },
+        config,
       );
       const data = response.data;
       return data;
@@ -103,6 +100,22 @@ export const getUserInterest = createAsyncThunk(
   },
 );
 
+export const getSavedBids = createAsyncThunk(
+  'data/getSavedBids',
+  async ({access_token}) => {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+      },
+    };
+    const response = await axios.get(
+      `${BASE_URL}/tender/apis/saved-tender/`,
+      config,
+    );
+    return response.data;
+  },
+);
+
 const profileSlice = createSlice({
   name: 'profile',
   initialState: {
@@ -112,6 +125,7 @@ const profileSlice = createSlice({
     message: '',
     userInterest: [],
     updateSuccess: false,
+    savedBids: [],
   },
   reducers: {},
   extraReducers: builder => {
@@ -167,6 +181,17 @@ const profileSlice = createSlice({
         state.userInterest = action.payload;
       })
       .addCase(getUserInterest.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      })
+      .addCase(getSavedBids.pending, state => {
+        state.status = 'loading';
+      })
+      .addCase(getSavedBids.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.savedBids = action.payload;
+      })
+      .addCase(getSavedBids.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message;
       });

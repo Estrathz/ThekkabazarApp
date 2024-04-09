@@ -6,20 +6,23 @@ import Custombutton from '../../../Containers/Button/button';
 import {useDispatch, useSelector} from 'react-redux';
 import {getProfile} from '../../../reducers/profileSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useFocusEffect} from '@react-navigation/native';
 
 const UserProfile = ({navigation}) => {
   const dispatch = useDispatch();
   const {data, error} = useSelector(state => state.userprofile);
   const [token, setToken] = useState('');
 
-  useEffect(() => {
-    getToken();
-    dispatch(getProfile({access_token: token}));
+  useFocusEffect(
+    React.useCallback(() => {
+      getToken();
+      dispatch(getProfile({access_token: token}));
 
-    if (error) {
-      console.log(error);
-    }
-  }, [dispatch, token]);
+      if (error) {
+        console.log(error);
+      }
+    }, [dispatch, token, error]),
+  );
 
   const getToken = async () => {
     try {
@@ -67,7 +70,7 @@ const UserProfile = ({navigation}) => {
           <View style={{width: '30%'}}>
             <Custombutton
               title="Edit"
-              onPress={() => navigation.navigate('EditProfile')}
+              onPress={() => navigation.push('EditProfile')}
             />
           </View>
         </View>

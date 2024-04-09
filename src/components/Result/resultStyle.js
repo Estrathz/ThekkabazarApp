@@ -120,8 +120,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderTopWidth: 2,
     borderTopColor: '#C6C1C1',
-    padding: 10,
-    marginTop: 15,
+    padding: 8,
+    marginTop: 10,
     alignItems: 'center',
   },
   datepicker: {

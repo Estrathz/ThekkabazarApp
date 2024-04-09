@@ -25,6 +25,7 @@ import Icon3 from 'react-native-vector-icons/MaterialCommunityIcons';
 import DatePicker from 'react-native-date-picker';
 import HTML from 'react-native-render-html';
 import {useWindowDimensions} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Home = ({navigation}) => {
   const dispatch = useDispatch();
@@ -45,9 +46,11 @@ const Home = ({navigation}) => {
   const [refreshing, setRefreshing] = useState(false);
   const [isImageVisible, setIsImageVisible] = useState(null);
   const {width} = useWindowDimensions();
+  const [token, setToken] = useState('');
   useEffect(() => {
     dispatch(fetchTenderListData());
     dispatch(fetchDropdownData());
+    getToken();
 
     if (dropdownerror) {
       console.log(dropdownerror);
@@ -57,6 +60,15 @@ const Home = ({navigation}) => {
       console.log(error);
     }
   }, [dispatch]);
+
+  const getToken = async () => {
+    try {
+      const token = await AsyncStorage.getItem('access_token');
+      setToken(token);
+    } catch (error) {
+      console.error('Error retrieving token from AsyncStorage:', error);
+    }
+  };
 
   useEffect(() => {
     if (data?.data && data.data.length > 0) {
@@ -143,7 +155,7 @@ const Home = ({navigation}) => {
   };
 
   const handleSaveBids = pk => {
-    dispatch(savebid({id: pk}));
+    dispatch(savebid({id: pk, access_token: token}));
   };
 
   return (
@@ -260,14 +272,26 @@ const Home = ({navigation}) => {
                   </Text>
                 ))}
               </View>
-              <View>
+
+              {item.description && (
+                <View>
+                  <Text style={{color: '#000', fontSize: 18}}>Works:</Text>
+                  <HTML
+                    contentWidth={width}
+                    source={{html: item.description}}
+                    style={{fontSize: 12, color: 'black'}}
+                  />
+                </View>
+              )}
+
+              {/* <View>
                 <Text style={{color: '#000', fontSize: 18}}>Works:</Text>
                 <HTML
                   contentWidth={width}
                   source={{html: item.description}}
                   style={{fontSize: 12, color: 'black'}}
                 />
-              </View>
+              </View> */}
 
               <View style={styles.CardFooter}>
                 <Icon3

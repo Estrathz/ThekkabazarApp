@@ -1,4 +1,12 @@
-import {View, Text, Image, TouchableOpacity, ScrollView} from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  Platform,
+  PermissionsAndroid,
+  Alert,
+  ScrollView,
+} from 'react-native';
 import React, {useEffect} from 'react';
 import styles from './resultdetailStyle';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -6,10 +14,14 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import {useDispatch, useSelector} from 'react-redux';
 import {fetchOneResultData} from '../../../reducers/resultSlice';
 import Custombutton from '../../../Containers/Button/button';
+import HTML from 'react-native-render-html';
+import {useWindowDimensions} from 'react-native';
+import RNFS from 'react-native-fs';
 
 const Detail = ({route, navigation}) => {
   const dispatch = useDispatch();
   const {one, error} = useSelector(state => state.result);
+  const {width} = useWindowDimensions();
 
   useEffect(() => {
     // const {id} = route.params;
@@ -23,14 +35,48 @@ const Detail = ({route, navigation}) => {
   }, [dispatch, error]);
 
   useEffect(() => {
-    console.log('sadasdasd', one);
-  }, []);
+    console.log('sadasdasd', items);
+  }, [items]);
 
   const items = one;
 
   if (!items || !items.image) {
     return null;
   }
+
+  const handleDownload = async imageUrl => {
+    try {
+      // Request storage permission for Android
+      if (Platform.OS === 'android') {
+        const granted = await PermissionsAndroid.requestMultiple([
+          PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
+        ]);
+        if (granted['android.permission.READ_MEDIA_IMAGES'] !== 'granted') {
+          Alert.alert('Storage permission denied');
+          return;
+        }
+      }
+      const imageName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
+      const path = `${RNFS.DownloadDirectoryPath}/${imageName}`;
+      const image = await RNFS.downloadFile({
+        fromUrl: imageUrl,
+        toFile: path,
+      }).promise;
+
+      if (image.statusCode === 200) {
+        console.log('Image downloaded successfully:', path);
+        Alert.alert(
+          'Download Successful',
+          'Image has been saved to your downloads folder.',
+        );
+      } else {
+        console.log('Failed to download image:', image.statusCode);
+        Alert.alert('Download Failed', 'Failed to download image.');
+      }
+    } catch (error) {
+      console.error('Could not download image', error);
+    }
+  };
 
   return (
     <ScrollView>
@@ -83,7 +129,10 @@ const Detail = ({route, navigation}) => {
               alignItems: 'center',
               marginTop: 20,
             }}>
-            <Custombutton title="Download Brochure" onPress={() => {}} />
+            <Custombutton
+              title="Download Brochure"
+              onPress={() => handleDownload(items.image)}
+            />
           </View>
 
           <View style={styles.detailContainer}>
@@ -186,8 +235,13 @@ const Detail = ({route, navigation}) => {
                 fontWeight: 'bold',
                 marginTop: 20,
               }}>
-              Works
+              Awarded To:
             </Text>
+            <HTML
+              contentWidth={width}
+              source={{html: items.description}}
+              style={{fontSize: 14, color: 'black'}}
+            />
           </View>
         </View>
       </View>

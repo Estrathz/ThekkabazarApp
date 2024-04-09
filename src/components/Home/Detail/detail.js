@@ -17,6 +17,7 @@ import {fetchOneTenderData} from '../../../reducers/cardSlice';
 import Custombutton from '../../../Containers/Button/button';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import {Toast} from 'react-native-toast-message';
+import RNFS from 'react-native-fs';
 
 const Detail = ({route, navigation}) => {
   const dispatch = useDispatch();
@@ -67,37 +68,43 @@ const Detail = ({route, navigation}) => {
  `;
   };
 
-  const handleDownload = async imageUrl => {
+  const handleDownload = async (imageUrl) => {
     try {
       // Request storage permission for Android
       if (Platform.OS === 'android') {
-        const granted = await PermissionsAndroid.requestMultiple([
-          PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
-        ]);
-        if (granted['android.permission.READ_MEDIA_IMAGES'] !== 'granted') {
-          Alert.alert('Storage permission denied');
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+          {
+            title: "Storage Permission",
+            message: "App needs access to your storage to download images",
+          }
+        );
+
+        if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+          console.log('Storage permission denied');
           return;
         }
       }
+
       const imageName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
       const path = `${RNFS.DownloadDirectoryPath}/${imageName}`;
-      const image = await RNFS.downloadFile({
+      const downloadOptions = {
         fromUrl: imageUrl,
         toFile: path,
-      }).promise;
+      };
 
-      if (image.statusCode === 200) {
+      const downloadResult = await RNFS.downloadFile(downloadOptions).promise;
+
+      if (downloadResult.statusCode === 200) {
         console.log('Image downloaded successfully:', path);
-        Alert.alert(
-          'Download Successful',
-          'Image has been saved to your downloads folder.',
-        );
+        Alert.alert('Download Successful', 'Image has been saved to your downloads folder.');
       } else {
-        console.log('Failed to download image:', image.statusCode);
+        console.log('Failed to download image:', downloadResult.statusCode);
         Alert.alert('Download Failed', 'Failed to download image.');
       }
     } catch (error) {
-      console.error('Could not download image', error);
+      console.error('Error downloading image:', error);
+      Alert.alert('Download Error', 'An error occurred while downloading the image.');
     }
   };
 

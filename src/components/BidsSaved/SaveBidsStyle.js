@@ -11,16 +11,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 15,
+    marginTop: 10,
   },
   tabButton: {
     paddingVertical: 10,
     paddingHorizontal: 20,
     marginLeft: 10,
+    width: 200,
   },
   activeTab: {
     borderRadius: 18,
-    backgroundColor: colors.primary,
+    backgroundColor: '#99ccff',
     shadowColor: 'black',
     shadowOffset: {width: 3, height: 2},
     shadowOpacity: 1,
@@ -30,6 +31,7 @@ const styles = StyleSheet.create({
   tabButtonText: {
     fontSize: 18,
     color: 'black',
+    alignSelf: "center",
   },
   interestCard: {
     margin: 15,
@@ -40,6 +42,49 @@ const styles = StyleSheet.create({
     color: 'black',
     fontSize: 20,
     fontFamily: fonts.regular,
+  },
+  Card: {
+    backgroundColor: colors.white,
+    margin: 10,
+    padding: 15,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    marginBottom: 15,
+  },
+  CardText: {
+    color: '#808080',
+    fontSize: 14,
+    marginLeft: 8,
+  },
+  CardHeading: {
+    display: 'flex',
+    flexDirection: 'row',
+  },
+  Cardbodytext: {
+    display: 'flex',
+    flexDirection: 'row',
+    // justifyContent: 'space-between',
+    // flexGrow: 1,
+    flexWrap: 'wrap',
+  },
+  CardFooter: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    borderTopWidth: 2,
+    borderTopColor: '#C6C1C1',
+    padding: 10,
+    marginTop: 8,
+    alignItems: 'center',
+  },
+  Icons: {
+    color: colors.primary,
+    marginLeft: 20,
   },
 });
 

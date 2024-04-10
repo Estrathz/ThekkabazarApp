@@ -68,11 +68,29 @@ export const fetchOneTenderData = createAsyncThunk(
   },
 );
 
-export const savebid = createAsyncThunk('data/savebid', async ({id}) => {
-  const response = await axios.get(`${BASE_URL}/tender/apis/tenders/${id}/`);
-  const data = response.data;
-  return data;
-});
+export const savebid = createAsyncThunk(
+  'data/savebid',
+  async ({id, access_token}) => {
+    console.log('savebid', id, access_token);
+    const config = {
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+      },
+    };
+    try {
+      const response = await axios.post(
+        `${BASE_URL}/tender/apis/tender-save-or-unsave/${id}/`,
+        null,
+        config,
+      );
+      const data = response.data;
+      return data.message;
+    } catch (error) {
+      console.error('Error while saving bid:', error);
+      throw error; // Rethrow the error to be caught by the caller
+    }
+  },
+);
 
 const cardSlice = createSlice({
   name: 'card',
@@ -113,11 +131,10 @@ const cardSlice = createSlice({
       })
       .addCase(savebid.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.message = action.payload.message;
+        state.message = action.payload;
         Toast.show({
           type: 'success',
-          text1: 'Bids Saved Successful',
-          text2: '',
+          text1: action.payload,
           visibilityTime: 2000,
         });
       })

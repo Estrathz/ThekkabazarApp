@@ -52,7 +52,7 @@ export const fetchOneResultData = createAsyncThunk(
   'data/fetchOneResultData',
   async ({tenderId}) => {
     const response = await axios.get(
-      `${BASE_URL}/tender/apis/tender-awarded-to/${tenderId}/`,
+      `${BASE_URL}/tender/apis/tenders/${tenderId}/`,
     );
 
     const data = response.data;

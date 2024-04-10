@@ -144,7 +144,7 @@ const Result = ({navigation}) => {
         renderItem={({item, index}) => (
           <View key={index} style={styles.Card}>
             <View style={styles.CardHeading}>
-              <Icon2 name="calendar-month" size={24} color="black" />
+              <Icon2 name="calendar-month" size={20} color="black" />
               <Text style={styles.CardText}>
                 Published Date : {item?.published_date}
               </Text>
@@ -152,9 +152,9 @@ const Result = ({navigation}) => {
             <Text
               style={{
                 color: '#0375B7',
-                fontSize: 22,
+                fontSize: 18,
                 fontWeight: 'bold',
-                marginTop: 10,
+                marginTop: 8,
               }}
               onPress={() =>
                 navigation.navigate('ResultDetails', {id: item?.pk})
@@ -172,7 +172,7 @@ const Result = ({navigation}) => {
                     color: '#185CAB',
                     backgroundColor: '#F0F7FF',
                     padding: 10,
-                    marginTop: 20,
+                    marginTop: 10,
                     borderRadius: 8,
                     alignSelf: 'center',
                   }}>
@@ -209,11 +209,10 @@ const Result = ({navigation}) => {
               ))}
             </View>
             <View style={styles.CardFooter}>
-              <Icon name="medal" size={35} color="#0375B7" />
-              <View style={{padding: 15}}>
+              <Icon name="medal" size={30} color="#0375B7" />
+              <View style={{marginLeft: 5}}>
                 <Text
                   style={{color: 'black', fontSize: 16, fontWeight: 'bold'}}>
-                  {' '}
                   Awarded To:
                 </Text>
                 <Text style={{color: 'black', fontSize: 16}}>

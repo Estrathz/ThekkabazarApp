@@ -23,6 +23,9 @@ const Profile = ({navigation}) => {
     }
   }, [dispatch, token]);
 
+  useEffect(() => {
+    console.log(data.fullname, 'dadfahsgdfasjkdvjafvajls');
+  }, [data]);
   const getToken = async () => {
     try {
       const token = await AsyncStorage.getItem('access_token');
@@ -171,7 +174,7 @@ const Profile = ({navigation}) => {
           <Icon2 name="arrow-forward-ios" size={20} color="black" />
         </View> */}
 
-        <View
+        {/* <View
           style={{
             display: 'flex',
             flexDirection: 'row',
@@ -192,7 +195,7 @@ const Profile = ({navigation}) => {
             color="black"
             onPress={() => navigation.navigate('Notice')}
           />
-        </View>
+        </View> */}
 
         <View style={{display: 'flex', flexDirection: 'row', margin: 14}}>
           <Icon name="exit-outline" size={25} color="red" />

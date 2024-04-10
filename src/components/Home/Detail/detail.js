@@ -18,10 +18,16 @@ import Custombutton from '../../../Containers/Button/button';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import {Toast} from 'react-native-toast-message';
 import RNFS from 'react-native-fs';
+<<<<<<< HEAD
+=======
+import HTML from 'react-native-render-html';
+import {useWindowDimensions} from 'react-native';
+>>>>>>> origin/master
 
 const Detail = ({route, navigation}) => {
   const dispatch = useDispatch();
   const {one, error} = useSelector(state => state.card);
+  const {width} = useWindowDimensions();
 
   useEffect(() => {
     const id = route.params.id;
@@ -69,6 +75,7 @@ const Detail = ({route, navigation}) => {
   };
 
   const handleDownload = async (imageUrl) => {
+<<<<<<< HEAD
     try {
       // Request storage permission for Android
       if (Platform.OS === 'android') {
@@ -107,6 +114,51 @@ const Detail = ({route, navigation}) => {
       Alert.alert('Download Error', 'An error occurred while downloading the image.');
     }
   };
+=======
+      try {
+        if (Platform.OS === 'android') {
+          const granted = await PermissionsAndroid.requestMultiple([
+            PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+            PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
+          ]);
+
+          if (
+            granted['android.permission.READ_EXTERNAL_STORAGE'] !== 'granted' &&
+            granted['android.permission.READ_MEDIA_IMAGES'] !== 'granted'
+          ) {
+            console.log('One or both permissions denied');
+            Alert.alert(
+              'Permission Required',
+              'Please grant storage permissions to download the image.'
+            );
+            return;
+          }
+        }
+
+        const imageName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
+              const path = `${RNFS.DownloadDirectoryPath}/${imageName}`;
+              const image = await RNFS.downloadFile({
+                fromUrl: imageUrl,
+                toFile: path,
+              }).promise;
+
+              if (image.statusCode === 200) {
+                console.log('Image downloaded successfully:', path);
+                Alert.alert(
+                  'Download Successful',
+                  'Image has been saved to your downloads folder.',
+                );
+              } else {
+                console.log('Failed to download image:', image.statusCode);
+                Alert.alert('Download Failed', 'Failed to download image.');
+              }
+            } catch (error) {
+              console.error('Could not download image', error);
+            }
+
+    };
+
+>>>>>>> origin/master
 
   return (
     <ScrollView>
@@ -267,6 +319,11 @@ const Detail = ({route, navigation}) => {
               }}>
               Works
             </Text>
+            <HTML
+              contentWidth={width}
+              source={{html: items.description}}
+              style={{fontSize: 12, color: 'black'}}
+            />
           </View>
         </View>
       </View>

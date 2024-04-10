@@ -1,19 +1,69 @@
-import {View, Text, FlatList, Image, TouchableOpacity} from 'react-native';
-import React from 'react';
+import {
+  View,
+  Text,
+  FlatList,
+  Image,
+  TouchableOpacity,
+  Modal,
+} from 'react-native';
+import React, {useEffect, useState} from 'react';
 import styles from './SaveBidsStyle';
 import Icon3 from 'react-native-vector-icons/MaterialCommunityIcons';
 import Custombutton from '../../Containers/Button/button';
+import {useDispatch, useSelector} from 'react-redux';
+import {getSavedBids} from '../../reducers/profileSlice';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Icon2 from 'react-native-vector-icons/Ionicons';
+import {savebid} from '../../reducers/cardSlice';
+import Toast from 'react-native-toast-message';
 
 const BidsSaved = () => {
+  const dispatch = useDispatch();
+  const {savedBids, error} = useSelector(state => state.userprofile);
+  const [token, setToken] = useState('');
+  const [isImageVisible, setIsImageVisible] = useState(null);
+  const [unsavedBidId, setUnsavedBidId] = useState(null);
+
+  useEffect(() => {
+    getToken();
+    dispatch(getSavedBids({access_token: token}));
+  }, [dispatch, token]);
+
+  const getToken = async () => {
+    try {
+      const token = await AsyncStorage.getItem('access_token');
+      setToken(token);
+    } catch (error) {
+      console.error('Error retrieving token from AsyncStorage:', error);
+    }
+  };
+
+  const openImageModal = index => {
+    setIsImageVisible(index);
+  };
+
+  const closeImageModal = () => {
+    setIsImageVisible(null);
+  };
+
+  const handleUnSaveBids = async id => {
+    dispatch(savebid({id: id, access_token: token}));
+    setUnsavedBidId(id);
+    Toast.show({
+      type: 'success',
+      text1: 'Bid Unsaved Successfully',
+    });
+  };
+
   return (
     <FlatList
-      data=""
+      data={savedBids?.data?.filter(item => item.tender.pk !== unsavedBidId)}
       renderItem={({item, index}) => (
         <View key={index} style={styles.Card}>
           <View style={styles.CardHeading}>
             <Icon3 name="calendar-month" size={20} color="black" />
             <Text style={styles.CardText}>
-              Published Date : {item.published_date}
+              Published Date : {item.tender.published_date}
             </Text>
           </View>
           <Text
@@ -22,24 +72,22 @@ const BidsSaved = () => {
               fontSize: 18,
               fontWeight: 'bold',
               marginTop: 10,
-            }}
-            onPress={() => navigation.navigate('HomeDetails', {id: item.pk})}>
-            {item.title}
+            }}>
+            {item.tender.title}
           </Text>
-          <Text style={{color: 'black', fontSize: 15, marginTop: 10}}>
-            {item.public_entry_name}
+          <Text style={{color: 'black', fontSize: 15, marginTop: 8}}>
+            {item.tender.public_entry_name}
           </Text>
           <View style={styles.Cardbodytext}>
-            {item.district?.map((location, index) => (
+            {item.tender.district?.map((location, index) => (
               <Text
                 key={index}
                 style={{
                   color: '#185CAB',
                   backgroundColor: '#F0F7FF',
                   padding: 10,
-                  marginTop: 20,
+                  marginTop: 10,
                   borderRadius: 8,
-                  marginLeft: 15,
                   alignSelf: 'center',
                 }}>
                 {location.name}
@@ -51,23 +99,23 @@ const BidsSaved = () => {
                 color: '#0F9E1D',
                 backgroundColor: '#E2FBE4',
                 padding: 10,
-                marginTop: 20,
+                marginTop: 10,
                 borderRadius: 8,
-                marginLeft: 15,
+                marginLeft: 8,
                 alignSelf: 'center',
               }}>
-              Source: {item.source}
+              Source: {item.tender.source}
             </Text>
-            {item.project_type?.map((project, index) => (
+            {item.tender.project_type?.map((project, index) => (
               <Text
                 key={index}
                 style={{
                   color: '#FF7A00',
                   backgroundColor: '#FFF2F0',
                   padding: 10,
-                  marginTop: 20,
+                  marginTop: 10,
                   borderRadius: 8,
-                  marginLeft: 15,
+                  marginLeft: 8,
                   alignSelf: 'center',
                 }}>
                 {project.name}
@@ -82,8 +130,8 @@ const BidsSaved = () => {
               onPress={() => openImageModal(index)}
             />
             <Custombutton
-              title="Save Bids"
-              onPress={() => handleSaveBids(item.pk)}
+              title="UnSave Bids"
+              onPress={() => handleUnSaveBids(item.tender.pk)}
             />
           </View>
           <Modal
@@ -105,7 +153,7 @@ const BidsSaved = () => {
                 <Icon2 name="close" size={30} color="black" />
               </TouchableOpacity>
               <Image
-                source={{uri: item.image}}
+                source={{uri: item.tender.image}}
                 alt="tenderpicture"
                 style={{height: '80%', width: '80%', alignSelf: 'center'}}
                 resizeMode="contain"
@@ -114,7 +162,7 @@ const BidsSaved = () => {
           </Modal>
         </View>
       )}
-      keyExtractor={item => item.pk}
+      keyExtractor={item => item.tender.pk}
     />
   );
 };

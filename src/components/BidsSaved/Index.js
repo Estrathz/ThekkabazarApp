@@ -22,23 +22,23 @@ const Index = ({navigation}) => {
         </Text>
       </View>
 
-      <Text style={{fontSize: 20, marginLeft: 10, color: '#1F2937'}}>
-        Saved Bids and interested area.
-      </Text>
+      {/* <Text style={{fontSize: 20, marginLeft: 10, color: '#1F2937'}}>
+        Saved Bids
+      </Text> */}
       <View style={styles.bidsCard}>
         <TouchableOpacity
           onPress={() => setActive('bids')}
           style={[styles.tabButton, active === 'bids' && styles.activeTab]}>
           <Text style={styles.tabButtonText}>Saved Bids</Text>
         </TouchableOpacity>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           onPress={() => setActive('interest')}
           style={[styles.tabButton, active === 'interest' && styles.activeTab]}>
           <Text style={styles.tabButtonText}>Interested Area</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
       {active === 'bids' && <BidsComponent />}
-      {active === 'interest' && <InterestComponent />}
+      {/* {active === 'interest' && <InterestComponent />} */}
     </View>
   );
 };

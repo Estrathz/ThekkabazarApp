@@ -11,16 +11,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 15,
+    marginTop: 10,
   },
   tabButton: {
     paddingVertical: 10,
     paddingHorizontal: 20,
     marginLeft: 10,
+    width: 200,
   },
   activeTab: {
     borderRadius: 18,
-    backgroundColor: colors.primary,
+    backgroundColor: '#99ccff',
     shadowColor: 'black',
     shadowOffset: {width: 3, height: 2},
     shadowOpacity: 1,
@@ -30,6 +31,7 @@ const styles = StyleSheet.create({
   tabButtonText: {
     fontSize: 18,
     color: 'black',
+    alignSelf: "center",
   },
   interestCard: {
     margin: 15,

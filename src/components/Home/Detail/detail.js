@@ -116,7 +116,6 @@ const Detail = ({route, navigation}) => {
     };
 
 
-
   return (
     <ScrollView>
       <View style={styles.container}>

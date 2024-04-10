@@ -71,39 +71,51 @@ const Detail = ({route, navigation}) => {
  `;
   };
 
-  const handleDownload = async imageUrl => {
-    try {
-      // Request storage permission for Android
-      if (Platform.OS === 'android') {
-        const granted = await PermissionsAndroid.requestMultiple([
-          PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
-        ]);
-        if (granted['android.permission.READ_MEDIA_IMAGES'] !== 'granted') {
-          Alert.alert('Storage permission denied');
-          return;
-        }
-      }
-      const imageName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
-      const path = `${RNFS.DownloadDirectoryPath}/${imageName}`;
-      const image = await RNFS.downloadFile({
-        fromUrl: imageUrl,
-        toFile: path,
-      }).promise;
+  const handleDownload = async (imageUrl) => {
+      try {
+        if (Platform.OS === 'android') {
+          const granted = await PermissionsAndroid.requestMultiple([
+            PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+            PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
+          ]);
 
-      if (image.statusCode === 200) {
-        console.log('Image downloaded successfully:', path);
-        Alert.alert(
-          'Download Successful',
-          'Image has been saved to your downloads folder.',
-        );
-      } else {
-        console.log('Failed to download image:', image.statusCode);
-        Alert.alert('Download Failed', 'Failed to download image.');
-      }
-    } catch (error) {
-      console.error('Could not download image', error);
-    }
-  };
+          if (
+            granted['android.permission.READ_EXTERNAL_STORAGE'] !== 'granted' &&
+            granted['android.permission.READ_MEDIA_IMAGES'] !== 'granted'
+          ) {
+            console.log('One or both permissions denied');
+            Alert.alert(
+              'Permission Required',
+              'Please grant storage permissions to download the image.'
+            );
+            return;
+          }
+        }
+
+        const imageName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
+              const path = `${RNFS.DownloadDirectoryPath}/${imageName}`;
+              const image = await RNFS.downloadFile({
+                fromUrl: imageUrl,
+                toFile: path,
+              }).promise;
+
+              if (image.statusCode === 200) {
+                console.log('Image downloaded successfully:', path);
+                Alert.alert(
+                  'Download Successful',
+                  'Image has been saved to your downloads folder.',
+                );
+              } else {
+                console.log('Failed to download image:', image.statusCode);
+                Alert.alert('Download Failed', 'Failed to download image.');
+              }
+            } catch (error) {
+              console.error('Could not download image', error);
+            }
+
+    };
+
+
 
   return (
     <ScrollView>

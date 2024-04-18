@@ -45,12 +45,13 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   bannerImage: {
-    height: 40,
-    width: 40,
+    height: 35,
+    width: 35,
   },
   subtitletext: {
     color: colors.black,
-    fontSize: 18,
+    fontSize: 12,
+    paddingTop: 10
   },
   CardContainer: {
     backgroundColor: colors.white,

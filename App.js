@@ -4,11 +4,9 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import MainScreens from './src/Containers/Routes/MainScreens';
 
-import Login from './src/components/Login/login';
 import Toast, {BaseToast, ErrorToast} from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LoadingScreen from './src/Containers/Loading/loading';
-import Register from './src/components/Register/Register';
 
 export default function App() {
   const Stack = createStackNavigator();
@@ -64,14 +62,7 @@ export default function App() {
           screenOptions={{
             headerShown: false,
           }}>
-          {user ? (
-            <Stack.Screen name="MainScreen2" component={MainScreens} />
-          ) : (
-            <Stack.Screen name="Login2" component={Login} />
-          )}
-          <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="MainScreen" component={MainScreens} />
-          <Stack.Screen name="Register" component={Register} />
         </Stack.Navigator>
       </NavigationContainer>
       <Toast config={toastConfig} />

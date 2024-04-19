@@ -6,11 +6,11 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import {login} from '../../reducers/userSlice';
 import {useDispatch, useSelector} from 'react-redux';
 import Custombutton from '../../Containers/Button/button';
-import {useNavigation} from '@react-navigation/native';
+
 import Toast from 'react-native-toast-message';
 
-const Login = () => {
-  const navigation = useNavigation();
+const Login = ({navigation}) => {
+  // const navigation = useNavigation();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -22,8 +22,12 @@ const Login = () => {
     if (isAuthenticated) {
       navigation.navigate('MainScreen', {
         screen: 'BottomNav',
-        params: {screen: 'HomeScreen'},
+        params: {
+          screen: 'Home',
+          params: {screen: 'HomeScreen'},
+        },
       });
+      // navigation.navigate('HomeScreen');
     }
   }, [dispatch, isAuthenticated]);
 

@@ -18,6 +18,8 @@ import EditProfile from '../../components/Profile/UserProfile/EditProfile/editPr
 import BazarDetail from '../../components/Bazar/Detail/Detail';
 import SavedBids from '../../components/BidsSaved/Index';
 import AboutUs from '../../components/AboutUs/About';
+import Register from '../../components/Register/Register';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createStackNavigator();
@@ -37,6 +39,16 @@ const HomeStackScreen = () => {
         name="HomeDetails"
         component={Detail}
         options={{headerShown: false, unmountOnBlur: true}}
+      />
+      <HomeStack.Screen
+        name="Login"
+        component={Login}
+        options={{headerShown: false}}
+      />
+      <HomeStack.Screen
+        name="Register"
+        component={Register}
+        options={{headerShown: false}}
       />
     </HomeStack.Navigator>
   );
@@ -119,6 +131,26 @@ const BazarStackScreen = () => {
 };
 
 const BottomNav = () => {
+  const [token, setToken] = React.useState('');
+
+  useEffect(() => {
+    getToken();
+    if (token) {
+      console.log('ashdkasdhkasdhk');
+    }
+  }, [token]);
+
+  const getToken = async () => {
+    try {
+      const token = await AsyncStorage.getItem('access_token');
+      setToken(token);
+    } catch (error) {
+      console.error('Error retrieving token from AsyncStorage:', error);
+    }
+  };
+
+  const MoreScreenComponent = token ? ProfileStackScreen : Login;
+
   return (
     <Tab.Navigator detachInactiveScreens={true}>
       <Tab.Screen

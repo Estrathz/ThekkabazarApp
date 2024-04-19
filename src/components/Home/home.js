@@ -26,6 +26,8 @@ import DatePicker from 'react-native-date-picker';
 import HTML from 'react-native-render-html';
 import {useWindowDimensions} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import moment from 'moment';
+import {useFocusEffect} from '@react-navigation/native';
 
 const Home = ({navigation}) => {
   const dispatch = useDispatch();
@@ -47,10 +49,23 @@ const Home = ({navigation}) => {
   const [isImageVisible, setIsImageVisible] = useState(null);
   const {width} = useWindowDimensions();
   const [token, setToken] = useState('');
+
+  useFocusEffect(
+    React.useCallback(() => {
+      getToken();
+      if (token) {
+        console.log(token);
+      }
+    }, [token]),
+  );
+
   useEffect(() => {
     dispatch(fetchTenderListData());
     dispatch(fetchDropdownData());
-    getToken();
+    // getToken();
+    // if (token) {
+    //   console.log(token);
+    // }
 
     if (dropdownerror) {
       console.log(dropdownerror);
@@ -59,7 +74,7 @@ const Home = ({navigation}) => {
     if (error) {
       console.log(error);
     }
-  }, [dispatch]);
+  }, [dispatch, token]);
 
   const getToken = async () => {
     try {
@@ -128,13 +143,15 @@ const Home = ({navigation}) => {
   };
 
   const handleProfileNavi = () => {
-    navigation.navigate('MainScreen', {
-      screen: 'BottomNav',
-      params: {
-        screen: 'More',
-        params: {screen: 'ProfileScreen'},
-      },
-    });
+    token
+      ? navigation.navigate('MainScreen', {
+          screen: 'BottomNav',
+          params: {
+            screen: 'More',
+            params: {screen: 'ProfileScreen'},
+          },
+        })
+      : navigation.navigate('Login');
   };
 
   const handleEndReached = () => {
@@ -156,6 +173,17 @@ const Home = ({navigation}) => {
 
   const handleSaveBids = pk => {
     dispatch(savebid({id: pk, access_token: token}));
+  };
+
+  const handleDetailNavigation = pk => {
+    // token
+    //   ? navigation.navigate('HomeDetails', {id: pk})
+    //   : navigation.navigate('Login');
+    if (token) {
+      navigation.navigate('HomeDetails', {id: pk});
+    } else if (token === null || token === '') {
+      navigation.navigate('Login');
+    }
   };
 
   return (
@@ -220,9 +248,7 @@ const Home = ({navigation}) => {
                   fontWeight: 'bold',
                   marginTop: 8,
                 }}
-                onPress={() =>
-                  navigation.navigate('HomeDetails', {id: item.pk})
-                }>
+                onPress={() => handleDetailNavigation(item.pk)}>
                 {item.title}
               </Text>
               <Text style={{color: 'black', fontSize: 15, marginTop: 7}}>
@@ -490,7 +516,7 @@ const Home = ({navigation}) => {
                     setDatepicker(false);
                   }}
                 />
-                Select Date
+                {date.length > 0 ? date : 'Select date'}
               </Text>
               <SelectDropdown
                 data={projectTypeData}
@@ -533,7 +559,7 @@ const Home = ({navigation}) => {
                 data={procurementData}
                 onSelect={(selectedItem, index) => {
                   console.log(selectedItem, index);
-                  setProcurement(selectedItem);
+                  setProcurementsType(selectedItem);
                 }}
                 defaultButtonText={'Select Procurements Types'}
                 buttonTextAfterSelection={(selectedItem, index) => {

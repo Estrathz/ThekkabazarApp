@@ -191,7 +191,7 @@ const Profile = ({navigation}) => {
           <Icon2 name="arrow-forward-ios" size={20} color="black" />
         </View> */}
 
-        <View
+        {/* <View
           style={{
             display: 'flex',
             flexDirection: 'row',
@@ -212,7 +212,7 @@ const Profile = ({navigation}) => {
             color="black"
             onPress={() => navigation.navigate('Notice')}
           />
-        </View>
+        </View> */}
 
         <View style={{display: 'flex', flexDirection: 'row', margin: 14}}>
           <Icon name="exit-outline" size={25} color="red" />

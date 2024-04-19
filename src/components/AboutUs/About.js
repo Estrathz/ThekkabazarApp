@@ -94,7 +94,7 @@ const About = ({navigation}) => {
           <Text style={{color: 'black', fontSize: 24, fontWeight: 'bold'}}>
             {items.quotation}
           </Text>
-          <Text style={{color: 'black', fontSize: 20}}>
+          <Text style={{color: 'black', fontSize: 16, padding: 20, textAlign: 'justify'}}>
             {removeTags(items.description)}
           </Text>
         </View>

@@ -8,20 +8,29 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
 import {useDispatch, useSelector} from 'react-redux';
 import {getProfile} from '../../reducers/profileSlice';
+import {useFocusEffect} from '@react-navigation/native';
 
 const Profile = ({navigation}) => {
   const dispatch = useDispatch();
   const {data, error} = useSelector(state => state.userprofile);
   const [token, setToken] = useState('');
 
-  useEffect(() => {
-    getToken();
-    dispatch(getProfile({access_token: token}));
+  // useEffect(() => {
+  //   getToken();
+  //   dispatch(getProfile({access_token: token}));
 
-    if (error) {
-      console.log(error);
-    }
-  }, [dispatch, token]);
+  //   if (error) {
+  //     console.log(error);
+  //   }
+  // }, [dispatch, token]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      getToken();
+
+      dispatch(getProfile({access_token: token}));
+    }, [dispatch, token]),
+  );
 
   useEffect(() => {
     console.log(data.fullname, 'dadfahsgdfasjkdvjafvajls');
@@ -37,7 +46,15 @@ const Profile = ({navigation}) => {
   const handleLogout = async () => {
     try {
       await AsyncStorage.removeItem('access_token');
-      navigation.navigate('Login');
+
+      navigation.navigate('MainScreen', {
+        screen: 'BottomNav',
+        params: {
+          screen: 'Home',
+          params: {screen: 'HomeScreen'},
+        },
+      });
+
       Toast.show({
         type: 'success',
         text1: 'Log Out Successfully',
@@ -63,7 +80,7 @@ const Profile = ({navigation}) => {
           <Icon name="person-circle" size={50} color="black" />
           <View style={{marginLeft: 10}}>
             <Text style={{fontSize: 20, color: 'black', alignSelf: 'center'}}>
-              {data?.fullname}
+              {data?.fullname || 'No User'}
             </Text>
             <Text style={{fontSize: 15, color: 'black'}}>Free Account</Text>
           </View>

@@ -18,6 +18,8 @@ import Custombutton from '../../Containers/Button/button';
 import {fetchDropdownData} from '../../reducers/dropdownSlice';
 import {fetchresultData} from '../../reducers/resultSlice';
 import Icon2 from 'react-native-vector-icons/MaterialCommunityIcons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useFocusEffect} from '@react-navigation/native';
 
 const Result = ({navigation}) => {
   const [isModalVisible, setModalVisible] = useState(false);
@@ -36,11 +38,24 @@ const Result = ({navigation}) => {
   const [refreshing, setRefreshing] = useState(false);
   const [date, setDate] = useState(new Date());
   const [datepicker, setDatepicker] = useState(false);
+  const [token, setToken] = useState('');
+
+  useFocusEffect(
+    React.useCallback(() => {
+      getToken();
+      if (token) {
+        console.log(token);
+      }
+    }, [token]),
+  );
 
   useEffect(() => {
     dispatch(fetchDropdownData());
     dispatch(fetchresultData());
-
+    // getToken();
+    // if (token) {
+    //   console.log(token);
+    // }
     if (error) {
       console.log(error);
     }
@@ -48,7 +63,16 @@ const Result = ({navigation}) => {
     if (dropdownerror) {
       console.log(dropdownerror);
     }
-  }, [dispatch, error, dropdownerror]);
+  }, [dispatch, error, dropdownerror, token]);
+
+  const getToken = async () => {
+    try {
+      const token = await AsyncStorage.getItem('access_token');
+      setToken(token);
+    } catch (error) {
+      console.error('Error retrieving token from AsyncStorage:', error);
+    }
+  };
 
   useEffect(() => {
     if (data?.data && data.data.length > 0) {
@@ -113,6 +137,29 @@ const Result = ({navigation}) => {
     }
   };
 
+  const handleDetailNavigation = pk => {
+    // token
+    //   ? navigation.navigate('ResultDetails', {id: pk})
+    //   : navigation.navigate('MainScreen', {
+    //       screen: 'BottomNav',
+    //       params: {
+    //         screen: 'Home',
+    //         params: {screen: 'Login'},
+    //       },
+    //   });
+    if (token) {
+      navigation.navigate('ResultDetails', {id: pk});
+    } else if (token === null || token === '') {
+      navigation.navigate('MainScreen', {
+        screen: 'BottomNav',
+        params: {
+          screen: 'Home',
+          params: {screen: 'Login'},
+        },
+      });
+    }
+  };
+
   return (
     <View style={styles.ResultContainer}>
       <FlatList
@@ -156,9 +203,7 @@ const Result = ({navigation}) => {
                 fontWeight: 'bold',
                 marginTop: 8,
               }}
-              onPress={() =>
-                navigation.navigate('ResultDetails', {id: item?.pk})
-              }>
+              onPress={() => handleDetailNavigation(item?.pk)}>
               {item?.title}
             </Text>
             <Text style={{color: 'black', fontSize: 15, marginTop: 10}}>

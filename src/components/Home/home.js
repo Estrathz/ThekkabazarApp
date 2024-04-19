@@ -26,6 +26,7 @@ import DatePicker from 'react-native-date-picker';
 import HTML from 'react-native-render-html';
 import {useWindowDimensions} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import moment from 'moment';
 
 const Home = ({navigation}) => {
   const dispatch = useDispatch();
@@ -533,7 +534,7 @@ const Home = ({navigation}) => {
                 data={procurementData}
                 onSelect={(selectedItem, index) => {
                   console.log(selectedItem, index);
-                  setProcurement(selectedItem);
+                  setProcurementsType(selectedItem);
                 }}
                 defaultButtonText={'Select Procurements Types'}
                 buttonTextAfterSelection={(selectedItem, index) => {

@@ -20,6 +20,7 @@ import SavedBids from '../../components/BidsSaved/Index';
 import AboutUs from '../../components/AboutUs/About';
 import Register from '../../components/Register/Register';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useFocusEffect} from '@react-navigation/native';
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createStackNavigator();
@@ -133,12 +134,12 @@ const BazarStackScreen = () => {
 const BottomNav = () => {
   const [token, setToken] = React.useState('');
 
-  useEffect(() => {
-    getToken();
-    if (token) {
-      console.log('ashdkasdhkasdhk');
-    }
-  }, [token]);
+  useFocusEffect(
+    React.useCallback(() => {
+      getToken();
+      console.log(token);
+    }, [token]),
+  );
 
   const getToken = async () => {
     try {
@@ -257,7 +258,7 @@ const BottomNav = () => {
 
       <Tab.Screen
         name="More"
-        component={ProfileStackScreen}
+        component={token ? ProfileStackScreen : Login}
         options={{
           headerShown: false,
           tabBarIcon: ({focused, color}) => {

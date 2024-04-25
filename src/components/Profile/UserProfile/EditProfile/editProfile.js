@@ -31,11 +31,7 @@ const EditProfile = ({navigation}) => {
 
   useEffect(() => {
     getToken();
-
-    if (updateSuccess === true) {
-      navigation.navigate('UserProfile');
-    }
-  }, [updateSuccess]);
+  }, []);
 
   const getToken = async () => {
     try {
@@ -62,6 +58,11 @@ const EditProfile = ({navigation}) => {
         gender: gender,
       }),
     );
+    if (error) {
+      console.log(error);
+      return;
+    }
+    navigation.navigate('UserProfile', {profileUpdated: true});
   };
 
   return (

@@ -160,6 +160,10 @@ const Result = ({navigation}) => {
     }
   };
 
+  const removeHtmlTags = htmlString => {
+    return htmlString.replace(/<[^>]+>/g, '');
+  };
+
   return (
     <View style={styles.ResultContainer}>
       <FlatList
@@ -261,7 +265,7 @@ const Result = ({navigation}) => {
                   Awarded To:
                 </Text>
                 <Text style={{color: 'black', fontSize: 16}}>
-                  {item?.awarded_to}
+                  {removeHtmlTags(item?.description)}
                 </Text>
               </View>
             </View>

@@ -20,6 +20,8 @@ import {fetchresultData} from '../../reducers/resultSlice';
 import Icon2 from 'react-native-vector-icons/MaterialCommunityIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useFocusEffect} from '@react-navigation/native';
+import HTML from 'react-native-render-html';
+import {useWindowDimensions} from 'react-native';
 
 const Result = ({navigation}) => {
   const [isModalVisible, setModalVisible] = useState(false);
@@ -39,6 +41,7 @@ const Result = ({navigation}) => {
   const [date, setDate] = useState(new Date());
   const [datepicker, setDatepicker] = useState(false);
   const [token, setToken] = useState('');
+  const {width} = useWindowDimensions();
 
   useFocusEffect(
     React.useCallback(() => {
@@ -264,9 +267,11 @@ const Result = ({navigation}) => {
                   style={{color: 'black', fontSize: 16, fontWeight: 'bold'}}>
                   Awarded To:
                 </Text>
-                <Text style={{color: 'black', fontSize: 16}}>
-                  {removeHtmlTags(item?.description)}
-                </Text>
+                <HTML
+                  contentWidth={width}
+                  source={{html: item.description}}
+                  style={{fontSize: 10, color: 'black'}}
+                />
               </View>
             </View>
           </View>

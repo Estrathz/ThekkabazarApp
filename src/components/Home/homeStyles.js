@@ -118,8 +118,10 @@ const styles = StyleSheet.create({
   },
   Card: {
     backgroundColor: colors.white,
+    display: 'flex',
+    flexDirection: 'row',
     margin: 10,
-    padding: 15,
+    padding: 10,
     shadowOffset: {
       width: 0,
       height: 2,
@@ -129,10 +131,16 @@ const styles = StyleSheet.create({
     elevation: 5,
     marginBottom: 15,
   },
+  image: {
+    height: 300,
+    width: 120,
+    resizeMode: 'contain',
+  },
   CardText: {
-    color: '#808080',
+    color: '#000',
     fontSize: 14,
     marginLeft: 8,
+    flex: 1,
   },
   CardHeading: {
     display: 'flex',
@@ -144,6 +152,26 @@ const styles = StyleSheet.create({
     // justifyContent: 'space-between',
     // flexGrow: 1,
     flexWrap: 'wrap',
+  },
+  cusBottom: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '50%',
+    backgroundColor: colors.white,
+    borderRadius: 8,
+    marginTop: 10,
+    height: 50,
+    borderWidth: 1,
+    borderColor: colors.gray,
+    shadowOffset: {
+      width: 1,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   CardFooter: {
     display: 'flex',

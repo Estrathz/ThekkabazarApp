@@ -235,130 +235,130 @@ const Home = ({navigation}) => {
           }
           renderItem={({item, index}) => (
             <View key={index} style={styles.Card}>
-              <View style={styles.CardHeading}>
-                <Icon3 name="calendar-month" size={20} color="black" />
-                <Text style={styles.CardText}>
-                  Published Date : {item.published_date}
-                </Text>
+              <View>
+                <Image source={{uri: item.image}} style={styles.image} />
               </View>
-              <Text
-                style={{
-                  color: '#0375B7',
-                  fontSize: 18,
-                  fontWeight: 'bold',
-                  marginTop: 8,
-                }}
-                onPress={() => handleDetailNavigation(item.pk)}>
-                {item.title}
-              </Text>
-              <Text style={{color: 'black', fontSize: 15, marginTop: 7}}>
-                {item.public_entry_name}
-              </Text>
-              <View style={styles.Cardbodytext}>
-                {item.district?.map((location, index) => (
-                  <Text
-                    key={index}
-                    style={{
-                      color: '#185CAB',
-                      backgroundColor: '#F0F7FF',
-                      padding: 10,
-                      marginTop: 20,
-                      borderRadius: 8,
-                      alignSelf: 'center',
-                    }}>
-                    {location.name}
-                  </Text>
-                ))}
-
+              <View style={{padding: 8, flex: 1, flexDirection: 'column'}}>
                 <Text
+                  numberOfLines={2}
                   style={{
-                    color: '#0F9E1D',
-                    backgroundColor: '#E2FBE4',
-                    padding: 10,
-                    marginTop: 20,
-                    borderRadius: 8,
-                    marginLeft: 8,
-                    alignSelf: 'center',
-                  }}>
-                  Source: {item.source}
+                    color: '#0375B7',
+                    fontSize: 16,
+                    fontWeight: 'bold',
+                    marginTop: 8,
+                    width: '100%',
+                  }}
+                  onPress={() => handleDetailNavigation(item.pk)}>
+                  {item.title}
                 </Text>
-                {item.project_type?.map((project, index) => (
-                  <Text
-                    key={index}
-                    style={{
-                      color: '#FF7A00',
-                      backgroundColor: '#FFF2F0',
-                      padding: 10,
-                      marginTop: 8,
-                      borderRadius: 8,
-                      marginLeft: 8,
-                      alignSelf: 'center',
-                    }}>
-                    {project.name}
-                  </Text>
-                ))}
-              </View>
-
-              {item.description && (
-                <View>
-                  <Text style={{color: '#000', fontSize: 18}}>Works:</Text>
-                  <HTML
-                    contentWidth={width}
-                    source={{html: item.description}}
-                    style={{fontSize: 12, color: 'black'}}
-                  />
+                <Text numberOfLines={2} style={{color: 'black', fontSize: 15}}>
+                  {item.public_entry_name}
+                </Text>
+                <View style={{flexDirection: 'row', marginTop: 8}}>
+                  <View style={{flexDirection: 'row'}}>
+                    <Icon2 name="bag-handle" size={18} color="black" />
+                    <Text
+                      style={{
+                        color: 'black',
+                        fontSize: 15,
+                        fontWeight: 'bold',
+                      }}>
+                      Service:
+                    </Text>
+                  </View>
+                  {item.project_type?.map((project, index) => (
+                    <Text
+                      key={index}
+                      numberOfLines={2}
+                      style={{
+                        color: '#000',
+                        width: '100%',
+                        flex: 1,
+                      }}>
+                      {project.name}
+                    </Text>
+                  ))}
                 </View>
-              )}
+                <View style={{flexDirection: 'row', marginTop: 8}}>
+                  <View style={{flexDirection: 'row'}}>
+                    <Icon3 name="update" size={18} color="black" />
+                    <Text
+                      style={{
+                        color: 'black',
+                        fontSize: 15,
+                        fontWeight: 'bold',
+                      }}>
+                      Published:
+                    </Text>
+                  </View>
+                  <Text style={styles.CardText}>{item.published_date}</Text>
+                  <Text style={{color: '#fcc40d', marginLeft: 10}}>
+                    {item.days_left}
+                  </Text>
+                </View>
+                <View style={{flexDirection: 'row', marginTop: 8}}>
+                  <View style={{flexDirection: 'row'}}>
+                    <Icon2 name="newspaper" size={18} color="black" />
+                    <Text
+                      style={{
+                        color: 'black',
+                        fontSize: 15,
+                        fontWeight: 'bold',
+                      }}>
+                      Source:
+                    </Text>
+                  </View>
+                  <Text style={styles.CardText}>{item.source}</Text>
+                </View>
 
-              {/* <View>
-                <Text style={{color: '#000', fontSize: 18}}>Works:</Text>
-                <HTML
-                  contentWidth={width}
-                  source={{html: item.description}}
-                  style={{fontSize: 12, color: 'black'}}
-                />
-              </View> */}
+                <View style={{flexDirection: 'row', marginTop: 8}}>
+                  <View style={{flexDirection: 'row'}}>
+                    <Icon2 name="location" size={18} color="black" />
+                    <Text
+                      style={{
+                        color: 'black',
+                        fontSize: 15,
+                        fontWeight: 'bold',
+                      }}>
+                      Location:
+                    </Text>
+                  </View>
+                  {item.district?.map((loc, index) => (
+                    <Text
+                      key={index}
+                      numberOfLines={2}
+                      style={{
+                        color: '#000',
+                        width: '100%',
+                        flex: 1,
+                        marginLeft: 5,
+                      }}>
+                      {loc.name}
+                    </Text>
+                  ))}
+                </View>
 
-              <View style={styles.CardFooter}>
-                <Icon3
-                  name="file-multiple-outline"
-                  size={25}
-                  style={styles.Icons}
-                  onPress={() => openImageModal(index)}
-                />
-                <View style={{height: 40, width: '50%'}}>
-                  <Custombutton
+                <View
+                  style={{justifyContent: 'flex-end', alignItems: 'center'}}>
+                  <TouchableOpacity
+                    onPress={() => handleSaveBids(item.pk)}
+                    style={styles.cusBottom}>
+                    <Icon2 name="save-outline" size={25} color="#000" />
+                    <Text
+                      style={{
+                        color: '#000',
+                        fontSize: 15,
+                        alignSelf: 'center',
+                      }}>
+                      Save Bids
+                    </Text>
+                  </TouchableOpacity>
+                  {/* <Custombutton
                     title="Save Bids"
                     onPress={() => handleSaveBids(item.pk)}
-                  />
+                  /> */}
                 </View>
               </View>
-              <Modal
-                visible={isImageVisible === index}
-                animationType="slide"
-                transparent={true}>
-                <View
-                  style={{
-                    backgroundColor: 'white',
-                    height: '80%',
-                    bottom: 0,
-                    right: 0,
-                    left: 0,
-                    position: 'absolute',
-                  }}>
-                  <TouchableOpacity
-                    onPress={closeImageModal}
-                    style={{alignSelf: 'flex-end', margin: 10}}>
-                    <Icon2 name="close" size={30} color="black" />
-                  </TouchableOpacity>
-                  <Image
-                    source={{uri: item.image}}
-                    alt="tenderpicture"
-                    style={{height: '80%', width: '80%', alignSelf: 'center'}}
-                    resizeMode="contain"
-                  />
-                </View>
-              </Modal>
             </View>
           )}
           keyExtractor={item => item.pk}

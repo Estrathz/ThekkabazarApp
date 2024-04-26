@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
   tabButtonText: {
     fontSize: 18,
     color: 'black',
-    alignSelf: "center",
+    alignSelf: 'center',
   },
   interestCard: {
     margin: 15,
@@ -45,8 +45,10 @@ const styles = StyleSheet.create({
   },
   Card: {
     backgroundColor: colors.white,
+    display: 'flex',
+    flexDirection: 'row',
     margin: 10,
-    padding: 15,
+    padding: 10,
     shadowOffset: {
       width: 0,
       height: 2,
@@ -55,6 +57,31 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
     marginBottom: 15,
+  },
+  image: {
+    height: 300,
+    width: 120,
+    resizeMode: 'contain',
+  },
+  cusBottom: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '50%',
+    backgroundColor: colors.white,
+    borderRadius: 8,
+    marginTop: 10,
+    height: 50,
+    borderWidth: 1,
+    borderColor: colors.gray,
+    shadowOffset: {
+      width: 1,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   CardText: {
     color: '#808080',

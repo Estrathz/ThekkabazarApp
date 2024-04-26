@@ -133,24 +133,25 @@ const BazarStackScreen = () => {
 
 const BottomNav = () => {
   const [token, setToken] = React.useState('');
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
 
   useFocusEffect(
     React.useCallback(() => {
       getToken();
+      setIsLoggedIn(!!token);
       console.log(token);
     }, [token]),
   );
 
   const getToken = async () => {
     try {
+      console.log('adsbdjasvd');
       const token = await AsyncStorage.getItem('access_token');
       setToken(token);
     } catch (error) {
       console.error('Error retrieving token from AsyncStorage:', error);
     }
   };
-
-  const MoreScreenComponent = token ? ProfileStackScreen : Login;
 
   return (
     <Tab.Navigator detachInactiveScreens={true}>
@@ -258,7 +259,7 @@ const BottomNav = () => {
 
       <Tab.Screen
         name="More"
-        component={token ? ProfileStackScreen : Login}
+        component={ProfileStackScreen}
         options={{
           headerShown: false,
           tabBarIcon: ({focused, color}) => {

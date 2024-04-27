@@ -1,10 +1,12 @@
 import {StyleSheet} from 'react-native';
+import { colors, fonts } from '../../theme';
 
 const styles = StyleSheet.create({
   sliderContainer: {
-    height: 200,
-    padding: 10,
+    height: 250,
+    paddingHorizontal:10,
     borderRadius: 20,
+    backgroundColor: colors.white
   },
   wrapper: {},
   slide: {
@@ -15,18 +17,12 @@ const styles = StyleSheet.create({
   backgroundImage: {
     flex: 1,
     width: '100%',
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-    padding: 2,
-    borderRadius: 20,
-    overflow: 'hidden',
+    height: "100%",
   },
   carouselImage: {
-    width: '30%',
-    height: 130,
-    borderRadius: 20,
+    width: '100%',
+    height: "100%",
+    resizeMode:"contain",
   },
 });
 

@@ -76,10 +76,10 @@ const UserProfile = ({navigation}) => {
         </View>
 
         <View style={{display: 'flex'}}>
-          <View style={{flexDirection: 'row', padding: 10}}>
-            <Text style={{fontSize: 18, color: 'black'}}>User Name:</Text>
+        <View style={{flexDirection: 'row', padding: 10}}>
+            <Text style={{fontSize: 18, color: 'black'}}>Full Name:</Text>
             <Text style={{fontSize: 18, color: '#7F8A99', marginLeft: 13}}>
-              {data?.username}
+              {data?.fullname}
             </Text>
           </View>
           <View
@@ -99,13 +99,22 @@ const UserProfile = ({navigation}) => {
             </Text>
           </View>
           <View style={{flexDirection: 'row', padding: 10}}>
-            <Text style={{fontSize: 18, color: 'black'}}>Full Name:</Text>
+            <Text style={{fontSize: 18, color: 'black'}}>Company Name:</Text>
             <Text style={{fontSize: 18, color: '#7F8A99', marginLeft: 13}}>
-              {data?.fullname}
+              {data?.company_name}
             </Text>
           </View>
-
           <View style={{flexDirection: 'row', padding: 10}}>
+            <Text style={{fontSize: 18, color: 'black'}}>User Name:</Text>
+            <Text style={{fontSize: 18, color: '#7F8A99', marginLeft: 13}}>
+              {data?.username}
+            </Text>
+          </View>
+          
+          
+          
+
+          {/* <View style={{flexDirection: 'row', padding: 10}}>
             <Text style={{fontSize: 18, color: 'black'}}>Gender:</Text>
             <Text style={{fontSize: 16, color: '#7F8A99', marginLeft: 13}}>
               {data?.gender}
@@ -126,12 +135,7 @@ const UserProfile = ({navigation}) => {
             </Text>
           </View>
 
-          <View style={{flexDirection: 'row', padding: 10}}>
-            <Text style={{fontSize: 18, color: 'black'}}>Company Name:</Text>
-            <Text style={{fontSize: 18, color: '#7F8A99', marginLeft: 13}}>
-              {data?.company_name}
-            </Text>
-          </View>
+          
 
           <View style={{flexDirection: 'row', padding: 10}}>
             <Text style={{fontSize: 18, color: 'black'}}>Office Name:</Text>
@@ -154,7 +158,7 @@ const UserProfile = ({navigation}) => {
             <Text style={{fontSize: 18, color: '#7F8A99', marginLeft: 13}}>
               {data?.website_url}
             </Text>
-          </View>
+          </View> */}
         </View>
       </View>
     </View>

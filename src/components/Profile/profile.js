@@ -1,4 +1,4 @@
-import {View, Text} from 'react-native';
+import {View, Text, Linking} from 'react-native';
 import React, {useState, useEffect} from 'react';
 import styles from './profileStyle';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -65,6 +65,17 @@ const Profile = ({navigation}) => {
     } catch (error) {
       console.log(error);
     }
+  };
+  // Function to handle phone number tap
+  const handlePhonePress = () => {
+    const phoneNumber = '01-4794001';
+    Linking.openURL(`tel:${phoneNumber}`);
+  };
+
+  // Function to handle email tap
+  const handleEmailPress = () => {
+    const email = 'info@thekkabazar.com';
+    Linking.openURL(`mailto:${email}`);
   };
   return (
     <View style={styles.ProfileContainer}>
@@ -283,6 +294,7 @@ const Profile = ({navigation}) => {
           }}>
           <Icon2 name="local-phone" size={30} color="#28A745" />
           <Text
+          onPress={handlePhonePress}
             numberOfLines={2}
             ellipsizeMode="tail"
             style={{
@@ -292,7 +304,7 @@ const Profile = ({navigation}) => {
               marginLeft: 7,
               width: '70%',
             }}>
-            9860009939
+            01-4794001
           </Text>
         </View>
 
@@ -306,6 +318,7 @@ const Profile = ({navigation}) => {
           }}>
           <Icon2 name="email" size={30} color="#185CAB" />
           <Text
+            onPress={handleEmailPress}
             numberOfLines={2}
             ellipsizeMode="tail"
             style={{
@@ -315,7 +328,7 @@ const Profile = ({navigation}) => {
               marginLeft: 7,
               width: '70%',
             }}>
-            rajan.aryal195@gmail.com
+            info@thekkabazar.com
           </Text>
         </View>
       </View>

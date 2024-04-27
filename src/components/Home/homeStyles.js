@@ -10,32 +10,33 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingVertical:10,
     height: '100px',
+    backgroundColor:colors.white
   },
   iconsContainer: {
     flexDirection: 'row',
     width: '25%',
-    justifyContent: 'flex-end',
-    marginRight: 10,
+    
   },
   logo: {
-    width: 70,
+    width: 85,
+    objectFit: "contain",
     aspectRatio: 2 / 1,
-  },
-  SearchContainer: {
-    flexDirection: 'row',
-    // padding: 20,
-    height: '100px',
   },
   searchSection: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff',
-    borderRadius: 50,
-    width: '100%',
+    borderRadius: 10,
+    width:"100%",
     height: 45,
+    marginTop: 4,
+    marginLeft:10,
+    borderColor:colors.gray,
+    borderWidth:1
   },
   searchIcon: {
     padding: 10,
@@ -47,10 +48,10 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     paddingLeft: 0,
     marginLeft: 10,
-    borderTopLeftRadius: 50,
-    borderBottomLeftRadius: 50,
-    borderTopRightRadius: 50,
-    borderBottomRightRadius: 50,
+    borderTopLeftRadius: 30,
+    borderBottomLeftRadius: 30,
+    borderTopRightRadius: 30,
+    borderBottomRightRadius: 30,
     backgroundColor: '#fff',
     color: '#424242',
   },
@@ -118,6 +119,7 @@ const styles = StyleSheet.create({
   },
   Card: {
     backgroundColor: colors.white,
+    borderRadius: 10,
     margin: 10,
     padding: 15,
     shadowOffset: {

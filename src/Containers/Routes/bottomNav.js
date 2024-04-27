@@ -20,6 +20,7 @@ import SavedBids from '../../components/BidsSaved/Index';
 import AboutUs from '../../components/AboutUs/About';
 import Register from '../../components/Register/Register';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useFocusEffect} from '@react-navigation/native';
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createStackNavigator();
@@ -132,24 +133,25 @@ const BazarStackScreen = () => {
 
 const BottomNav = () => {
   const [token, setToken] = React.useState('');
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
 
-  useEffect(() => {
-    getToken();
-    if (token) {
-      console.log('ashdkasdhkasdhk');
-    }
-  }, [token]);
+  useFocusEffect(
+    React.useCallback(() => {
+      getToken();
+      setIsLoggedIn(!!token);
+      console.log(token);
+    }, [token]),
+  );
 
   const getToken = async () => {
     try {
+      console.log('adsbdjasvd');
       const token = await AsyncStorage.getItem('access_token');
       setToken(token);
     } catch (error) {
       console.error('Error retrieving token from AsyncStorage:', error);
     }
   };
-
-  const MoreScreenComponent = token ? ProfileStackScreen : Login;
 
   return (
     <Tab.Navigator detachInactiveScreens={true}>

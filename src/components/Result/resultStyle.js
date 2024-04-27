@@ -89,6 +89,7 @@ const styles = StyleSheet.create({
   },
   Card: {
     backgroundColor: colors.white,
+    flexDirection: 'row',
     padding: 15,
     shadowOffset: {
       width: 0,
@@ -99,6 +100,11 @@ const styles = StyleSheet.create({
     elevation: 5,
     marginBottom: 15,
   },
+  image: {
+    height: 300,
+    width: 120,
+    resizeMode: 'contain',
+  },
   CardText: {
     color: '#808080',
     fontSize: 16,
@@ -107,6 +113,26 @@ const styles = StyleSheet.create({
   CardHeading: {
     display: 'flex',
     flexDirection: 'row',
+  },
+  cusBottom: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '50%',
+    backgroundColor: colors.white,
+    borderRadius: 8,
+    marginTop: 10,
+    height: 50,
+    borderWidth: 1,
+    borderColor: colors.gray,
+    shadowOffset: {
+      width: 1,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   Cardbodytext: {
     display: 'flex',

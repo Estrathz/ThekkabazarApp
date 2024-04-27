@@ -35,6 +35,15 @@ const styles = StyleSheet.create({
     borderBottomColor: '#EDEDED',
     marginTop: 10,
   },
+  modalContainer: {
+    width: '100%',
+    height: '70%',
+    backgroundColor: colors.white,
+    bottom: 0,
+    right: 0,
+    left: 0,
+    position: 'absolute',
+  },
 });
 
 export default styles;

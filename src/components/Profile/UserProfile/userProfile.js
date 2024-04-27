@@ -6,28 +6,45 @@ import Custombutton from '../../../Containers/Button/button';
 import {useDispatch, useSelector} from 'react-redux';
 import {getProfile} from '../../../reducers/profileSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useFocusEffect} from '@react-navigation/native';
+import {
+  useFocusEffect,
+  CommonActions,
+  useRoute,
+} from '@react-navigation/native';
 
 const UserProfile = ({navigation}) => {
   const dispatch = useDispatch();
   const {data, error} = useSelector(state => state.userprofile);
   const [token, setToken] = useState('');
+  const route = useRoute();
 
   useFocusEffect(
     React.useCallback(() => {
       getToken();
-      dispatch(getProfile({access_token: token}));
+      // dispatch(getProfile({access_token: token}));
 
       if (error) {
         console.log(error);
       }
-    }, [dispatch, token, error]),
+    }, []),
   );
+
+  useEffect(() => {
+    if (route.params && route.params.profileUpdated) {
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{name: 'UserProfile'}],
+        }),
+      );
+    }
+  }, [route.params]);
 
   const getToken = async () => {
     try {
       const token = await AsyncStorage.getItem('access_token');
       setToken(token);
+      dispatch(getProfile({access_token: token}));
     } catch (error) {
       console.error('Error retrieving token from AsyncStorage:', error);
     }
@@ -70,7 +87,7 @@ const UserProfile = ({navigation}) => {
           <View style={{width: '30%'}}>
             <Custombutton
               title="Edit"
-              onPress={() => navigation.push('EditProfile')}
+              onPress={() => navigation.navigate('EditProfile')}
             />
           </View>
         </View>

@@ -306,7 +306,7 @@ const Home = ({navigation}) => {
                     </Text>
                   </View>
                   <Text style={styles.CardText}>{item.published_date}</Text>
-                  <Text style={{color: '#fcc40d', marginLeft: 10}}>
+                  <Text style={{color: '#fcc40d', marginRight: 10, fontSize:12}}>
                     {item.days_left}
                   </Text>
                 </View>
@@ -352,23 +352,12 @@ const Home = ({navigation}) => {
                   ))}
                 </View>
 
-<<<<<<< HEAD
-              <View style={styles.CardFooter}>
-                <Icon3
-                  name="file-multiple-outline"
-                  size={25}
-                  style={styles.Icons}
-                  onPress={() => handleImageOpen(index)}
-                />
-                <View style={{height: 40, width: '50%'}}>
-                  <Custombutton
-=======
                 <View
                   style={{justifyContent: 'flex-end', alignItems: 'center'}}>
                   <TouchableOpacity
                     onPress={() => handleSaveBids(item.pk)}
                     style={styles.cusBottom}>
-                    <Icon2 name="save-outline" size={25} color="#000" />
+                    <Icon2 name="save-outline" size={20} color="#000" />
                     <Text
                       style={{
                         color: '#000',
@@ -379,7 +368,6 @@ const Home = ({navigation}) => {
                     </Text>
                   </TouchableOpacity>
                   {/* <Custombutton
->>>>>>> a537a171e061e2ad8f01c19d18ed1763fa91c41a
                     title="Save Bids"
                     onPress={() => handleSaveBids(item.pk)}
                   /> */}

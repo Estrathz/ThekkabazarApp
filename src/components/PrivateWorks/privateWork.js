@@ -134,7 +134,7 @@ const PrivateWork = ({navigation}) => {
             Get the best Sub-Contractor for your work
           </Text>
           <View style={styles.bannerBody}>
-            <View style={{display: 'flex', flexDirection: 'row', width: '33%'}}>
+            <View style={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '33%'}}>
               <Image
                 style={styles.bannerImage}
                 source={require('../../assets/handIcon.png')}
@@ -146,7 +146,7 @@ const PrivateWork = ({navigation}) => {
                 Post Your Work
               </Text>
             </View>
-            <View style={{display: 'flex', flexDirection: 'row', width: '33%'}}>
+            <View style={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '33%'}}>
               <Image
                 style={styles.bannerImage}
                 source={require('../../assets/mens.png')}
@@ -158,7 +158,7 @@ const PrivateWork = ({navigation}) => {
                 Find Workers
               </Text>
             </View>
-            <View style={{display: 'flex', flexDirection: 'row', width: '33%'}}>
+            <View style={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '33%'}}>
               <Image
                 style={styles.bannerImage}
                 source={require('../../assets/tools.png')}
@@ -166,7 +166,7 @@ const PrivateWork = ({navigation}) => {
               <Text
                 numberOfLines={2}
                 ellipsizeMode="tail"
-                style={[styles.subtitletext]}>
+                style={styles.subtitletext}>
                 Complete Projects
               </Text>
             </View>

@@ -119,12 +119,8 @@ const styles = StyleSheet.create({
   },
   Card: {
     backgroundColor: colors.white,
-<<<<<<< HEAD
-    borderRadius: 10,
-=======
     display: 'flex',
     flexDirection: 'row',
->>>>>>> a537a171e061e2ad8f01c19d18ed1763fa91c41a
     margin: 10,
     padding: 10,
     shadowOffset: {
@@ -138,7 +134,7 @@ const styles = StyleSheet.create({
   },
   image: {
     height: 300,
-    width: 120,
+    width: 100,
     resizeMode: 'contain',
   },
   CardText: {
@@ -163,11 +159,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    width: '50%',
+    width: '40%',
     backgroundColor: colors.white,
     borderRadius: 8,
-    marginTop: 10,
-    height: 50,
+    marginTop: 20,
+    height: 35,
     borderWidth: 1,
     borderColor: colors.gray,
     shadowOffset: {

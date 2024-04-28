@@ -236,7 +236,11 @@ const Home = ({navigation}) => {
           renderItem={({item, index}) => (
             <View key={index} style={styles.Card}>
               <View>
-                <Image source={{uri: item.image}} style={styles.image} />
+                <Image
+                  source={{uri: item.image}}
+                  style={styles.image}
+                  onPress={() => openImageModal(index)}
+                />
               </View>
               <View style={{padding: 8, flex: 1, flexDirection: 'column'}}>
                 <Text
@@ -359,6 +363,32 @@ const Home = ({navigation}) => {
                   /> */}
                 </View>
               </View>
+              <Modal
+                visible={isImageVisible === index}
+                animationType="slide"
+                transparent={true}>
+                <View
+                  style={{
+                    backgroundColor: 'white',
+                    height: '100%',
+                    bottom: 0,
+                    right: 0,
+                    left: 0,
+                    position: 'absolute',
+                  }}>
+                  <TouchableOpacity
+                    onPress={closeImageModal}
+                    style={{alignSelf: 'flex-end', margin: 10}}>
+                    <Icon2 name="close" size={30} color="black" />
+                  </TouchableOpacity>
+                  <Image
+                    source={{uri: item.image}}
+                    alt="tenderpicture"
+                    style={{height: '80%', width: '80%', alignSelf: 'center'}}
+                    resizeMode="contain"
+                  />
+                </View>
+              </Modal>
             </View>
           )}
           keyExtractor={item => item.pk}

@@ -167,7 +167,11 @@ const Result = ({navigation}) => {
   };
 
   const openImageModal = index => {
-    setIsImageVisible(index);
+    if (token) {
+      setIsImageVisible(index);
+    } else if (token === null || token === '') {
+      navigation.navigate('Login');
+    }
   };
 
   const closeImageModal = () => {

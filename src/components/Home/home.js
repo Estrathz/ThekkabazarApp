@@ -29,12 +29,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import moment from 'moment';
 import {useFocusEffect} from '@react-navigation/native';
 
-
 const Home = ({navigation}) => {
   const dispatch = useDispatch();
   const {data, error} = useSelector(state => state.card);
   const {dropdowndata, dropdownerror} = useSelector(state => state.dropdown);
-  
+
   const [isModalVisible, setModalVisible] = useState(false);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -53,139 +52,144 @@ const Home = ({navigation}) => {
   const [token, setToken] = useState('');
 
   useEffect(() => {
-      getToken();
-      if (token) {
-        console.log(token);
-      }
-    }, [token]);
-
-    useEffect(() => {
-     
-      dispatch(fetchTenderListData());
-      dispatch(fetchDropdownData());
-
-      if (dropdownerror) {
-        console.log(dropdownerror);
-      }
-
-      if (error) {
-        console.log(error);
-      }
-    }, [dispatch, token]);
-
-    const getToken = async () => {
-      try {
-        const token = await AsyncStorage.getItem('access_token');
-        setToken(token);
-      } catch (error) {
-        console.error('Error retrieving token from AsyncStorage:', error);
-      }
-    };
-
-    useEffect(() => {
-      if (data?.data && data.data.length > 0) {
-        if (page === 1) {
-          setAllData(data.data);
-        } else {
-          setAllData(prevData => {
-            const newData = data.data.filter(
-              newItem => !prevData.some(prevItem => prevItem.pk === newItem.pk),
-            );
-            return [...prevData, ...newData];
-          });
-        }
-      }
-    }, [data, page]);
-
-    const organizationData = dropdowndata?.organization_sectors?.map(
-      item => item.name,
-    );
-    const categoryData = dropdowndata?.categories?.map(item => item.name);
-    const LocationData = dropdowndata?.districts?.map(item => item.name);
-    const projectTypeData = dropdowndata?.project_types?.map(item => item.name);
-    const procurementData = dropdowndata?.procurement_types?.map(
-      item => item.name,
-    );
-
-    const openModal = () => {
-      setModalVisible(true);
-    };
-
-    const closeModal = () => {
-      setModalVisible(false);
-    };
-
-    const handleFilter = () => {
-      closeModal();
-      console.log('handleFilter', date);
-      setPage(1);
-      const formattedDate = moment(date).format('YYYY-MM-DD');
-      dispatch(
-        fetchTenderListData({
-          organization_sector: organization,
-          location: location,
-          project_type: projectType,
-          procurement_type: procurementsType,
-          category: category,
-          search: search,
-          published_date: formattedDate,
-        }),
-      );
-    };
-
-    const onRefresh = () => {
-      setRefreshing(true);
-      dispatch(fetchTenderListData());
-      setRefreshing(false);
-    };
-
-    const handleProfileNavi = () => {
-      token
-        ? navigation.navigate('MainScreen', {
-            screen: 'BottomNav',
-            params: {
-              screen: 'More',
-              params: { screen: 'ProfileScreen' },
-            },
-          })
-        : navigation.navigate('Login');
-    };
-
-    const handleEndReached = () => {
-      const nextPage = page + 1;
-      console.log('handleEndReached', nextPage, data.total_pages);
-      if (nextPage <= data.total_pages) {
-        dispatch(fetchTenderListData({ page: nextPage }));
-        setPage(nextPage); // Update the page state
-      }
-    };
-
-    const openImageModal = index => {
-      setIsImageVisible(index);
-    };
-
-    const closeImageModal = () => {
-      setIsImageVisible(null);
-    };
-
-    const handleSaveBids = pk => {
-      dispatch(savebid({ id: pk, access_token: token }));
-    };
-
-    const handleDetailNavigation = pk => {
-      if (token) {
-        navigation.navigate('HomeDetails', { id: pk });
-      } else if (token === null || token === '') {
-        navigation.navigate('Login');
-      }
-    };
-
-    const handleImageOpen = (index) =>{
-      // token ? 
-      // openImageModal(index) : navigation.navigate("Login")
-      console.log("ajhvdfjsd", index)
-      openImageModal(index) 
+    getToken();
+    if (token) {
+      console.log(token);
     }
+  }, [token]);
+
+  useEffect(() => {
+    dispatch(fetchTenderListData());
+    dispatch(fetchDropdownData());
+
+    if (dropdownerror) {
+      console.log(dropdownerror);
+    }
+
+    if (error) {
+      console.log(error);
+    }
+  }, [dispatch, token]);
+
+  const getToken = async () => {
+    try {
+      const token = await AsyncStorage.getItem('access_token');
+      setToken(token);
+    } catch (error) {
+      console.error('Error retrieving token from AsyncStorage:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (data?.data && data.data.length > 0) {
+      if (page === 1) {
+        setAllData(data.data);
+      } else {
+        setAllData(prevData => {
+          const newData = data.data.filter(
+            newItem => !prevData.some(prevItem => prevItem.pk === newItem.pk),
+          );
+          return [...prevData, ...newData];
+        });
+      }
+    }
+  }, [data, page]);
+
+  const organizationData = dropdowndata?.organization_sectors?.map(
+    item => item.name,
+  );
+  const categoryData = dropdowndata?.categories?.map(item => item.name);
+  const LocationData = dropdowndata?.districts?.map(item => item.name);
+  const projectTypeData = dropdowndata?.project_types?.map(item => item.name);
+  const procurementData = dropdowndata?.procurement_types?.map(
+    item => item.name,
+  );
+
+  const openModal = () => {
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
+
+  const handleFilter = () => {
+    closeModal();
+    console.log('handleFilter', date);
+    setPage(1);
+    const formattedDate = moment(date).format('YYYY-MM-DD');
+    dispatch(
+      fetchTenderListData({
+        organization_sector: organization,
+        location: location,
+        project_type: projectType,
+        procurement_type: procurementsType,
+        category: category,
+        search: search,
+        published_date: formattedDate,
+      }),
+    );
+  };
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    dispatch(fetchTenderListData());
+    setRefreshing(false);
+  };
+
+  const handleProfileNavi = () => {
+    token
+      ? navigation.navigate('MainScreen', {
+          screen: 'BottomNav',
+          params: {
+            screen: 'More',
+            params: {screen: 'ProfileScreen'},
+          },
+        })
+      : navigation.navigate('Login');
+  };
+
+  const handleEndReached = () => {
+    const nextPage = page + 1;
+    console.log('handleEndReached', nextPage, data.total_pages);
+    if (nextPage <= data.total_pages) {
+      dispatch(fetchTenderListData({page: nextPage}));
+      setPage(nextPage); // Update the page state
+    }
+  };
+
+  const openImageModal = index => {
+    if (token) {
+      setIsImageVisible(index);
+    } else if (token === null || token === '') {
+      navigation.navigate('Login');
+    }
+
+    // setIsImageVisible(index);
+  };
+
+  const closeImageModal = () => {
+    setIsImageVisible(null);
+  };
+
+  const handleSaveBids = pk => {
+    dispatch(savebid({id: pk, access_token: token}));
+  };
+
+  const handleDetailNavigation = pk => {
+    if (token) {
+      navigation.navigate('HomeDetails', {id: pk});
+    } else if (token === null || token === '') {
+      navigation.navigate('Login');
+    }
+  };
+
+  const handleImageOpen = index => {
+    // token ?
+    // openImageModal(index) : navigation.navigate("Login")
+    console.log('ajhvdfjsd', index);
+    openImageModal(index);
+  };
 
   return (
     <View style={styles.HomeContainer}>
@@ -200,26 +204,25 @@ const Home = ({navigation}) => {
                   style={styles.logo}
                 />
                 <View>
-                <TouchableOpacity
-                  onPress={openModal}
-                  style={styles.searchSection}>
-                  <Icon
-                    style={styles.searchIcon}
-                    name="search"
-                    size={20}
-                    color="#000"
-                  />
+                  <TouchableOpacity
+                    onPress={openModal}
+                    style={styles.searchSection}>
+                    <Icon
+                      style={styles.searchIcon}
+                      name="search"
+                      size={20}
+                      color="#000"
+                    />
 
-                  <Text
-                    style={styles.input}
-                    // onChangeText={searchString => this.setState({searchString})}
-                    underlineColorAndroid="transparent"
-                    placeholderTextColor={'#424242'}>
-                    Search
-                  </Text>
-                </TouchableOpacity>
+                    <Text
+                      style={styles.input}
+                      // onChangeText={searchString => this.setState({searchString})}
+                      underlineColorAndroid="transparent"
+                      placeholderTextColor={'#424242'}>
+                      Search
+                    </Text>
+                  </TouchableOpacity>
                 </View>
-                
               </View>
               {/* <View style={styles.SearchContainer}>
                 <TouchableOpacity
@@ -241,10 +244,9 @@ const Home = ({navigation}) => {
                   </Text>
                 </TouchableOpacity>
               </View> */}
-            <View>
-                <Slider/>
-                </View>
-              
+              <View>
+                <Slider />
+              </View>
             </>
           }
           renderItem={({item, index}) => (
@@ -356,17 +358,6 @@ const Home = ({navigation}) => {
                   ))}
                 </View>
 
-<<<<<<< HEAD
-              <View style={styles.CardFooter}>
-                <Icon3
-                  name="file-multiple-outline"
-                  size={25}
-                  style={styles.Icons}
-                  onPress={() => handleImageOpen(index)}
-                />
-                <View style={{height: 40, width: '50%'}}>
-                  <Custombutton
-=======
                 <View
                   style={{justifyContent: 'flex-end', alignItems: 'center'}}>
                   <TouchableOpacity
@@ -383,7 +374,6 @@ const Home = ({navigation}) => {
                     </Text>
                   </TouchableOpacity>
                   {/* <Custombutton
->>>>>>> a537a171e061e2ad8f01c19d18ed1763fa91c41a
                     title="Save Bids"
                     onPress={() => handleSaveBids(item.pk)}
                   /> */}

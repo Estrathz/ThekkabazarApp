@@ -27,7 +27,11 @@ const Profile = ({navigation, key}) => {
   useFocusEffect(
     React.useCallback(() => {
       getToken();
+      if (token) {
+        console.log(token);
+      }
     }, [dispatch, token]),
+
   );
   const getToken = async () => {
     try {

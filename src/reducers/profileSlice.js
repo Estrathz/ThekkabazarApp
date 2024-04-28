@@ -2,6 +2,7 @@ import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import axios from 'axios';
 import {BASE_URL} from './apiUrl';
 import Toast from 'react-native-toast-message';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const getProfile = createAsyncThunk(
   'data/getProfile',
@@ -116,6 +117,19 @@ export const getSavedBids = createAsyncThunk(
   },
 );
 
+export const resetUserProfile = createAsyncThunk(
+  'userprofile/reset',
+  async () => {
+    console.log('reset');
+    try {
+      await AsyncStorage.removeItem('access_token');
+      console.log('removed');
+    } catch (error) {
+      console.log(error);
+    }
+  },
+);
+
 const profileSlice = createSlice({
   name: 'profile',
   initialState: {
@@ -193,6 +207,19 @@ const profileSlice = createSlice({
       })
       .addCase(getSavedBids.rejected, (state, action) => {
         state.status = 'failed';
+        state.error = action.error.message;
+      })
+      .addCase(resetUserProfile.pending, (state, action) => {
+        state.status = 'idle';
+        state.error = null;
+      })
+      .addCase(resetUserProfile.fulfilled, (state, action) => {
+        state.status = 'idle';
+        state.data = [];
+        state.error = null;
+      })
+      .addCase(resetUserProfile.rejected, (state, action) => {
+        state.status = 'idle';
         state.error = action.error.message;
       });
   },

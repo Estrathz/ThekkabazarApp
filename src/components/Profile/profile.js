@@ -9,62 +9,60 @@ import Toast from 'react-native-toast-message';
 import {useDispatch, useSelector} from 'react-redux';
 import {getProfile} from '../../reducers/profileSlice';
 import {useFocusEffect} from '@react-navigation/native';
+import {resetUserProfile} from '../../reducers/profileSlice';
 
-const Profile = ({navigation, key}) => {
+const Profile = ({navigation}) => {
   const dispatch = useDispatch();
   const {data, error} = useSelector(state => state.userprofile);
   const [token, setToken] = useState('');
 
-  // useEffect(() => {
-  //   getToken();
-  //   dispatch(getProfile({access_token: token}));
-
-  //   if (error) {
-  //     console.log(error);
-  //   }
-  // }, [dispatch, token]);
-
   useFocusEffect(
     React.useCallback(() => {
-      getToken();
-      if (token) {
-        console.log(token);
-      }
-    }, [dispatch, token]),
+      const fetchToken = async () => {
+        try {
+          const storedToken = await AsyncStorage.getItem('access_token');
+          setToken(storedToken);
+          dispatch(getProfile({access_token: storedToken}));
+        } catch (error) {
+          console.error(error);
+        }
+      };
 
+      fetchToken();
+    }, [dispatch]),
   );
+
+  // useFocusEffect(
+  //   React.useCallback(() => {
+  //     getToken();
+  //   }, []),
+  // );
   const getToken = async () => {
     try {
-      const token = await AsyncStorage.getItem('access_token');
-      setToken(token);
-      dispatch(getProfile({access_token: token}));
+      const storedToken = await AsyncStorage.getItem('access_token');
+      setToken(storedToken);
     } catch (error) {
-      console.error('Error retrieving token from AsyncStorage:', error);
+      console.error(error);
     }
   };
-  const handleLogout = async () => {
+
+  const handleLogout = () => {
     try {
-      await AsyncStorage.removeItem('access_token');
-
-      navigation.navigate('MainScreen', {
-        screen: 'BottomNav',
-        params: {
-          screen: 'Home',
-          params: {screen: 'HomeScreen'},
-        },
-      });
-
+      dispatch(resetUserProfile());
       Toast.show({
         type: 'success',
-        text1: 'Log Out Successfully',
-        text2: '',
-        visibilityTime: 2000,
-        autoHide: true,
+        text1: 'Logout Successful',
+        visibilityTime: 3000,
+      });
+      navigation.navigate('MainScreen', {
+        screen: 'BottomNav',
+        params: {screen: 'Home', params: {screen: 'HomeScreen'}},
       });
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
+
   // Function to handle phone number tap
   const handlePhonePress = () => {
     const phoneNumber = '01-4794001';
@@ -293,7 +291,7 @@ const Profile = ({navigation, key}) => {
           }}>
           <Icon2 name="local-phone" size={30} color="#28A745" />
           <Text
-          onPress={handlePhonePress}
+            onPress={handlePhonePress}
             numberOfLines={2}
             ellipsizeMode="tail"
             style={{

@@ -117,7 +117,7 @@ const EditProfile = ({navigation}) => {
           />
         </View>
 
-        <View
+        {/* <View
           style={{
             display: 'flex',
             flexDirection: 'row',
@@ -157,7 +157,7 @@ const EditProfile = ({navigation}) => {
             rowTextStyle={styles.dropdown1RowTxtStyle}
             selectedRowStyle={styles.dropdown1SelectedRowStyle}
           />
-        </View>
+        </View> */}
 
         <View
           style={{

@@ -268,8 +268,8 @@ const PrivateWork = ({navigation}) => {
                 Post Your Sub-Contract Work Opportunities
               </Text>
             </View>
-            <TouchableOpacity onPress={closeModal} style={{margin: 5}}>
-              <Icon name="arrow-down" size={30} color="black" />
+            <TouchableOpacity onPress={closeModal}>
+              <Icon name="close" size={35} color="black" />
             </TouchableOpacity>
           </View>
           <View style={{padding: 10}}>
@@ -315,7 +315,7 @@ const PrivateWork = ({navigation}) => {
                 onChangeText={setRate}
               />
             </View>
-            <Custombutton title="Submit Petty" onPress={handleFormSubmit} />
+            <Custombutton title="Submit Work" onPress={handleFormSubmit} />
           </View>
         </ScrollView>
       </Modal>

@@ -10,6 +10,7 @@ import profileSlice from './profileSlice';
 import bazarSlice from './bazarSlice';
 import interestSlice from './interestSlice';
 import aboutSlice from './aboutSlice';
+import bannerSlice from './bannerSlice';
 
 const store = configureStore({
   reducer: {
@@ -24,6 +25,7 @@ const store = configureStore({
     bazar: bazarSlice,
     interest: interestSlice,
     about: aboutSlice,
+    banner: bannerSlice
   },
 });
 

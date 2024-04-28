@@ -11,18 +11,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingVertical:10,
+    paddingVertical: 10,
     height: '100px',
-    backgroundColor:colors.white
+    backgroundColor: colors.white,
   },
   iconsContainer: {
     flexDirection: 'row',
     width: '25%',
-    
   },
   logo: {
     width: 85,
-    objectFit: "contain",
+    objectFit: 'contain',
     aspectRatio: 2 / 1,
   },
   searchSection: {
@@ -31,12 +30,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
     borderRadius: 10,
-    width:"100%",
+    width: '100%',
     height: 45,
     marginTop: 4,
-    marginLeft:10,
-    borderColor:colors.gray,
-    borderWidth:1
+    marginLeft: 10,
+    borderColor: colors.gray,
+    borderWidth: 1,
   },
   searchIcon: {
     padding: 10,
@@ -119,12 +118,8 @@ const styles = StyleSheet.create({
   },
   Card: {
     backgroundColor: colors.white,
-<<<<<<< HEAD
-    borderRadius: 10,
-=======
     display: 'flex',
     flexDirection: 'row',
->>>>>>> a537a171e061e2ad8f01c19d18ed1763fa91c41a
     margin: 10,
     padding: 10,
     shadowOffset: {

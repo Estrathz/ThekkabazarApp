@@ -251,13 +251,9 @@ const Home = ({navigation}) => {
           }
           renderItem={({item, index}) => (
             <View key={index} style={styles.Card}>
-              <View>
-                <Image
-                  source={{uri: item.image}}
-                  style={styles.image}
-                  onPress={() => openImageModal(index)}
-                />
-              </View>
+              <TouchableOpacity onPress={() => openImageModal(index)}>
+                <Image source={{uri: item.image}} style={styles.image} />
+              </TouchableOpacity>
               <View style={{padding: 8, flex: 1, flexDirection: 'column'}}>
                 <Text
                   numberOfLines={2}

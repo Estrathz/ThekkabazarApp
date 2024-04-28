@@ -51,12 +51,27 @@ const Home = ({navigation}) => {
   const {width} = useWindowDimensions();
   const [token, setToken] = useState('');
 
-  useEffect(() => {
-    getToken();
-    if (token) {
-      console.log(token);
-    }
-  }, [token]);
+  // useEffect(() => {
+  //   getToken();
+  //   if (token) {
+  //     console.log(token);
+  //   }
+  // }, [token]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchToken = async () => {
+        try {
+          const storedToken = await AsyncStorage.getItem('access_token');
+          setToken(storedToken);
+        } catch (error) {
+          console.error(error);
+        }
+      };
+
+      fetchToken();
+    }),
+  );
 
   useEffect(() => {
     dispatch(fetchTenderListData());

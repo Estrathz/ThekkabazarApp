@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
     height: '100px',
-    backgroundColor: colors.white,
+    backgroundColor: colors.background,
   },
   iconsContainer: {
     flexDirection: 'row',
@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
     color: '#424242',
   },
   modalContainer: {
-    height: '80%',
+    height: '100%',
     backgroundColor: colors.white,
     bottom: 0,
     right: 0,
@@ -72,6 +72,14 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     lineHeight: 28,
     fontSize: 24,
+  },
+  closeButton: {
+    backgroundColor: colors.black,
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    zIndex: 1,
+    backgroundColor: 'black',
   },
   dropdown1BtnStyle: {
     width: '100%',
@@ -132,7 +140,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   image: {
-    height: 300,
+    height: 200,
     width: 100,
     resizeMode: 'contain',
   },

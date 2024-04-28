@@ -14,7 +14,6 @@ import React, {useEffect, useState} from 'react';
 import styles from './homeStyles';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Slider from '../../Containers/Slider/slider';
-import Card from '../../Containers/Card/card';
 import {fetchDropdownData} from '../../reducers/dropdownSlice';
 import {useDispatch, useSelector} from 'react-redux';
 import SelectDropdown from 'react-native-select-dropdown';
@@ -23,11 +22,11 @@ import {fetchTenderListData, savebid} from '../../reducers/cardSlice';
 import Icon2 from 'react-native-vector-icons/Ionicons';
 import Icon3 from 'react-native-vector-icons/MaterialCommunityIcons';
 import DatePicker from 'react-native-date-picker';
-import HTML from 'react-native-render-html';
 import {useWindowDimensions} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import moment from 'moment';
 import {useFocusEffect} from '@react-navigation/native';
+import ImageZoomViewer from 'react-native-image-zoom-viewer';
 
 const Home = ({navigation}) => {
   const dispatch = useDispatch();
@@ -51,12 +50,6 @@ const Home = ({navigation}) => {
   const {width} = useWindowDimensions();
   const [token, setToken] = useState('');
 
-  // useEffect(() => {
-  //   getToken();
-  //   if (token) {
-  //     console.log(token);
-  //   }
-  // }, [token]);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -391,28 +384,23 @@ const Home = ({navigation}) => {
                 </View>
               </View>
               <Modal
-                visible={isImageVisible === index}
+                visible={isImageVisible !== null}
                 animationType="slide"
-                transparent={true}>
-                <View
-                  style={{
-                    backgroundColor: 'white',
-                    height: '100%',
-                    bottom: 0,
-                    right: 0,
-                    left: 0,
-                    position: 'absolute',
-                  }}>
+                transparent={true}
+                onRequestClose={closeImageModal}>
+                <View style={styles.modalContainer}>
                   <TouchableOpacity
                     onPress={closeImageModal}
-                    style={{alignSelf: 'flex-end', margin: 10}}>
-                    <Icon2 name="close" size={30} color="black" />
+                    style={styles.closeButton}>
+                    <Icon name="close" size={30} color="white" />
                   </TouchableOpacity>
-                  <Image
-                    source={{uri: item.image}}
-                    alt="tenderpicture"
-                    style={{height: '80%', width: '80%', alignSelf: 'center'}}
-                    resizeMode="contain"
+                  <ImageZoomViewer
+                    imageUrls={allData.map(item => ({ url: item.image }))}
+                    index={isImageVisible}
+                    enableSwipeDown={true}
+                    onSwipeDown={closeImageModal}
+                    renderIndicator={() => null}
+                    backgroundColor="black"
                   />
                 </View>
               </Modal>

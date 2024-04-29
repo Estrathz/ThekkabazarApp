@@ -188,7 +188,11 @@ const Home = ({navigation}) => {
   };
 
   const handleSaveBids = pk => {
-    dispatch(savebid({id: pk, access_token: token}));
+    if (token) {
+      dispatch(savebid({id: pk, access_token: token}));
+    } else if (token === null || token === '') {
+      navigation.navigate('Login');
+    }
   };
 
   const handleDetailNavigation = pk => {

@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
   bannerBody: {
     display: 'flex',
     flexDirection: 'row',
-    marginTop: 10,
+    marginTop: 5,
     flexWrap: 'wrap',
   },
   bannerImage: {
@@ -50,8 +50,9 @@ const styles = StyleSheet.create({
   },
   subtitletext: {
     color: colors.black,
-    fontSize: 12,
-    paddingTop: 10
+    fontSize: 14,
+    paddingTop: 1,
+    textAlign: 'center' // Ensure text is centered below the image
   },
   CardContainer: {
     backgroundColor: colors.white,

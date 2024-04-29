@@ -212,13 +212,13 @@ const Result = ({navigation}) => {
         }
         renderItem={({item, index}) => (
           <View key={index} style={styles.Card}>
-            <View>
+            <TouchableOpacity>
               <Image
                 source={{uri: item.image}}
                 style={styles.image}
                 onPress={() => openImageModal(index)}
               />
-            </View>
+            </TouchableOpacity>
             <View style={{padding: 8, flex: 1, flexDirection: 'column'}}>
               <Text
                 numberOfLines={2}
@@ -319,25 +319,6 @@ const Result = ({navigation}) => {
                 ))}
               </View>
 
-              <View style={{justifyContent: 'flex-end', alignItems: 'center'}}>
-                <TouchableOpacity
-                  onPress={() => handleSaveBids(item.pk)}
-                  style={styles.cusBottom}>
-                  <Icon3 name="save-outline" size={25} color="#000" />
-                  <Text
-                    style={{
-                      color: '#000',
-                      fontSize: 15,
-                      alignSelf: 'center',
-                    }}>
-                    Save Bids
-                  </Text>
-                </TouchableOpacity>
-                {/* <Custombutton
-                    title="Save Bids"
-                    onPress={() => handleSaveBids(item.pk)}
-                  /> */}
-              </View>
             </View>
             <Modal
               visible={isImageVisible === index}

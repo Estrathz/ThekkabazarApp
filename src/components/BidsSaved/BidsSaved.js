@@ -165,7 +165,7 @@ const BidsSaved = () => {
 
             <View style={{justifyContent: 'flex-end', alignItems: 'center'}}>
               <TouchableOpacity
-                onPress={() => handleSaveBids(item.tender.pk)}
+                onPress={() => handleUnSaveBids(item.tender.pk)}
                 style={styles.cusBottom}>
                 <Icon2 name="save-outline" size={25} color="#000" />
                 <Text
@@ -174,7 +174,7 @@ const BidsSaved = () => {
                     fontSize: 15,
                     alignSelf: 'center',
                   }}>
-                  Save Bids
+                  UnSave Bids
                 </Text>
               </TouchableOpacity>
               {/* <Custombutton

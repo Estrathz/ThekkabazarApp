@@ -69,115 +69,62 @@ const UserProfile = ({navigation}) => {
       </Text>
 
       <View style={styles.HeaderCard}>
-        <View
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-between',
+  <View style={{
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  }}>
+    <Text style={{
+      fontSize: 20,
+      color: '#0375B7',
+      textDecorationLine: 'underline',
+      paddingTop: 8,
+    }}>
+      My Details
+    </Text>
+    <View style={{ width: '30%' }}>
+      <Custombutton
+        title="Edit"
+        onPress={() => navigation.navigate('EditProfile')}
+      />
+    </View>
+  </View>
+
+    <View style={{ display: 'flex', padding: 10 }}>
+      {/* Dynamic Container for Info */}
+      {[
+        { label: "Full Name:", value: data?.fullname },
+        { label: "Phone Number:", value: data?.phone_number },
+        { label: "Email:", value: data?.email },
+        { label: "Company Name:", value: data?.company_name },
+        { label: "User Name:", value: data?.username },
+      ].map((item, index) => (
+        <View key={index} style={{
+          flexDirection: 'row',
+          marginBottom: 5,
+          alignItems: 'center',
+        }}>
+          <Text style={{
+            fontSize: 18,
+            color: 'black',
+            flex: 1, // takes as much space as needed
           }}>
-          <Text
-            style={{
-              fontSize: 20,
-              color: '#0375B7',
-              textDecorationLine: 'underline',
-              paddingTop: 8,
-            }}>
-            My Details
+            {item.label}
           </Text>
-          <View style={{width: '30%'}}>
-            <Custombutton
-              title="Edit"
-              onPress={() => navigation.navigate('EditProfile')}
-            />
-          </View>
+          <Text style={{
+            fontSize: 18,
+            color: '#7F8A99',
+            flex: 2, // takes twice the space of the label
+            marginLeft: 13,
+            numberOfLines: 1, // restricts text to a single line
+            ellipsizeMode: 'tail' // adds "..." at the end if the text is too long
+          }}>
+            {item.value}
+          </Text>
         </View>
-
-        <View style={{display: 'flex'}}>
-        <View style={{flexDirection: 'row', padding: 10}}>
-            <Text style={{fontSize: 18, color: 'black'}}>Full Name:</Text>
-            <Text style={{fontSize: 18, color: '#7F8A99', marginLeft: 13}}>
-              {data?.fullname}
-            </Text>
-          </View>
-          <View
-            style={{
-              flexDirection: 'row',
-              padding: 10,
-            }}>
-            <Text style={{fontSize: 18, color: 'black'}}>Phone Number:</Text>
-            <Text style={{fontSize: 18, color: '#7F8A99', marginLeft: 13}}>
-              {data?.phone_number}
-            </Text>
-          </View>
-          <View style={{flexDirection: 'row', padding: 10}}>
-            <Text style={{fontSize: 18, color: 'black'}}>Email:</Text>
-            <Text style={{fontSize: 18, color: '#7F8A99', marginLeft: 13}}>
-              {data?.email}
-            </Text>
-          </View>
-          <View style={{flexDirection: 'row', padding: 10}}>
-            <Text style={{fontSize: 18, color: 'black'}}>Company Name:</Text>
-            <Text style={{fontSize: 18, color: '#7F8A99', marginLeft: 13}}>
-              {data?.company_name}
-            </Text>
-          </View>
-          <View style={{flexDirection: 'row', padding: 10}}>
-            <Text style={{fontSize: 18, color: 'black'}}>User Name:</Text>
-            <Text style={{fontSize: 18, color: '#7F8A99', marginLeft: 13}}>
-              {data?.username}
-            </Text>
-          </View>
-          
-          
-          
-
-          {/* <View style={{flexDirection: 'row', padding: 10}}>
-            <Text style={{fontSize: 18, color: 'black'}}>Gender:</Text>
-            <Text style={{fontSize: 16, color: '#7F8A99', marginLeft: 13}}>
-              {data?.gender}
-            </Text>
-          </View>
-
-          <View style={{flexDirection: 'row', padding: 10}}>
-            <Text style={{fontSize: 18, color: 'black'}}>District:</Text>
-            <Text style={{fontSize: 16, color: '#7F8A99', marginLeft: 13}}>
-              {data?.district}
-            </Text>
-          </View>
-
-          <View style={{flexDirection: 'row', padding: 10}}>
-            <Text style={{fontSize: 18, color: 'black'}}>Municipality:</Text>
-            <Text style={{fontSize: 18, color: '#7F8A99', marginLeft: 13}}>
-              {data?.municipality}
-            </Text>
-          </View>
-
-          
-
-          <View style={{flexDirection: 'row', padding: 10}}>
-            <Text style={{fontSize: 18, color: 'black'}}>Office Name:</Text>
-            <Text style={{fontSize: 18, color: '#7F8A99', marginLeft: 13}}>
-              {data?.office_name}
-            </Text>
-          </View>
-
-          <View style={{flexDirection: 'row', padding: 10}}>
-            <Text style={{fontSize: 18, color: 'black'}}>
-              Office Contact Number:
-            </Text>
-            <Text style={{fontSize: 18, color: '#7F8A99', marginLeft: 13}}>
-              {data?.office_contact_number}
-            </Text>
-          </View>
-
-          <View style={{flexDirection: 'row', padding: 10}}>
-            <Text style={{fontSize: 18, color: 'black'}}>Website Url:</Text>
-            <Text style={{fontSize: 18, color: '#7F8A99', marginLeft: 13}}>
-              {data?.website_url}
-            </Text>
-          </View> */}
-        </View>
-      </View>
+      ))}
+    </View>
+</View>
     </View>
   );
 };

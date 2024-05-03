@@ -74,6 +74,12 @@ const Profile = ({navigation}) => {
     const email = 'info@thekkabazar.com';
     Linking.openURL(`mailto:${email}`);
   };
+  const handleLoginNavigation = () =>{
+    navigation.navigate('MainScreen', {
+      screen: 'BottomNav',
+      params: {screen: 'Home', params: {screen: 'Login'}},
+    });
+  }
   return (
     <View style={styles.ProfileContainer}>
       <View
@@ -93,16 +99,20 @@ const Profile = ({navigation}) => {
             <Text style={{fontSize: 15, color: 'black'}}>Free Account</Text>
           </View>
         </View>
-        <Custombutton
+        {token?<Custombutton
           title="Upgrade"
           onPress={() => navigation.navigate('Pricing')}
-        />
+        />:<Custombutton
+        title="Login"
+        onPress={() => handleLoginNavigation()}
+      />}
+        
       </View>
+
 
       <View
         style={{
           marginTop: 5,
-
           borderBottomWidth: 1,
           borderBottomColor: '#B5B5B5',
           margin: 10,

@@ -86,7 +86,7 @@ const Price = ({navigation}) => {
         <ScrollView style={styles.modalContainer}>
           <View style={{display: 'flex', padding: 10}}>
             <Icon2
-              name="arrow-down"
+              name="close"
               size={33}
               color="black"
               style={{alignSelf: 'flex-end'}}

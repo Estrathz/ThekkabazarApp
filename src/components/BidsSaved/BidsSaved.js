@@ -174,7 +174,7 @@ const BidsSaved = () => {
                     fontSize: 15,
                     alignSelf: 'center',
                   }}>
-                  UnSave Bids
+                  Remove Bid
                 </Text>
               </TouchableOpacity>
               {/* <Custombutton

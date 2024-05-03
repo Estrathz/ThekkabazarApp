@@ -4,6 +4,7 @@ import {
   Image,
   ScrollView,
   Platform,
+  TouchableOpacity,
   PermissionsAndroid,
   Alert,
 } from 'react-native';
@@ -11,12 +12,9 @@ import {
 import React, {useEffect, useRef} from 'react';
 import styles from './detailStyle';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-
 import {useDispatch, useSelector} from 'react-redux';
 import {fetchOneTenderData} from '../../../reducers/cardSlice';
 import Custombutton from '../../../Containers/Button/button';
-import RNHTMLtoPDF from 'react-native-html-to-pdf';
-import {Toast} from 'react-native-toast-message';
 import RNFS from 'react-native-fs';
 import HTML from 'react-native-render-html';
 import {useWindowDimensions} from 'react-native';
@@ -115,7 +113,6 @@ const Detail = ({route, navigation}) => {
 
     };
 
-
   return (
     <ScrollView>
       <View style={styles.container}>
@@ -126,25 +123,13 @@ const Detail = ({route, navigation}) => {
             color="black"
             onPress={() => navigation.goBack()}
           />
-          <Text style={{color: 'black', fontSize: 24, marginLeft: 10}}>
-            Details
+          <Text style={{color: 'black', fontSize: 20, marginLeft: 10}}>
+            Tender Details
           </Text>
         </View>
 
         <View style={styles.detailCardContainer}>
-          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-            <Text
-              style={{
-                display: 'flex',
-                color: '#000',
-                fontSize: 20,
-                fontWeight: 'bold',
-                marginTop: 15,
-              }}>
-              Tender Details
-            </Text>
-            <Icon name="file-copy" size={25} color="#0375B7" />
-          </View>
+          
 
           <Text
             style={{
@@ -155,11 +140,13 @@ const Detail = ({route, navigation}) => {
             }}>
             Documents
           </Text>
-          <Image
-            source={{uri: items.image}}
-            style={{flex: 1, height: 200, width: '100%', marginTop: 10}}
-            alt="pitcure"
-          />
+          
+            <Image
+              source={{uri: items.image}}
+              style={{flex: 1, height: 200, width: '100%', marginTop: 10}}
+              alt="pitcure"
+            />
+          
 
           <View
             style={{
@@ -172,7 +159,19 @@ const Detail = ({route, navigation}) => {
               onPress={() => handleDownload(items.image)}
             />
           </View>
-
+          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+            <Text
+              style={{
+                display: 'flex',
+                color: '#000',
+                fontSize: 20,
+                fontWeight: 'bold',
+                marginTop: 15,
+              }}>
+              Tender Details
+            </Text>
+            
+          </View>
           <View style={styles.detailContainer}>
             <Text style={{color: '#bf0a7f', fontSize: 18}}>
               <Text style={{fontWeight: 'bold'}}>Tender Title: </Text>

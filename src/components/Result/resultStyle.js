@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     color: '#424242',
   },
   modalContainer: {
-    height: '80%',
+    height: '100%',
     backgroundColor: colors.white,
     bottom: 0,
     right: 0,
@@ -49,6 +49,14 @@ const styles = StyleSheet.create({
   modalContent: {
     width: '100%',
     padding: 15,
+  },
+  closeButton: {
+    backgroundColor: colors.black,
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    zIndex: 1,
+    backgroundColor: 'black',
   },
   modalText: {
     color: colors.primary,

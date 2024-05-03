@@ -6,6 +6,8 @@ import {aboutUsdata, aboutUsform} from '../../reducers/aboutSlice';
 import {useDispatch, useSelector} from 'react-redux';
 import Custombutton from '../../Containers/Button/button';
 import Toast from 'react-native-toast-message';
+import he from 'he';
+
 
 const About = ({navigation}) => {
   const dispatch = useDispatch();
@@ -56,7 +58,18 @@ const About = ({navigation}) => {
     setSubject('');
     setMessage('');
   };
-
+  const removeHtmlTags = (text) => {
+    if (typeof text === 'string') {
+      return text.replace(/<[^>]*>/g, '');
+    }
+    return '';  // Return an empty string or some default value if not a string
+  }
+  const decodeHtmlEntities = (text) => {
+    if (typeof text === 'string') {
+      return he.decode(text);
+    }
+    return '';  // Return an empty string or some default value if not a string
+  }
   return (
     <ScrollView style={styles.container}>
       <View style={{flexDirection: 'row', padding: 10}}>
@@ -66,7 +79,7 @@ const About = ({navigation}) => {
           color="black"
           onPress={() => navigation.goBack()}
         />
-        <Text style={{color: 'black', fontSize: 24, marginLeft: 10}}>
+        <Text style={{color: 'black', fontSize: 20, marginLeft: 10}}>
           About Us
         </Text>
       </View>
@@ -101,39 +114,35 @@ const About = ({navigation}) => {
       ))}
 
       <View style={styles.serviceContainer}>
-        <Text
-          style={{
-            color: 'black',
-            fontSize: 24,
-            fontWeight: 'bold',
-            alignSelf: 'center',
-          }}>
+        <Text style={{
+          color: 'black',
+          fontSize: 24,
+          fontWeight: 'bold',
+          alignSelf: 'center',
+        }}>
           What We Offer
         </Text>
-        <Text
-          style={{
-            color: 'black',
-            fontSize: 16,
-            alignSelf: 'center',
-          }}>
-          We serve: Company RegistrationTrademark RegistrationAccounting &
-          Taxation
+        <Text style={{
+          color: 'black',
+          fontSize: 16,
+          alignSelf: 'center',
+          marginTop: 10
+        }}>
+          We serve: Company Registration, Trademark Registration, Accounting & Taxation
         </Text>
-        {data?.services?.map((items, index) => (
-          <View
-            key={index}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginTop: 20,
-            }}>
+        {data?.services?.map((item, index) => (
+          <View key={index} style={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginTop: 5,
+          }}>
             <Text style={{color: 'black', fontSize: 24, fontWeight: 'bold'}}>
-              {items.quotation}
+              {decodeHtmlEntities(item.quotation)}
             </Text>
             <Text style={{color: 'black', fontSize: 20}}>
-              {removeTags(items.description)}
+              {decodeHtmlEntities(removeHtmlTags(item.description))}
             </Text>
           </View>
         ))}

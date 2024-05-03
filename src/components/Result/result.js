@@ -24,6 +24,7 @@ import {useFocusEffect} from '@react-navigation/native';
 import HTML from 'react-native-render-html';
 import {useWindowDimensions} from 'react-native';
 import Icon3 from 'react-native-vector-icons/Ionicons';
+import ImageZoomViewer from 'react-native-image-zoom-viewer';
 
 const Result = ({navigation}) => {
   const [isModalVisible, setModalVisible] = useState(false);
@@ -212,13 +213,9 @@ const Result = ({navigation}) => {
         }
         renderItem={({item, index}) => (
           <View key={index} style={styles.Card}>
-            <TouchableOpacity>
-              <Image
-                source={{uri: item.image}}
-                style={styles.image}
-                onPress={() => openImageModal(index)}
-              />
-            </TouchableOpacity>
+            <TouchableOpacity onPress={() => openImageModal(index)}>
+                <Image source={{uri: item.image}} style={styles.image} />
+              </TouchableOpacity>
             <View style={{padding: 8, flex: 1, flexDirection: 'column'}}>
               <Text
                 numberOfLines={2}
@@ -321,31 +318,26 @@ const Result = ({navigation}) => {
 
             </View>
             <Modal
-              visible={isImageVisible === index}
-              animationType="slide"
-              transparent={true}>
-              <View
-                style={{
-                  backgroundColor: 'white',
-                  height: '100%',
-                  bottom: 0,
-                  right: 0,
-                  left: 0,
-                  position: 'absolute',
-                }}>
-                <TouchableOpacity
-                  onPress={closeImageModal}
-                  style={{alignSelf: 'flex-end', margin: 10}}>
-                  <Icon2 name="close" size={30} color="black" />
-                </TouchableOpacity>
-                <Image
-                  source={{uri: item.image}}
-                  alt="tenderpicture"
-                  style={{height: '80%', width: '80%', alignSelf: 'center'}}
-                  resizeMode="contain"
-                />
-              </View>
-            </Modal>
+                visible={isImageVisible !== null}
+                animationType="slide"
+                transparent={true}
+                onRequestClose={closeImageModal}>
+                <View style={styles.modalContainer}>
+                  <TouchableOpacity
+                    onPress={closeImageModal}
+                    style={styles.closeButton}>
+                    <Icon name="close" size={30} color="white" />
+                  </TouchableOpacity>
+                  <ImageZoomViewer
+                    imageUrls={allData.map(item => ({ url: item.image }))}
+                    index={isImageVisible}
+                    enableSwipeDown={true}
+                    onSwipeDown={closeImageModal}
+                    renderIndicator={() => null}
+                    backgroundColor="black"
+                  />
+                </View>
+              </Modal>
           </View>
         )}
         keyExtractor={item => item.pk}

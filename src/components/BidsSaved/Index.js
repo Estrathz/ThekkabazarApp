@@ -12,12 +12,12 @@ const Index = ({navigation}) => {
     <View style={styles.container}>
       <View style={{display: 'flex', flexDirection: 'row', padding: 15}}>
         <Icon2
-          name="arrow-back-ios-new"
+          name="arrow-back"
           size={30}
           color="black"
           onPress={() => navigation.goBack()}
         />
-        <Text style={{fontSize: 24, marginLeft: 10, color: 'black'}}>
+        <Text style={{fontSize: 20, marginLeft: 10, color: 'black'}}>
           Saved Bids
         </Text>
       </View>

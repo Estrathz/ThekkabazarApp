@@ -320,7 +320,7 @@ const Home = ({navigation}) => {
                     </Text>
                   </View>
                   <Text style={styles.CardText}>{item.published_date}</Text>
-                  <Text style={{color: '#fcc40d', marginRight: 10, fontSize:12}}>
+                  <Text style={{color: '#FF0000', marginRight: 10, fontSize:12}}>
                     {item.days_left}
                   </Text>
                 </View>

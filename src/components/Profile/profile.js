@@ -101,7 +101,7 @@ const Profile = ({navigation}) => {
 
       <View
         style={{
-          marginTop: 15,
+          marginTop: 5,
 
           borderBottomWidth: 1,
           borderBottomColor: '#B5B5B5',

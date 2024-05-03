@@ -71,8 +71,8 @@ const styles = StyleSheet.create({
     width: '50%',
     backgroundColor: colors.white,
     borderRadius: 8,
-    marginTop: 10,
-    height: 50,
+    marginTop: 20,
+    height: 35,
     borderWidth: 1,
     borderColor: colors.gray,
     shadowOffset: {

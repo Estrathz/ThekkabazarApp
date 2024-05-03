@@ -15,23 +15,22 @@ const Slider = () => {
 
   return (
     <View style={styles.sliderContainer}>
-      <Swiper style={styles.wrapper} autoplay={true}>
-        {bannerdata && bannerdata.banner ? (
-          bannerdata.banner.map((items, index) => (
-            <View key={index} style={styles.slide}>
-              <View style={styles.backgroundImage}>
-                <Image
-                  style={styles.carouselImage}
-                  source={{ uri: items.image }}
-                />
-              </View>
-            </View>
-          ))
-        ) : (
-          <Text>Loading...</Text>
-        )}
-      </Swiper>
-    </View>
+  <Swiper style={styles.wrapper} autoplay={true}>
+    {bannerdata && bannerdata.banner ? (
+      bannerdata.banner.map((items, index) => (
+        <View key={index} style={styles.slide}>
+          <Image
+            style={styles.carouselImage}
+            source={{ uri: items.image }}
+          />
+        </View>
+      ))
+    ) : (
+      <Text>Loading...</Text>
+    )}
+  </Swiper>
+</View>
+
   );
 };
 

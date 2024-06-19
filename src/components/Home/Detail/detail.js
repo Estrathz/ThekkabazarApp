@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   PermissionsAndroid,
   Alert,
+  Button,
 } from 'react-native';
 
 import React, {useEffect, useRef} from 'react';
@@ -111,6 +112,24 @@ const Detail = ({route, navigation}) => {
               console.error('Could not download image', error);
             }
 
+    };
+
+    const handlePdfDownload = async fileUrl => {
+      try {
+        const response = await RNFS.downloadFile({
+          fromUrl: fileUrl,
+          toFile: `${RNFS.DocumentDirectoryPath}/works.pdf`,
+        });
+  
+        if (response.statusCode === 200) {
+          Alert.alert('Download Complete', 'File downloaded successfully!');
+        } else {
+          Alert.alert('Download Failed', 'Failed to download file');
+        }
+      } catch (error) {
+        console.error('Error downloading file: ', error);
+        Alert.alert('Download Failed', 'Failed to download file');
+      }
     };
 
   return (
@@ -279,6 +298,29 @@ const Detail = ({route, navigation}) => {
               source={{html: items.description}}
               style={{fontSize: 12, color: 'black'}}
             />
+
+
+<View style={{marginTop: 20, padding: 10, flexDirection: 'column'}}>
+              {items?.tender_files?.map((file, index) => (
+                <View
+                  key={index}
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                  }}>
+                  <Text
+                    style={{color: 'black', fontWeight: 'bold', fontSize: 14}}>
+                    {file.title}
+                  </Text>
+                  <Button
+                    color="#0375B7"
+                    style={{color: 'white', fontSize: 14}}
+                    title="Download"
+                    onPress={() => handlePdfDownload(file.files)}
+                  />
+                </View>
+              ))}
+            </View>
           </View>
         </View>
       </View>

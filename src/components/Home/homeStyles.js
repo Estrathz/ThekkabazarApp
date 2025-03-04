@@ -30,10 +30,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
     borderRadius: 10,
-    width: '100%',
+    width: '65%',
     height: 45,
     marginTop: 4,
-    marginLeft: 10,
+    marginLeft: 20,
     borderColor: colors.gray,
     borderWidth: 1,
   },
@@ -74,12 +74,11 @@ const styles = StyleSheet.create({
     fontSize: 24,
   },
   closeButton: {
-    backgroundColor: colors.black,
     position: 'absolute',
     top: 20,
     right: 20,
     zIndex: 1,
-    backgroundColor: 'black',
+
   },
   dropdown1BtnStyle: {
     width: '100%',

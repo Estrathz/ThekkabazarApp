@@ -1,5 +1,5 @@
-import {StyleSheet} from 'react-native';
-import {colors, fonts} from '../../../theme';
+import { StyleSheet } from 'react-native';
+import { colors } from '../../../theme';
 
 const styles = StyleSheet.create({
   container: {
@@ -9,33 +9,60 @@ const styles = StyleSheet.create({
   },
   detailCardContainer: {
     flex: 1,
-    backgroundColor: colors.white,
     borderRadius: 10,
-    padding: 15,
-    marginBottom: 20,
-    marginTop: 20,
+    padding: 10,
+    marginVertical: 10,
   },
-  Cardbodytext: {
-    display: 'flex',
-    flexDirection: 'row',
-    // justifyContent: 'space-between',
-    // flexGrow: 1,
-    flexWrap: 'wrap',
+  headerText: {
+    color: 'black',
+    fontSize: 20,
+    marginTop: 15,
+    fontWeight: 'bold',
+  },
+  image: {
+    width: '100%',
+    height: 200,
+    resizeMode: 'contain',
+    marginTop: 10,
+  },
+  buttonContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
   },
   detailContainer: {
     flex: 1,
     backgroundColor: colors.white,
     padding: 10,
     marginTop: 15,
-    marginBottom: 20,
     borderRadius: 10,
     shadowColor: colors.black,
-    shadowOffset: {
-      width: 2,
-      height: 2,
-    },
+    shadowOffset: { width: 2, height: 2 },
     elevation: 4,
     shadowOpacity: 0.5,
+  },
+  worksHeader: {
+    color: 'black',
+    fontSize: 19,
+    fontWeight: 'bold',
+    marginTop: 20,
+  },
+  htmlContent: {
+    fontSize: 12,
+    color: 'black',
+  },
+  fileContainer: {
+    marginTop: 10,
+    flexDirection: 'column',
+  },
+  fileRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  fileTitle: {
+    color: 'black',
+    fontWeight: 'bold',
+    fontSize: 14,
   },
 });
 

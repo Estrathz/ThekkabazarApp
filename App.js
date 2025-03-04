@@ -3,7 +3,7 @@ import React, {useEffect, useState} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import MainScreens from './src/Containers/Routes/MainScreens';
-
+import { WebView } from 'react-native-webview';
 import Toast, {BaseToast, ErrorToast} from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LoadingScreen from './src/Containers/Loading/loading';
@@ -21,7 +21,14 @@ export default function App() {
   useEffect(() => {
     getInfo();
   }, []);
-
+  const PricingWebviewScreen = ({ route }) => {
+    const { url } = route.params;
+    return (
+      <View style={{ flex: 1 }}>
+        <WebView source={{ uri: url }} />
+      </View>
+    );
+  };
   const toastConfig = {
     success: props => (
       <BaseToast
@@ -63,9 +70,11 @@ export default function App() {
             headerShown: false,
           }}>
           <Stack.Screen name="MainScreen" component={MainScreens} />
+          <Stack.Screen name="PricingWebview" component={PricingWebviewScreen} />
         </Stack.Navigator>
       </NavigationContainer>
       <Toast config={toastConfig} />
     </>
+    
   );
 }

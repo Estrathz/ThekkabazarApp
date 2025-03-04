@@ -1,28 +1,27 @@
-import {View, Text, ScrollView, ImageBackground, Image} from 'react-native';
-import React, {useEffect} from 'react';
+import React, { useEffect } from 'react';
+import { View, Text, ScrollView, ImageBackground, Image } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchbazarData } from '../../reducers/bazarSlice';
 import styles from './bazarStyle';
-import Custombutton from '../../Containers/Button/button';
-import {fetchbazarData} from '../../reducers/bazarSlice';
-import {useDispatch, useSelector} from 'react-redux';
+import CustomButton from '../../Containers/Button/button'; // Ensure this path is correct
 
-const Bazar = ({navigation}) => {
+const Bazar = ({ navigation }) => {
   const dispatch = useDispatch();
-  const {data, error} = useSelector(state => state.bazar);
+  const { data, error } = useSelector(state => state.bazar);
 
   useEffect(() => {
     dispatch(fetchbazarData());
-
     if (error) {
-      console.log(error);
+      console.error(error);
     }
-  }, [dispatch]);
+  }, [dispatch, error]);
 
   const handleBazarDetail = name => {
-    navigation.navigate('BazarDetail', {name: name, pathname: 'mainProduct'});
+    navigation.navigate('BazarDetail', { name, pathname: 'mainProduct' });
   };
 
   const handleBazarSubDetail = name => {
-    navigation.navigate('BazarDetail', {name: name, pathname: 'subProduct'});
+    navigation.navigate('BazarDetail', { name, pathname: 'subProduct' });
   };
 
   return (
@@ -31,11 +30,11 @@ const Bazar = ({navigation}) => {
         <ImageBackground
           style={styles.bazarImageContainer}
           source={require('../../assets/carousel.jpg')}
-          alt="bazarImage">
+          resizeMode="cover"
+        >
           <Image
             style={styles.bazarImage}
             source={require('../../assets/bazarImage.png')}
-            alt="bazarImage"
           />
           <Text style={styles.bazarText}>
             Your One-Stop Marketplace for Construction Materials
@@ -45,73 +44,40 @@ const Bazar = ({navigation}) => {
 
       {data?.map((item, index) => (
         <View key={index} style={styles.bazarCard}>
-          <View
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              flex: 1,
-            }}>
+          <View style={styles.bazarCardContent}>
             <Image
               style={styles.bazarImage2}
-              source={{uri: item.image}}
-              alt="bazar"
+              source={{ uri: item.image }}
             />
-            <View
-              style={{
-                justifyContent: 'center',
-                marginLeft: 10,
-              }}>
+            <View style={styles.bazarTextContainer}>
               <Text
                 numberOfLines={3}
-                ellipsizeMode="head"
-                style={{
-                  color: 'black',
-                  fontSize: 18,
-                  fontFamily: 'Poppins-Regular',
-                  width: '70%',
-                }}>
+                ellipsizeMode="tail"
+                style={styles.bazarItemName}
+              >
                 {item.name}
               </Text>
-              <View style={{width: '40%', height: '40%'}}>
-                <Custombutton
-                  title="View All"
-                  onPress={() => handleBazarDetail(item.name)}
-                />
-              </View>
+              <CustomButton
+                title="View All"
+                onPress={() => handleBazarDetail(item.name)}
+                style={{
+                  marginTop: 10,
+                  height: 20, // Reduced height by 20%
+                }}
+              />
             </View>
           </View>
-          <View
-            style={{
-              flexDirection: 'row',
-              flexWrap: 'wrap',
-              flex: 1,
-              marginTop: 10,
-              padding: 10,
-              justifyContent: 'center',
-            }}>
+          <View style={styles.subcategoryContainer}>
             {item?.subcategory?.map((sub, index) => (
-              <View
-                key={index}
-                style={{
-                  width: '48%',
-                  marginBottom: 10,
-                  justifyContent: 'center',
-                }}
-                onPress={() => handleBazarSubDetail(sub.name)}>
+              <View key={index} style={styles.subcategoryItem}>
                 <Image
                   style={styles.bazarImage3}
-                  source={{uri: sub.image}}
-                  alt="bazar"
-                  onPress={() => handleBazarSubDetail(sub.name)}
+                  source={{ uri: sub.image }}
                 />
                 <Text
+                  style={styles.subcategoryName}
                   onPress={() => handleBazarSubDetail(sub.name)}
-                  style={{
-                    color: 'black',
-                    fontSize: 14,
-                    marginTop: 10,
-                    width: '78%',
-                  }}>
+                >
                   {sub.name}
                 </Text>
               </View>

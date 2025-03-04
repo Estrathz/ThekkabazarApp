@@ -1,5 +1,5 @@
-import {StyleSheet} from 'react-native';
-import {colors, fonts} from '../../theme';
+import { StyleSheet } from 'react-native';
+import { colors, fonts } from '../../theme';
 
 const styles = StyleSheet.create({
   ResultContainer: {
@@ -8,9 +8,7 @@ const styles = StyleSheet.create({
   },
   SearchContainer: {
     flexDirection: 'row',
-    marginTop: 15,
-    marginBottom: 15,
-    height: '100px',
+    marginVertical: 15,
   },
   searchSection: {
     flexDirection: 'row',
@@ -18,23 +16,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
     borderRadius: 50,
-    width: '100%',
+    width: '70%',
     height: 45,
+    marginLeft: 110,
   },
   searchIcon: {
     padding: 10,
   },
   input: {
     flex: 1,
-    paddingTop: 10,
-    paddingRight: 10,
-    paddingBottom: 10,
-    paddingLeft: 0,
+    padding: 10,
     marginLeft: 10,
-    borderTopLeftRadius: 50,
-    borderBottomLeftRadius: 50,
-    borderTopRightRadius: 50,
-    borderBottomRightRadius: 50,
+    borderRadius: 50,
     backgroundColor: '#fff',
     color: '#424242',
   },
@@ -49,14 +42,7 @@ const styles = StyleSheet.create({
   modalContent: {
     width: '100%',
     padding: 15,
-  },
-  closeButton: {
-    backgroundColor: colors.black,
-    position: 'absolute',
-    top: 20,
-    right: 20,
-    zIndex: 1,
-    backgroundColor: 'black',
+    paddingTop: 60,
   },
   modalText: {
     color: colors.primary,
@@ -64,6 +50,17 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     lineHeight: 28,
     fontSize: 24,
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    zIndex: 1,
+  },
+  filterDescription: {
+    color: 'black',
+    fontSize: 16,
+    marginBottom: 10,
   },
   dropdown1BtnStyle: {
     width: '100%',
@@ -74,10 +71,21 @@ const styles = StyleSheet.create({
     borderColor: '#D4D4D4',
     marginBottom: 15,
   },
-  dropdown1BtnTxtStyle: {color: '#444', textAlign: 'left'},
-  dropdown1RowStyle: {backgroundColor: '#EFEFEF', borderBottomColor: '#C5C5C5'},
-  dropdown1RowTxtStyle: {color: '#444', textAlign: 'left'},
-  dropdown1SelectedRowStyle: {backgroundColor: 'rgba(0,0,0,0.1)'},
+  dropdown1BtnTxtStyle: {
+    color: '#444',
+    textAlign: 'left',
+  },
+  dropdown1RowStyle: {
+    backgroundColor: '#EFEFEF',
+    borderBottomColor: '#C5C5C5',
+  },
+  dropdown1RowTxtStyle: {
+    color: '#444',
+    textAlign: 'left',
+  },
+  dropdown1SelectedRowStyle: {
+    backgroundColor: 'rgba(0,0,0,0.1)',
+  },
   dropdown1searchInputStyleStyle: {
     backgroundColor: '#EFEFEF',
     borderRadius: 8,
@@ -99,10 +107,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     flexDirection: 'row',
     padding: 15,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
@@ -113,50 +118,29 @@ const styles = StyleSheet.create({
     width: 120,
     resizeMode: 'contain',
   },
-  CardText: {
+  cardTitle: {
+    color: '#0375B7',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: 8,
+    width: '100%',
+  },
+  cardText: {
     color: '#808080',
     fontSize: 16,
-    marginLeft: 8,
   },
-  CardHeading: {
-    display: 'flex',
-    flexDirection: 'row',
+  label: {
+    color: 'black',
+    fontSize: 15,
+    fontWeight: 'bold',
   },
-  cusBottom: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '50%',
-    backgroundColor: colors.white,
-    borderRadius: 8,
-    marginTop: 10,
-    height: 50,
-    borderWidth: 1,
-    borderColor: colors.gray,
-    shadowOffset: {
-      width: 1,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+  daysLeft: {
+    color: '#fcc40d',
+    marginLeft: 10,
   },
-  Cardbodytext: {
-    display: 'flex',
+  row: {
     flexDirection: 'row',
-    // justifyContent: 'space-between',
-    // flexGrow: 1,
-    flexWrap: 'wrap',
-  },
-  CardFooter: {
-    display: 'flex',
-    flexDirection: 'row',
-    borderTopWidth: 2,
-    borderTopColor: '#C6C1C1',
-    padding: 8,
-    marginTop: 10,
-    alignItems: 'center',
+    marginTop: 8,
   },
   datepicker: {
     width: '100%',

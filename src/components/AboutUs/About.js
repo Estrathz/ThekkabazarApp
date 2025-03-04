@@ -1,40 +1,40 @@
-import {View, Text, Image, ScrollView, TextInput} from 'react-native';
-import React, {useEffect, useState} from 'react';
+import { View, Text, Image, ScrollView, TextInput } from 'react-native';
+import React, { useEffect, useState } from 'react';
 import styles from './AboutStyle';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import {aboutUsdata, aboutUsform} from '../../reducers/aboutSlice';
-import {useDispatch, useSelector} from 'react-redux';
+import { aboutUsdata, aboutUsform } from '../../reducers/aboutSlice';
+import { useDispatch, useSelector } from 'react-redux';
 import Custombutton from '../../Containers/Button/button';
 import Toast from 'react-native-toast-message';
 import he from 'he';
 
-
-const About = ({navigation}) => {
+const About = ({ navigation }) => {
   const dispatch = useDispatch();
-  const {data, error} = useSelector(state => state.about);
-  const removeTags = str => str.replace(/<[^>]*>?/gm, '');
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone_number, setPhone_number] = useState('');
-  const [subject, setSubject] = useState('');
-  const [message, setMessage] = useState('');
+  const { data, error } = useSelector(state => state.about);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone_number: '',
+    subject: '',
+    message: '',
+  });
 
   useEffect(() => {
     dispatch(aboutUsdata());
-
     if (error) {
       console.log(error);
     }
-  }, [dispatch]);
+  }, [dispatch, error]);
+
+  const handleInputChange = (name, value) => {
+    setFormData({ ...formData, [name]: value });
+  };
+
+
 
   const handleSubmitMessage = () => {
-    if (
-      name === '' ||
-      email === '' ||
-      phone_number === '' ||
-      subject === '' ||
-      message === ''
-    ) {
+    const { name, email, phone_number, subject, message } = formData;
+    if (!name || !email || !phone_number || !subject || !message) {
       return Toast.show({
         type: 'error',
         text1: 'Error',
@@ -43,234 +43,81 @@ const About = ({navigation}) => {
         autoHide: true,
       });
     }
-    dispatch(
-      aboutUsform({
-        name: name,
-        email: email,
-        phone_number: phone_number,
-        subject: subject,
-        message: message,
-      }),
-    );
-    setEmail('');
-    setName('');
-    setPhone_number('');
-    setSubject('');
-    setMessage('');
+    dispatch(aboutUsform(formData));
+    setFormData({ name: '', email: '', phone_number: '', subject: '', message: '' });
   };
-  const removeHtmlTags = (text) => {
-    if (typeof text === 'string') {
-      return text.replace(/<[^>]*>/g, '');
-    }
-    return '';  // Return an empty string or some default value if not a string
-  }
-  const decodeHtmlEntities = (text) => {
-    if (typeof text === 'string') {
-      return he.decode(text);
-    }
-    return '';  // Return an empty string or some default value if not a string
-  }
+
+  const removeHtmlTags = (text) => (typeof text === 'string' ? text.replace(/<[^>]*>/g, '') : '');
+  const decodeHtmlEntities = (text) => (typeof text === 'string' ? he.decode(text) : '');
+
   return (
     <ScrollView style={styles.container}>
-      <View style={{flexDirection: 'row', padding: 10}}>
-        <Icon
-          name="arrow-back"
-          size={30}
-          color="black"
-          onPress={() => navigation.goBack()}
-        />
-        <Text style={{color: 'black', fontSize: 20, marginLeft: 10}}>
-          About Us
-        </Text>
+      <View style={styles.header}>
+        <Icon name="arrow-back" size={30} color="black" onPress={() => navigation.goBack()} />
+        <Text style={styles.headerText}>About Us</Text>
       </View>
 
-      <Text
-        style={{
-          color: '#0375B7',
-          fontSize: 24,
-          alignSelf: 'center',
-          marginTop: 20,
-        }}>
-        Know About Us
-      </Text>
+      <Text style={styles.title}>Know About Us</Text>
 
-      {data?.about_us?.map((items, index) => (
-        <View
-          key={index}
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            marginTop: 20,
-          }}>
-          <Text style={{color: 'black', fontSize: 24, fontWeight: 'bold'}}>
-            {items.quotation}
-          </Text>
-          <Text style={{color: 'black', fontSize: 16, padding: 20, textAlign: 'justify'}}>
-            {removeTags(items.description)}
-          </Text>
+      {data?.about_us?.map((item, index) => (
+        <View key={index} style={styles.aboutSection}>
+          <Text style={styles.quotation}>{item.quotation}</Text>
+          <Text style={styles.description}>
+  {removeHtmlTags(item.description)}
+</Text>
         </View>
       ))}
 
       <View style={styles.serviceContainer}>
-        <Text style={{
-          color: 'black',
-          fontSize: 24,
-          fontWeight: 'bold',
-          alignSelf: 'center',
-        }}>
-          What We Offer
-        </Text>
-        <Text style={{
-          color: 'black',
-          fontSize: 16,
-          alignSelf: 'center',
-          marginTop: 10
-        }}>
+        <Text style={styles.sectionTitle}>What We Offer</Text>
+        <Text style={styles.serviceDescription}>
           We serve: Company Registration, Trademark Registration, Accounting & Taxation
         </Text>
         {data?.services?.map((item, index) => (
-          <View key={index} style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            marginTop: 5,
-          }}>
-            <Text style={{color: 'black', fontSize: 24, fontWeight: 'bold'}}>
-              {decodeHtmlEntities(item.quotation)}
-            </Text>
-            <Text style={{color: 'black', fontSize: 20}}>
-              {decodeHtmlEntities(removeHtmlTags(item.description))}
-            </Text>
+          <View key={index} style={styles.serviceItem}>
+            <Text style={styles.quotation}>{decodeHtmlEntities(item.quotation)}</Text>
+            <Text style={styles.serviceDescription}>{decodeHtmlEntities(removeHtmlTags(item.description))}</Text>
           </View>
         ))}
       </View>
 
-      <View style={{flex: 1, marginTop: 20, padding: 10}}>
+      <View style={styles.teamContainer}>
         {data?.team_types?.map((team, index) => (
           <View key={index}>
-            <Text style={{color: 'black', fontSize: 24, fontWeight: 'bold'}}>
-              {team.name}
-            </Text>
-            <View
-              style={{
-                padding: 10,
-                display: 'flex',
-                flexDirection: 'row',
-                justifyContent: 'space-evenly',
-                flex: 1,
-                flexWrap: 'wrap',
-              }}>
-              {team.myteam.map((items, index) => (
-                <View
-                  key={index}
-                  style={{
-                    width: '40%',
-                    marginTop: 10,
-                  }}>
-                  <Image
-                    //   source={{uri: items.image}}
-                    source={require('../../assets/group.png')}
-                    style={{height: 80, width: '60%', aspectRatio: 1.5}}
-                    alt="team"
-                  />
-                  <Text
-                    style={{color: 'black', fontSize: 20, alignSelf: 'center'}}>
-                    {items.name}
-                  </Text>
-                  <Text
-                    style={{color: 'black', fontSize: 20, alignSelf: 'center'}}>
-                    {items.position}
-                  </Text>
-                </View>
+            <Text style={styles.teamTitle}>{team.name}</Text>
+            <View style={styles.teamMembers}>
+              {team.myteam.map((member, index) => (
+                <View key={index} style={styles.teamMember}>
+                <Image 
+                  source={{ uri: member.image }} 
+                  style={styles.teamImage} 
+                  alt="team" 
+                />
+                
+              </View>
               ))}
             </View>
           </View>
         ))}
 
         <View style={styles.Formcontainer}>
-          <Text style={{color: '#0375B7', fontSize: 24, alignSelf: 'center'}}>
-            Get In Touch
-          </Text>
-          <Text style={{color: 'black', fontSize: 16, alignSelf: 'center'}}>
-            Say something to start a message!
-          </Text>
+          <Text style={styles.contactTitle}>Get In Touch</Text>
+          <Text style={styles.contactSubtitle}>Say something to start a message!</Text>
 
-          <TextInput
-            placeholder="Name"
-            placeholderTextColor="black"
-            style={{
-              borderRadius: 10,
-              padding: 10,
-              marginTop: 10,
-              marginBottom: 10,
-              backgroundColor: '#F9FAFB',
-              color: 'black',
-            }}
-            value={name}
-            onChangeText={text => setName(text)}
-          />
-          <TextInput
-            placeholder="Email"
-            placeholderTextColor="black"
-            style={{
-              borderRadius: 10,
-              padding: 10,
-              marginBottom: 10,
-              backgroundColor: '#F9FAFB',
-              color: 'black',
-            }}
-            value={email}
-            onChangeText={text => setEmail(text)}
-          />
-          <TextInput
-            placeholder="Subject"
-            placeholderTextColor="black"
-            style={{
-              borderRadius: 10,
-              padding: 10,
-              marginBottom: 10,
-              backgroundColor: '#F9FAFB',
-              color: 'black',
-            }}
-            value={subject}
-            onChangeText={text => setSubject(text)}
-          />
-          <TextInput
-            placeholder="Phone Number"
-            placeholderTextColor="black"
-            style={{
-              borderRadius: 10,
-              padding: 10,
-              marginBottom: 10,
-              color: 'black',
-              backgroundColor: '#F9FAFB',
-            }}
-            value={phone_number}
-            onChangeText={text => setPhone_number(text)}
-          />
+          {['name', 'email', 'subject', 'phone_number', 'message'].map((field, index) => (
+            <TextInput
+              key={index}
+              placeholder={field.charAt(0).toUpperCase() + field.slice(1).replace('_', ' ')}
+              placeholderTextColor="black"
+              style={styles.input}
+              value={formData[field]}
+              onChangeText={text => handleInputChange(field, text)}
+              multiline={field === 'message'}
+              numberOfLines={field === 'message' ? 3 : 1}
+            />
+          ))}
 
-          <TextInput
-            placeholder="Message"
-            placeholderTextColor="black"
-            numberOfLines={3}
-            multiline={true}
-            style={{
-              borderRadius: 10,
-              padding: 10,
-              marginBottom: 10,
-              backgroundColor: '#F9FAFB',
-              color: 'black',
-            }}
-            value={message}
-            onChangeText={text => setMessage(text)}
-          />
-          <Custombutton
-            title="Send Message"
-            onPress={() => handleSubmitMessage()}
-          />
+          <Custombutton title="Send Message" onPress={handleSubmitMessage} />
         </View>
       </View>
     </ScrollView>

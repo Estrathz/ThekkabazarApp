@@ -1,345 +1,116 @@
-import {View, Text, Linking} from 'react-native';
-import React, {useState, useEffect} from 'react';
+import { View, Text, Linking, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
 import styles from './profileStyle';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Custombutton from '../../Containers/Button/button';
 import Icon2 from 'react-native-vector-icons/MaterialIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
-import {useDispatch, useSelector} from 'react-redux';
-import {getProfile} from '../../reducers/profileSlice';
-import {useFocusEffect} from '@react-navigation/native';
-import {resetUserProfile} from '../../reducers/profileSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { getProfile, resetUserProfile } from '../../reducers/profileSlice';
+import { useFocusEffect } from '@react-navigation/native';
 
-const Profile = ({navigation}) => {
+
+const Profile = ({ navigation }) => {
   const dispatch = useDispatch();
-  const {data, error} = useSelector(state => state.userprofile);
+  const { data } = useSelector(state => state.userprofile);
   const [token, setToken] = useState('');
 
-  useFocusEffect(
-    React.useCallback(() => {
-      const fetchToken = async () => {
-        try {
-          const storedToken = await AsyncStorage.getItem('access_token');
-          setToken(storedToken);
-          dispatch(getProfile({access_token: storedToken}));
-        } catch (error) {
-          console.error(error);
-        }
-      };
-
-      fetchToken();
-    }, [dispatch]),
-  );
-
-  // useFocusEffect(
-  //   React.useCallback(() => {
-  //     getToken();
-  //   }, []),
-  // );
-  const getToken = async () => {
+  const fetchToken = async () => {
     try {
       const storedToken = await AsyncStorage.getItem('access_token');
-      setToken(storedToken);
+      if (storedToken) {
+        setToken(storedToken);
+        dispatch(getProfile({ access_token: storedToken }));
+      }
     } catch (error) {
       console.error(error);
     }
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchToken();
+    }, [dispatch])
+  );
 
   const handleLogout = () => {
-    try {
-      dispatch(resetUserProfile());
-      Toast.show({
-        type: 'success',
-        text1: 'Logout Successful',
-        visibilityTime: 3000,
-      });
-      navigation.navigate('MainScreen', {
-        screen: 'BottomNav',
-        params: {screen: 'Home', params: {screen: 'HomeScreen'}},
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  // Function to handle phone number tap
-  const handlePhonePress = () => {
-    const phoneNumber = '01-4794001';
-    Linking.openURL(`tel:${phoneNumber}`);
-  };
-
-  // Function to handle email tap
-  const handleEmailPress = () => {
-    const email = 'info@thekkabazar.com';
-    Linking.openURL(`mailto:${email}`);
-  };
-  const handleLoginNavigation = () =>{
+    dispatch(resetUserProfile());
+    Toast.show({ type: 'success', text1: 'Logout Successful', visibilityTime: 3000 });
     navigation.navigate('MainScreen', {
       screen: 'BottomNav',
-      params: {screen: 'Home', params: {screen: 'Login'}},
+      params: { screen: 'Home', params: { screen: 'HomeScreen' } },
     });
-  }
+  };
+
   return (
-    <View style={styles.ProfileContainer}>
-      <View
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          marginTop: 15,
-          padding: 15,
-        }}>
-        <View style={{display: 'flex', flexDirection: 'row'}}>
-          <Icon name="person-circle" size={50} color="black" />
-          <View style={{marginLeft: 10}}>
-            <Text style={{fontSize: 20, color: 'black', alignSelf: 'center'}}>
-              {data?.fullname || 'No User'}
-            </Text>
-            <Text style={{fontSize: 15, color: 'black'}}>Free Account</Text>
-          </View>
-        </View>
-        {token?<Custombutton
-          title="Upgrade"
-          onPress={() => navigation.navigate('Pricing')}
-        />:<Custombutton
-        title="Login"
-        onPress={() => handleLoginNavigation()}
-      />}
-        
-      </View>
-
-
-      <View
-        style={{
-          marginTop: 5,
-          borderBottomWidth: 1,
-          borderBottomColor: '#B5B5B5',
-          margin: 10,
-        }}>
-        <Text style={{fontSize: 14, color: 'black', marginBottom: 18}}>
-          Your free plans account have limited feature. Explore more with our
-          other packages.
-        </Text>
-      </View>
-
-      <View>
-        <View
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            margin: 14,
-            justifyContent: 'space-between',
-          }}>
-          <View style={{display: 'flex', flexDirection: 'row'}}>
-            <Icon name="person" size={25} color="black" />
-            <Text
-              style={{marginLeft: 10, color: 'black', fontSize: 18}}
-              onPress={() => navigation.navigate('UserProfile')}>
-              Profile
-            </Text>
-          </View>
-          <Icon2
-            name="arrow-forward-ios"
-            size={20}
-            color="black"
-            onPress={() => navigation.navigate('UserProfile')}
-          />
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={{ flex: 1 }}
+    >
+      <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+        {/* Profile Section */}
+        <View style={styles.profileCard}>
+          <Icon name="person-circle-outline" size={85} color="#007AFF" />
+          <Text style={styles.profileName}>{data?.fullname || 'Guest User'}</Text>
+          <Text style={styles.accountType}>Free Account</Text>
         </View>
 
-        <View
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            margin: 14,
-            justifyContent: 'space-between',
-          }}>
-          <View style={{display: 'flex', flexDirection: 'row'}}>
-            <Icon name="hammer" size={25} color="black" />
-            <Text
-              style={{marginLeft: 10, color: 'black', fontSize: 18}}
-              onPress={() => navigation.navigate('SavedBids')}>
-              Saved Bids
-            </Text>
-          </View>
-          <Icon2
-            name="arrow-forward-ios"
-            size={20}
-            color="black"
-            onPress={() => navigation.navigate('SavedBids')}
-          />
+        {/* Upgrade or Login Button */}
+        <Custombutton
+  title={token ? 'View Plans' : 'Login'}
+  onPress={() => {
+    if (token) {
+      navigation.navigate('PricingWebview', { url: 'https://thekkabazar.com/pricing/' });
+    } else {
+      navigation.navigate('MainScreen', {
+        screen: 'BottomNav',
+        params: { screen: 'Home', params: { screen: 'Login' } },
+      });
+    }
+  }}
+  style={styles.actionButton}
+/>
+
+        {/* Profile Actions */}
+        <View style={styles.section}>
+          {[
+            { icon: 'person-outline', label: 'Profile', route: 'UserProfile' },
+            { icon: 'bookmark-outline', label: 'Saved Bids', route: 'SavedBids' },
+            { icon: 'information-circle-outline', label: 'About Us', route: 'Aboutus' },
+          ].map((item, index) => (
+            <TouchableOpacity key={index} style={styles.optionItem} onPress={() => navigation.navigate(item.route)}>
+              <Icon name={item.icon} size={28} color="#333" />
+              <Text style={styles.optionText}>{item.label}</Text>
+              <Icon2 name="arrow-forward-ios" size={18} color="#999" />
+            </TouchableOpacity>
+          ))}
         </View>
 
-        <View
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            margin: 14,
-            justifyContent: 'space-between',
-          }}>
-          <View style={{display: 'flex', flexDirection: 'row'}}>
-            <Icon name="hammer" size={25} color="black" />
-            <Text
-              onPress={() => navigation.navigate('Aboutus')}
-              style={{marginLeft: 10, color: 'black', fontSize: 18}}>
-              About us
-            </Text>
-          </View>
-          <Icon2
-            name="arrow-forward-ios"
-            size={20}
-            color="black"
-            onPress={() => navigation.navigate('Aboutus')}
-          />
+        {/* Logout Button */}
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Icon name="exit-outline" size={28} color="red" />
+          <Text style={styles.logoutText}>Log Out</Text>
+        </TouchableOpacity>
+
+        {/* Get In Touch */}
+        <View style={styles.contactSection}>
+          <Text style={styles.sectionTitle}>Get In Touch</Text>
+          <View style={styles.divider} />
+
+          {[
+            { icon: 'location-on', color: '#007AFF', text: 'Buddhanagar, Kathmandu, Nepal' },
+            { icon: 'phone', color: '#28A745', text: '01-4794001', onPress: () => Linking.openURL('tel:01-4794001') },
+            { icon: 'email', color: '#007AFF', text: 'info@thekkabazar.com', onPress: () => Linking.openURL('mailto:info@thekkabazar.com') },
+          ].map((item, index) => (
+            <TouchableOpacity key={index} style={styles.contactItem} onPress={item.onPress}>
+              <Icon2 name={item.icon} size={30} color={item.color} />
+              <Text style={styles.contactText}>{item.text}</Text>
+            </TouchableOpacity>
+          ))}
         </View>
-
-        {/* <View
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            margin: 14,
-            justifyContent: 'space-between',
-          }}>
-          <View style={{display: 'flex', flexDirection: 'row'}}>
-            <Icon name="hammer" size={25} color="black" />
-            <Text style={{marginLeft: 10, color: 'black', fontSize: 18}}>
-              Tax & vat services
-            </Text>
-          </View>
-          <Icon2 name="arrow-forward-ios" size={20} color="black" />
-        </View> */}
-
-        {/* <View
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            margin: 14,
-            justifyContent: 'space-between',
-          }}>
-          <View style={{display: 'flex', flexDirection: 'row'}}>
-            <Icon name="hammer" size={25} color="black" />
-            <Text
-              style={{marginLeft: 10, color: 'black', fontSize: 18}}
-              onPress={() => navigation.navigate('Notice')}>
-              Notice
-            </Text>
-          </View>
-          <Icon2
-            name="arrow-forward-ios"
-            size={20}
-            color="black"
-            onPress={() => navigation.navigate('Notice')}
-          />
-        </View> */}
-
-        <View style={{display: 'flex', flexDirection: 'row', margin: 14}}>
-          <Icon name="exit-outline" size={25} color="red" />
-          <Text
-            style={{marginLeft: 10, color: 'red', fontSize: 18}}
-            onPress={() => handleLogout()}>
-            Log Out
-          </Text>
-        </View>
-      </View>
-
-      <View style={{margin: 15}}>
-        <Text
-          style={{
-            color: 'black',
-            fontSize: 22,
-            fontWeight: 'bold',
-          }}>
-          Get In Touch
-        </Text>
-        <View
-          style={{
-            borderBottomWidth: 3,
-            borderBottomColor: '#4A99D3',
-            marginTop: 15,
-            width: '34%',
-          }}></View>
-
-        <Text
-          style={{
-            color: 'black',
-            fontSize: 14,
-            marginTop: 10,
-          }}>
-          Any question or remarks? Just write us a message!
-        </Text>
-
-        <View
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            marginTop: 10,
-            // alignItems: 'center',
-            // justifyContent: 'center',
-          }}>
-          <Icon name="location" size={30} color="#185CAB" />
-          <Text
-            numberOfLines={2}
-            ellipsizeMode="tail"
-            style={{
-              display: 'flex',
-              color: 'black',
-              fontSize: 18,
-              marginLeft: 7,
-              width: '70%',
-            }}>
-            Buddhanagar, Kathmandu Nepal bibhuti marga
-          </Text>
-        </View>
-
-        <View
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            marginTop: 10,
-            // alignItems: 'center',
-            // justifyContent: 'center',
-          }}>
-          <Icon2 name="local-phone" size={30} color="#28A745" />
-          <Text
-            onPress={handlePhonePress}
-            numberOfLines={2}
-            ellipsizeMode="tail"
-            style={{
-              display: 'flex',
-              color: 'black',
-              fontSize: 18,
-              marginLeft: 7,
-              width: '70%',
-            }}>
-            01-4794001
-          </Text>
-        </View>
-
-        <View
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            marginTop: 10,
-            // alignItems: 'center',
-            // justifyContent: 'center',
-          }}>
-          <Icon2 name="email" size={30} color="#185CAB" />
-          <Text
-            onPress={handleEmailPress}
-            numberOfLines={2}
-            ellipsizeMode="tail"
-            style={{
-              display: 'flex',
-              color: 'black',
-              fontSize: 18,
-              marginLeft: 7,
-              width: '70%',
-            }}>
-            info@thekkabazar.com
-          </Text>
-        </View>
-      </View>
-    </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 

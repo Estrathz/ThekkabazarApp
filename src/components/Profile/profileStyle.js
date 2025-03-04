@@ -1,11 +1,110 @@
-import {StyleSheet} from 'react-native';
-import {colors, fonts} from '../../theme';
+import { StyleSheet } from 'react-native';
 
-const styles = StyleSheet.create({
-  ProfileContainer: {
+export default StyleSheet.create({
+  scrollContainer: {
+    flexGrow: 1,
+    padding: 20,
+    backgroundColor: '#F4F6F9',
+  },
+  profileCard: {
+    backgroundColor: '#FFF',
+    alignItems: 'center',
+    padding: 20,
+    borderRadius: 12,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  profileName: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#333',
+    marginTop: 8,
+  },
+  accountType: {
+    fontSize: 16,
+    color: '#777',
+    marginTop: 4,
+  },
+  actionButton: {
+    backgroundColor: '#007AFF',
+    paddingVertical: 14,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  section: {
+    backgroundColor: '#FFF',
+    borderRadius: 12,
+    padding: 15,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  optionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#EAEAEA',
+  },
+  optionText: {
     flex: 1,
-    backgroundColor: colors.white,
+    fontSize: 18,
+    color: '#333',
+    marginLeft: 12,
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 14,
+    borderRadius: 10,
+    backgroundColor: '#FFF',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
+    marginBottom: 20,
+  },
+  logoutText: {
+    fontSize: 18,
+    color: 'red',
+    marginLeft: 10,
+  },
+  contactSection: {
+    backgroundColor: '#FFF',
+    padding: 20,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  sectionTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 10,
+  },
+  divider: {
+    height: 3,
+    backgroundColor: '#007AFF',
+    width: '30%',
+    marginBottom: 15,
+  },
+  contactItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+  },
+  contactText: {
+    fontSize: 16,
+    color: '#333',
+    marginLeft: 10,
   },
 });
-
-export default styles;

@@ -1,38 +1,41 @@
-import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-import {BASE_URL} from './apiUrl';
 
 export const fetchDropdownData = createAsyncThunk(
-  'data/fetchDropdownData',
-  async () => {
-    const response = await axios.get(`${BASE_URL}/tender/apis/master/list/`);
-    const data = response.data;
-    return data.data;
-  },
+  'dropdown/fetchDropdownData',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get('/api/dropdown');
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
 );
 
-const dropDownSlice = createSlice({
-  name: 'data',
+const dropdownSlice = createSlice({
+  name: 'dropdown',
   initialState: {
-    dropdowndata: [],
-    status: 'idle',
+    dropdowndata: null,
     dropdownerror: null,
+    loading: false,
   },
   reducers: {},
-  extraReducers: builder => {
+  extraReducers: (builder) => {
     builder
-      .addCase(fetchDropdownData.pending, state => {
-        state.status = 'loading';
+      .addCase(fetchDropdownData.pending, (state) => {
+        state.loading = true;
+        state.dropdownerror = null;
       })
       .addCase(fetchDropdownData.fulfilled, (state, action) => {
-        state.status = 'succeeded';
+        state.loading = false;
         state.dropdowndata = action.payload;
       })
       .addCase(fetchDropdownData.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.error.message;
+        state.loading = false;
+        state.dropdownerror = action.payload;
       });
   },
 });
 
-export default dropDownSlice.reducer;
+export default dropdownSlice.reducer;

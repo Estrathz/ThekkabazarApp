@@ -8,7 +8,7 @@ import {
   RefreshControl,
   FlatList,
 } from 'react-native';
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import styles from './homeStyles';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Slider from '../../Containers/Slider/slider';
@@ -23,7 +23,7 @@ import DatePicker from 'react-native-date-picker';
 import { useWindowDimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import moment from 'moment';
-import { useFocusEffect } from '@react-navigation/native';
+import debounce from 'lodash/debounce';
 import ImageZoomViewer from 'react-native-image-zoom-viewer';
 
 const Home = ({ navigation }) => {
@@ -33,103 +33,155 @@ const Home = ({ navigation }) => {
 
   const [isModalVisible, setModalVisible] = useState(false);
   const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
   const [allData, setAllData] = useState([]);
   const [filters, setFilters] = useState({
-    organization: '',
+    organization_sector: '',
     category: '',
-    location: '',
-    projectType: '',
-    procurementsType: '',
+    district: '',
+    project_type: '',
+    procurement_type: '',
+    source: '',
     search: '',
   });
   const [date, setDate] = useState(new Date());
+  const [useCustomDate, setUseCustomDate] = useState(false);
   const [datepicker, setDatepicker] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [isImageVisible, setIsImageVisible] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
   const { width } = useWindowDimensions();
   const [token, setToken] = useState('');
 
-  useFocusEffect(
-    useCallback(() => {
-      const fetchToken = async () => {
-        try {
-          const storedToken = await AsyncStorage.getItem('access_token');
-          setToken(storedToken);
-        } catch (error) {
-          console.error(error);
-        }
-      };
+  // Dummy image path
+  const dummyImage = require('../../assets/dummy-image.png');
 
-      fetchToken();
-    }, [])
-  );
-
+  // Consolidated useEffect for initial data loading and token
   useEffect(() => {
-    dispatch(fetchTenderListData());
-    dispatch(fetchDropdownData());
+    const fetchInitialData = async () => {
+      const storedToken = await AsyncStorage.getItem('access_token');
+      setToken(storedToken);
+      dispatch(fetchTenderListData({ page: 1 }));
+      dispatch(fetchDropdownData());
+    };
 
-    if (dropdownerror) console.log(dropdownerror);
-    if (error) console.log(error);
-  }, [dispatch, token]);
+    fetchInitialData();
+  }, [dispatch]); // Only run once on mount
 
+  // Single useEffect for data updates
   useEffect(() => {
     if (data?.data) {
       setAllData(prevData => {
-        if (page === 1) return data.data;
-        const newData = data.data.filter(
-          newItem => !prevData.some(prevItem => prevItem.pk === newItem.pk)
-        );
-        return [...prevData, ...newData];
+        if (page === 1) return data.data; // Reset data on first page
+        return [...prevData, ...data.data.filter(newItem => 
+          !prevData.some(prevItem => prevItem.pk === newItem.pk)
+        )];
       });
     }
-  }, [data, page]);
 
-  const dropdownData = {
-    organizationData: dropdowndata?.organization_sectors?.map(item => item.name),
-    categoryData: dropdowndata?.categories?.map(item => item.name),
-    locationData: dropdowndata?.districts?.map(item => item.name),
-    projectTypeData: dropdowndata?.project_types?.map(item => item.name),
-    procurementData: dropdowndata?.procurement_types?.map(item => item.name),
-  };
+    if (error) console.log('API Error:', error);
+    if (dropdownerror) console.log('Dropdown Error:', dropdownerror);
+  }, [data, error, dropdownerror, page]); // Depend on data, error, and page
+
+  // Build API parameters
+  const buildApiParams = useCallback((pageNum = 1) => {
+    const apiParams = {};
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value && String(value).trim() !== '') {
+        apiParams[key] = encodeURIComponent(value.trim());
+      }
+    });
+    
+    if (useCustomDate && moment(date).format('YYYY-MM-DD') !== moment().format('YYYY-MM-DD')) {
+      apiParams.published_date = moment(date).format('YYYY-MM-DD');
+    }
+    
+    apiParams.page = pageNum;
+    return apiParams;
+  }, [filters, date, useCustomDate]);
+
+  // Optimized refresh handler
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    setPage(1); // Reset to first page
+    dispatch(fetchTenderListData(buildApiParams(1)))
+      .then(() => {
+        setRefreshing(false); // Stop refreshing after data is fetched
+      })
+      .catch(err => {
+        console.error('Error fetching data:', err);
+        setRefreshing(false); // Stop refreshing on error
+      });
+  }, [filters, date, useCustomDate, dispatch]);
+
+  // Optimized pagination handler
+  const handleEndReached = useCallback(() => {
+    if (data && page < data.total_pages) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      dispatch(fetchTenderListData(buildApiParams(nextPage)));
+    }
+  }, [page, data?.total_pages, filters, dispatch]);
+
+  // Optimized dropdown data processing
+  const dropdownData = useMemo(() => ({
+    organizationData: dropdowndata?.organization_sectors?.map(item => item.name) || [],
+    categoryData: dropdowndata?.categories?.map(item => item.name) || [],
+    locationData: dropdowndata?.districts?.map(item => item.name) || [],
+    projectTypeData: dropdowndata?.project_types?.map(item => item.name) || [],
+    procurementData: dropdowndata?.procurement_types?.map(item => item.name) || [],
+    sourceData: dropdowndata?.sources?.map(item => item.name) || [],
+  }), [dropdowndata]);
+
+  // Optimized filter handling
+  const handleFilter = useCallback(() => {
+    closeModal();
+    setPage(1);
+    setAllData([]); // Clear existing data before applying new filters
+
+    const apiParams = buildApiParams(1);
+    dispatch(fetchTenderListData(apiParams))
+      .then(() => console.log('Filter applied successfully'))
+      .catch(err => console.error('Error applying filter:', err));
+  }, [filters, date, useCustomDate, buildApiParams, dispatch]);
+
+  // Optimized filter clearing
+  const clearFilters = useCallback(() => {
+    const emptyFilters = {
+      organization_sector: '',
+      category: '',
+      district: '',
+      project_type: '',
+      procurement_type: '',
+      source: '',
+      search: '',
+    };
+    
+    setFilters(emptyFilters);
+    setDate(new Date());
+    setUseCustomDate(false);
+    setPage(1);
+    setAllData([]); // Clear existing data
+    
+    dispatch(fetchTenderListData({ page: 1 }))
+      .then(() => console.log('Filters cleared successfully'))
+      .catch(err => console.error('Error clearing filters:', err));
+  }, [dispatch]);
+
+  // Optimized search handler with debounce
+  const handleSearchChange = useCallback(
+    debounce((text) => {
+      setFilters(prev => ({ ...prev, search: text }));
+    }, 300),
+    []
+  );
 
   const openModal = () => setModalVisible(true);
   const closeModal = () => setModalVisible(false);
 
-  const handleFilter = () => {
-    closeModal();
-    const formattedDate = moment(date).format('YYYY-MM-DD');
-    dispatch(fetchTenderListData({ ...filters, published_date: formattedDate }));
+  const openImageModal = (imageUrl) => {
+    setSelectedImage(imageUrl);
   };
 
-  const onRefresh = () => {
-    setRefreshing(true);
-    dispatch(fetchTenderListData());
-    setRefreshing(false);
-  };
-
-  const handleProfileNavi = () => {
-    token
-      ? navigation.navigate('MainScreen', {
-          screen: 'BottomNav',
-          params: { screen: 'More', params: { screen: 'ProfileScreen' } },
-        })
-      : navigation.navigate('Login');
-  };
-
-  const handleEndReached = () => {
-    const nextPage = page + 1;
-    if (nextPage <= data.total_pages) {
-      dispatch(fetchTenderListData({ page: nextPage }));
-      setPage (nextPage);
-    }
-  };
-
-  const openImageModal = index => {
-    token ? setIsImageVisible(index) : navigation.navigate('Login');
-  };
-
-  const closeImageModal = () => setIsImageVisible(null);
+  const closeImageModal = () => setSelectedImage(null);
 
   const handleSaveBids = pk => {
     token ? dispatch(savebid({ id: pk, access_token: token })) : navigation.navigate('Login');
@@ -137,6 +189,23 @@ const Home = ({ navigation }) => {
 
   const handleDetailNavigation = pk => {
     token ? navigation.navigate('HomeDetails', { id: pk }) : navigation.navigate('Login');
+  };
+
+  // Date selection handler
+  const handleDateConfirm = (selectedDate) => {
+    setDatepicker(false);
+    setDate(selectedDate);
+    setUseCustomDate(true);
+  };
+
+  // Correct parameter mapping
+  const paramMapping = {
+    organizationData: 'organization_sector',
+    categoryData: 'category',
+    locationData: 'district',
+    projectTypeData: 'project_type',
+    procurementData: 'procurement_type',
+    sourceData: 'source',
   };
 
   return (
@@ -150,9 +219,13 @@ const Home = ({ navigation }) => {
                 <Image source={require('../../assets/logo.png')} style={styles.logo} />
                 <TouchableOpacity onPress={openModal} style={styles.searchSection}>
                   <Icon style={styles.searchIcon} name="search" size={20} color="#000" />
-                  <Text style={styles.input} placeholderTextColor={'#424242'}>
-                    Search
-                  </Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Search"
+                    placeholderTextColor={'#424242'}
+                    value={filters.search}
+                    onChangeText={handleSearchChange}
+                  />
                 </TouchableOpacity>
               </View>
               <Slider />
@@ -160,9 +233,30 @@ const Home = ({ navigation }) => {
           }
           renderItem={({ item, index }) => (
             <View key={index} style={styles.Card}>
-              <TouchableOpacity onPress={() => openImageModal(index)}>
-                <Image source={{ uri: item.image }} style={styles.image} />
+              <TouchableOpacity onPress={() => openImageModal(item.image)}>
+                <Image 
+                  source={dummyImage}
+                  style={styles.image} 
+                />
               </TouchableOpacity>
+              <Modal
+                visible={selectedImage !== null}
+                animationType="slide"
+                transparent={true}
+                onRequestClose={closeImageModal}>
+                <View style={styles.modalContainer}>
+                  <TouchableOpacity onPress={closeImageModal} style={styles.closeButton}>
+                    <Icon name="close" size={30} color="white" />
+                  </TouchableOpacity>
+                  <ImageZoomViewer
+                    imageUrls={[{ url: selectedImage }]}
+                    enableSwipeDown={true}
+                    onSwipeDown={closeImageModal}
+                    renderIndicator={() => null}
+                    backgroundColor="black"
+                  />
+                </View>
+              </Modal>
               <View style={{ padding: 8, flex: 1 }}>
                 <Text
                   numberOfLines={2}
@@ -219,30 +313,11 @@ const Home = ({ navigation }) => {
                   </TouchableOpacity>
                 </View>
               </View>
-              <Modal
-                visible={isImageVisible !== null}
-                animationType="slide"
-                transparent={true}
-                onRequestClose={closeImageModal}>
-                <View style={styles.modalContainer}>
-                  <TouchableOpacity onPress={closeImageModal} style={styles.closeButton}>
-                    <Icon name="close" size={30} color="white" />
-                  </TouchableOpacity>
-                  <ImageZoomViewer
-                    imageUrls={allData.map(item => ({ url: item.image }))}
-                    index={isImageVisible}
-                    enableSwipeDown={true}
-                    onSwipeDown={closeImageModal}
-                    renderIndicator={() => null}
-                    backgroundColor="black"
-                  />
-                </View>
-              </Modal>
             </View>
           )}
-          keyExtractor={item => item.pk}
-          onMomentumScrollEnd={handleEndReached}
-          onEndReachedThreshold={0.8}
+          keyExtractor={item => item.pk.toString()}
+          onEndReached={handleEndReached}
+          onEndReachedThreshold={0.5}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         />
       </View>
@@ -261,9 +336,18 @@ const Home = ({ navigation }) => {
               {Object.entries(dropdownData).map(([key, data]) => (
                 <SelectDropdown
                   key={key}
-                  data={data}
-                  onSelect={(selectedItem) => setFilters(prev => ({ ...prev, [key]: selectedItem }))}
+                  data={data || []}
+                  onSelect={(selectedItem) => {
+                    const apiParam = paramMapping[key];
+                    if (apiParam) {
+                      setFilters(prev => ({
+                        ...prev,
+                        [apiParam]: selectedItem,
+                      }));
+                    }
+                  }}
                   defaultButtonText={`Select ${key.replace('Data', '')}`}
+                  defaultValue={filters[paramMapping[key]] || ''}
                   buttonStyle={styles.dropdown1BtnStyle}
                   buttonTextStyle={styles.dropdown1BtnTxtStyle}
                   renderDropdownIcon={isOpened => (
@@ -285,23 +369,36 @@ const Home = ({ navigation }) => {
                 placeholder="Enter Keywords"
                 placeholderTextColor={'#424242'}
                 style={styles.searchInput}
+                value={filters.search}
                 onChangeText={text => setFilters(prev => ({ ...prev, search: text }))}
               />
-              <Text style={styles.datepicker} onPress={() => setDatepicker(true)}>
+              <View style={styles.dateContainer}>
+                <Text style={styles.datepicker} onPress={() => setDatepicker(true)}>
+                  {useCustomDate ? moment(date).format('YYYY-MM-DD') : 'Select Date'}
+                </Text>
                 <DatePicker
                   modal
                   mode="date"
                   open={datepicker}
                   date={date}
-                  onConfirm={date => {
-                    setDatepicker(false);
-                    setDate(date);
-                  }}
+                  onConfirm={handleDateConfirm}
                   onCancel={() => setDatepicker(false)}
                 />
-                {moment(date).format('YYYY-MM-DD')}
-              </Text>
-              <Custombutton title="Apply Filter" onPress={handleFilter} />
+                {useCustomDate && (
+                  <TouchableOpacity 
+                    onPress={() => setUseCustomDate(false)}
+                    style={styles.clearDateButton}
+                  >
+                    <Icon name="close-circle" size={20} color="#FF0000" />
+                  </TouchableOpacity>
+                )}
+              </View>
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity onPress={clearFilters} style={styles.clearFilterButton}>
+                  <Text style={styles.clearFilterText}>Clear Filters</Text>
+                </TouchableOpacity>
+                <Custombutton title="Apply Filter" onPress={handleFilter} />
+              </View>
             </View>
           </View>
         </View>
@@ -310,4 +407,4 @@ const Home = ({ navigation }) => {
   );
 };
 
-export default Home;
+export default React.memo(Home);

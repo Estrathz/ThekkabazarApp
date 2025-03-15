@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -11,7 +11,7 @@ import {
   Image,
 } from 'react-native';
 import DatePicker from 'react-native-date-picker';
-import styles from './resultStyle';
+import styles from './resultStyle'; // Import styles from resultStyle.js
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useDispatch, useSelector } from 'react-redux';
 import SelectDropdown from 'react-native-select-dropdown';
@@ -23,6 +23,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import ImageZoomViewer from 'react-native-image-zoom-viewer';
 import { useWindowDimensions } from 'react-native';
+import FastImage from 'react-native-fast-image';
 
 const Result = ({ navigation }) => {
   const [isModalVisible, setModalVisible] = useState(false);
@@ -38,6 +39,7 @@ const Result = ({ navigation }) => {
   const [datepicker, setDatepicker] = useState(false);
   const [token, setToken] = useState('');
   const [isImageVisible, setIsImageVisible] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null); // Added selectedImage state
   const [page, setPage] = useState(1); // Added page state
   const { width } = useWindowDimensions();
 
@@ -54,8 +56,14 @@ const Result = ({ navigation }) => {
   useEffect(() => {
     dispatch(fetchDropdownData());
     dispatch(fetchresultData({ page })); // Fetch results with the current page
-    if (error) console.log(error);
-    if (dropdownerror) console.log(dropdownerror);
+    if (error) {
+      console.log(error);
+      // Optionally, show an error message to the user
+    }
+    if (dropdownerror) {
+      console.log(dropdownerror);
+      // Optionally, show an error message to the user
+    }
   }, [dispatch, error, dropdownerror, page]); // Added page to dependencies
 
   const getToken = async () => {
@@ -76,28 +84,32 @@ const Result = ({ navigation }) => {
         return prevData;
       });
     }
-  }, [data]);
+  }, [data, page]);
 
-  const handleFilter = () => {
+  const closeModal = useCallback(() => {
+    setModalVisible(false);
+  }, []);
+
+  const handleFilter = useCallback(() => {
     closeModal();
     setPage(1); // Reset to the first page when applying filters
     dispatch(fetchresultData({ organization_sector: organization, location, project_type: projectType, procurement_type: procurementsType, category, search }));
-  };
+  }, [organization, location, projectType, procurementsType, category, search, dispatch, closeModal]);
 
-  const onRefresh = () => {
+  const onRefresh = useCallback(() => {
     setRefreshing(true);
     dispatch(fetchresultData({ page: 1 }));
     setRefreshing(false);
-  };
+  }, [dispatch]);
 
-  const handleEndReached = () => {
+  const handleEndReached = useCallback(() => {
     const nextPage = page + 1;
     if (nextPage <= data.total_pages) {
       setPage(nextPage); // Update the page state
     }
-  };
+  }, [page, data]);
 
-  const handleDetailNavigation = pk => {
+  const handleDetailNavigation = useCallback(pk => {
     if (token) {
       navigation.navigate('ResultDetails', { id: pk });
     } else {
@@ -106,105 +118,122 @@ const Result = ({ navigation }) => {
         params: { screen: 'Home', params: { screen: 'Login' } },
       });
     }
-  };
+  }, [token, navigation]);
 
-  const openImageModal = index => {
+  const openImageModal = useCallback((index, imageUrl) => {
     if (token) {
+      setSelectedImage(imageUrl); // Set the selected image URL
       setIsImageVisible(index);
     } else {
       navigation.navigate('Login');
     }
-  };
+  }, [token, navigation]);
 
-  const closeImageModal = () => setIsImageVisible(null);
+  const closeImageModal = useCallback(() => {
+    setIsImageVisible(null);
+    setSelectedImage(null); // Reset the selected image URL
+  }, []);
 
-  const organizationData = dropdowndata?.organization_sectors?.map(item => item.name);
-  const categoryData = dropdowndata?.categories?.map(item => item.name);
-  const LocationData = dropdowndata?.districts?.map(item => item.name);
-  const projectTypeData = dropdowndata?.project_types?.map(item => item.name);
-  const procurementData = dropdowndata?.procurement_types?.map(item => item.name);
+  const organizationData = useMemo(() => dropdowndata?.organization_sectors?.map(item => item.name), [dropdowndata]);
+  const categoryData = useMemo(() => dropdowndata?.categories?.map(item => item.name), [dropdowndata]);
+  const LocationData = useMemo(() => dropdowndata?.districts?.map(item => item.name), [dropdowndata]);
+  const projectTypeData = useMemo(() => dropdowndata?.project_types?.map(item => item.name), [dropdowndata]);
+  const procurementData = useMemo(() => dropdowndata?.procurement_types?.map(item => item.name), [dropdowndata]);
+
+  const renderItem = useCallback(({ item }) => (
+    <View key={item.pk} style={styles.Card}>
+      <TouchableOpacity onPress={() => openImageModal(item.pk, item.image)}>
+        <FastImage source={require('../../assets/dummy-image.png')} style={styles.image} />
+      </TouchableOpacity>
+      <View style={{ padding: 8, flex: 1 }}>
+        <Text
+          numberOfLines={2}
+          style={styles.cardTitle}
+          onPress={() => handleDetailNavigation(item.pk)}>
+          {item.title}
+        </Text>
+        <Text numberOfLines={2} style={styles.cardText}>{item.public_entry_name}</Text>
+        <View style={styles.row}>
+          <Icon name="bag-handle" size={18} color="black" />
+          <Text style={styles.label}>Service:</Text>
+          {item.project_type?.map((project, index) => (
+            <Text key={index} numberOfLines={2} style={styles.cardText}>{project.name}</Text>
+          ))}
+        </View>
+        <View style={styles.row}>
+          <Icon2 name="update" size={18} color="black" />
+          <Text style={styles.label}>Published:</Text>
+          <Text style={styles.cardText}>{item.published_date}</Text>
+          <Text style={styles.daysLeft}>{item.days_left}</Text>
+        </View>
+        <View style={styles.row}>
+          <Icon name="newspaper" size={18} color="black" />
+          <Text style={styles.label}>Source:</Text>
+          <Text style={styles.cardText}>{item.source}</Text>
+        </View>
+        <View style={styles.row}>
+          <Icon name="location" size={18} color="black" />
+          <Text style={styles.label}>Location:</Text>
+          {item.district?.map((loc, index) => (
+            <Text key={index} numberOfLines={2} style={styles.cardText}>{loc.name}</Text>
+          ))}
+        </View>
+      </View>
+      <Modal
+        visible={isImageVisible !== null}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={closeImageModal}>
+        <View style={styles.modalContainer}>
+          <TouchableOpacity onPress={closeImageModal} style={styles.closeButton} accessibilityLabel="Close Image Modal">
+            <Icon name="close" size={30} color="white" />
+          </TouchableOpacity>
+          {selectedImage && (
+            <ImageZoomViewer
+              imageUrls={[{ url: selectedImage }]} // Only load the selected image
+              index={0}
+              enableSwipeDown={true}
+              onSwipeDown={closeImageModal}
+              renderIndicator={() => null}
+              backgroundColor="black"
+            />
+          )}
+        </View>
+      </Modal>
+    </View>
+  ), [openImageModal, handleDetailNavigation, isImageVisible, closeImageModal, selectedImage]);
 
   return (
     <View style={styles.ResultContainer}>
+      <View style={styles.navcontainer}>
+        <Image source={require('../../assets/logo.png')} style={styles.logo} />
+        <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.searchSection}>
+          <Icon style={styles.searchIcon} name="search" size={20} color="#000" />
+          <TextInput
+            style={styles.input}
+            placeholder="Search"
+            placeholderTextColor={'#424242'}
+            value={search}
+            onChangeText={setSearch}
+          />
+        </TouchableOpacity>
+      </View>
       <FlatList
         data={allData}
-        ListHeaderComponent={
-          <View style={styles.SearchContainer}>
-            <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.searchSection}>
-              <Icon style={styles.searchIcon} name="search" size={20} color="#000" />
-              <Text style={styles.input} placeholderTextColor={'#424242'}>Search</Text>
-            </TouchableOpacity>
-          </View>
-        }
-        renderItem={({ item, index }) => (
-          <View key={index} style={styles.Card}>
-            <TouchableOpacity onPress={() => openImageModal(index)}>
-              <Image source={{ uri: item.image }} style={styles.image} />
-            </TouchableOpacity>
-            <View style={{ padding: 8, flex: 1 }}>
-              <Text
-                numberOfLines={2}
-                style={styles.cardTitle}
-                onPress={() => handleDetailNavigation(item.pk)}>
-                {item.title}
-              </Text>
-              <Text numberOfLines={2} style={styles.cardText}>{item.public_entry_name}</Text>
-              <View style={styles.row}>
-                <Icon name="bag-handle" size={18} color="black" />
-                <Text style={styles.label}>Service:</Text>
-                {item.project_type?.map((project, index) => (
-                  <Text key={index} numberOfLines={2} style={styles.cardText}>{project.name}</Text>
-                ))}
-              </View>
-              <View style={styles.row}>
-                <Icon2 name="update" size={18} color="black" />
-                <Text style={styles.label}>Published:</Text>
-                <Text style={styles.cardText}>{item.published_date}</Text>
-                <Text style={styles.daysLeft}>{item.days_left}</Text>
-              </View>
-              <View style={styles.row}>
-                <Icon name="newspaper" size={18} color="black" />
-                <Text style={styles.label}>Source:</Text>
-                <Text style={styles.cardText}>{item.source}</Text>
-              </View>
-              <View style={styles.row}>
-                <Icon name="location" size={18} color="black" />
-                <Text style={styles.label}>Location:</Text>
-                {item.district?.map((loc, index) => (
-                  <Text key={index} numberOfLines={2} style={styles.cardText}>{loc.name}</Text>
-                ))}
-              </View>
-            </View>
-            <Modal
-              visible={isImageVisible !== null}
-              animationType="slide"
-              transparent={true}
-              onRequestClose={closeImageModal}>
-              <View style={styles.modalContainer}>
-                <TouchableOpacity onPress={closeImageModal} style={styles.closeButton}>
-                  <Icon name="close" size={30} color="white" />
-                </TouchableOpacity>
-                <ImageZoomViewer
-                  imageUrls={allData.map(item => ({ url: item.image }))}
-                  index={isImageVisible}
-                  enableSwipeDown={true}
-                  onSwipeDown={closeImageModal}
-                  renderIndicator={() => null}
-                  backgroundColor="black"
-                />
-              </View>
-            </Modal>
-          </View>
-        )}
-        keyExtractor={item => item.pk}
-        onMomentumScrollEnd={handleEndReached}
+        renderItem={renderItem}
+        keyExtractor={item => item.pk.toString()}
+        onEndReached={handleEndReached}
         onEndReachedThreshold={0.8}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        initialNumToRender={50}
+        getItemLayout={(data, index) => (
+          { length: 200, offset: 200 * index, index }
+        )}
       />
       <Modal visible={isModalVisible} animationType="slide" transparent={true}>
         <ScrollView style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButton}>
+            <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButton} accessibilityLabel="Close Filter Modal">
               <Icon name="close" size={30} color="black" />
             </TouchableOpacity>
             <Text style={styles.modalText}>Filter Categories</Text>
@@ -239,20 +268,20 @@ const Result = ({ navigation }) => {
                   renderSearchInputLeftIcon={() => <Icon name="search" color={'#444'} size={18} />}
                 />
               ))}
-              <Text style={styles.datepicker} onPress={() => setDatepicker(true)}>
-                Select Date
-                <DatePicker
-                  modal
-                  mode="date"
-                  open={datepicker}
-                  date={date}
-                  onConfirm={date => {
-                    setDatepicker(false);
-                    setDate(date);
-                  }}
-                  onCancel={() => setDatepicker(false)}
-                />
-              </Text>
+              <TouchableOpacity onPress={() => setDatepicker(true)} style={styles.datepicker}>
+                <Text>Select Date</Text>
+              </TouchableOpacity>
+              <DatePicker
+                modal
+                mode="date"
+                open={datepicker}
+                date={date}
+                onConfirm={date => {
+                  setDatepicker(false);
+                  setDate(date);
+                }}
+                onCancel={() => setDatepicker(false)}
+              />
               <Custombutton title="Apply Filter" onPress={handleFilter} />
             </View>
           </View>

@@ -172,7 +172,7 @@ const BottomNav = () => {
           tabBarActiveTintColor: '#0375B7',
           headerBackTitleVisible: false,
           tabBarInactiveTintColor: 'gray',
-          tabBarLabelStyle: {fontSize: 16},
+          tabBarLabelStyle: {fontSize: 14},
           tabBarStyle: {padding: 5},
           unmountOnBlur: true,
         }}
@@ -206,7 +206,7 @@ const BottomNav = () => {
           tabBarIcon: ({focused}) => {
             return (
               <Icon
-                name={focused ? 'bag-add' : 'bag-add-outline'}
+                name={focused ? 'storefront' : 'storefront-outline'}
                 size={28}
                 color="white"
                 style={{
@@ -237,14 +237,14 @@ const BottomNav = () => {
         }}
       />
       <Tab.Screen
-        name="PrivateWorks"
+        name="Private Work"
         component={PrivateWork}
         options={{
           headerShown: false,
           tabBarIcon: ({focused, color}) => {
             return (
               <Icon
-                name={focused ? 'newspaper' : 'newspaper-outline'}
+                name={focused ? 'briefcase' : 'briefcase-outline'}
                 size={25}
                 color={color}
               />
@@ -254,9 +254,9 @@ const BottomNav = () => {
           headerBackTitleVisible: false,
           tabBarInactiveTintColor: 'gray',
           tabBarLabelStyle: {fontSize: 14},
+          unmountOnBlur: true,
         }}
       />
-
       <Tab.Screen
         name="More"
         component={ProfileStackScreen}

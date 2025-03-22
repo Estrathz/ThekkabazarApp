@@ -58,40 +58,44 @@ const Profile = ({ navigation }) => {
 
         {/* Upgrade or Login Button */}
         <Custombutton
-  title={token ? 'View Plans' : 'Login'}
-  onPress={() => {
-    if (token) {
-      navigation.navigate('PricingWebview', { url: 'https://thekkabazar.com/pricing/' });
-    } else {
-      navigation.navigate('MainScreen', {
-        screen: 'BottomNav',
-        params: { screen: 'Home', params: { screen: 'Login' } },
-      });
-    }
-  }}
-  style={styles.actionButton}
-/>
+          title={token ? 'View Plans' : 'Login'}
+          onPress={() => {
+            if (token) {
+              navigation.navigate('PricingWebview', { url: 'https://thekkabazar.com/pricing/' });
+            } else {
+              navigation.navigate('MainScreen', {
+                screen: 'BottomNav',
+                params: { screen: 'Home', params: { screen: 'Login' } },
+              });
+            }
+          }}
+          style={styles.actionButton}
+        />
 
-        {/* Profile Actions */}
-        <View style={styles.section}>
-          {[
-            { icon: 'person-outline', label: 'Profile', route: 'UserProfile' },
-            { icon: 'bookmark-outline', label: 'Saved Bids', route: 'SavedBids' },
-            { icon: 'information-circle-outline', label: 'About Us', route: 'Aboutus' },
-          ].map((item, index) => (
-            <TouchableOpacity key={index} style={styles.optionItem} onPress={() => navigation.navigate(item.route)}>
-              <Icon name={item.icon} size={28} color="#333" />
-              <Text style={styles.optionText}>{item.label}</Text>
-              <Icon2 name="arrow-forward-ios" size={18} color="#999" />
-            </TouchableOpacity>
-          ))}
-        </View>
+        {/* Profile Actions - Only show when logged in */}
+        {token && (
+          <View style={styles.section}>
+            {[
+              { icon: 'person-outline', label: 'Profile', route: 'UserProfile' },
+              { icon: 'bookmark-outline', label: 'Saved Bids', route: 'SavedBids' },
+              { icon: 'information-circle-outline', label: 'About Us', route: 'Aboutus' },
+            ].map((item, index) => (
+              <TouchableOpacity key={index} style={styles.optionItem} onPress={() => navigation.navigate(item.route)}>
+                <Icon name={item.icon} size={28} color="#333" />
+                <Text style={styles.optionText}>{item.label}</Text>
+                <Icon2 name="arrow-forward-ios" size={18} color="#999" />
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
 
-        {/* Logout Button */}
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Icon name="exit-outline" size={28} color="red" />
-          <Text style={styles.logoutText}>Log Out</Text>
-        </TouchableOpacity>
+        {/* Logout Button - Only show when logged in */}
+        {token && (
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <Icon name="exit-outline" size={28} color="red" />
+            <Text style={styles.logoutText}>Log Out</Text>
+          </TouchableOpacity>
+        )}
 
         {/* Get In Touch */}
         <View style={styles.contactSection}>

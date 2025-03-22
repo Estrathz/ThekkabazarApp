@@ -4,56 +4,62 @@ import axios from 'axios';
 import {BASE_URL} from './apiUrl';
 import Toast from 'react-native-toast-message';
 
+// Cache for API responses
+const cache = new Map();
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+// Helper function to check cache
+const getCachedData = (key) => {
+  const cached = cache.get(key);
+  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+    return cached.data;
+  }
+  return null;
+};
+
+// Helper function to set cache
+const setCachedData = (key, data) => {
+  cache.set(key, {
+    data,
+    timestamp: Date.now()
+  });
+};
+
 export const fetchTenderListData = createAsyncThunk(
-  'data/fetchTenderListData',
-  async ({
-    organization_sector,
-    location,
-    project_type,
-    procurement_type,
-    published_date,
-    category,
-    page,
-    search,
-  } = {}) => {
-    const params = new URLSearchParams();
+  'card/fetchTenderListData',
+  async (params, {rejectWithValue}) => {
+    try {
+      const cacheKey = JSON.stringify(params);
+      const cachedData = getCachedData(cacheKey);
+      
+      if (cachedData) {
+        return cachedData;
+      }
 
-    console.log('organ', organization_sector);
+      const url = `${BASE_URL}/tender/apis/tender/list/`;
+      const response = await axios.get(url, {
+        params,
+        headers: {
+          'accept': 'application/json',
+          'X-CSRFToken': 'bwQJROlt74LsvQqQuOi10XS8WEyGPgpVSfLN7HfQbsFEAu5NMRk3KkYuNsIenqFO'
+        }
+      });
 
-    if (organization_sector) {
-      params.append('organization_sector', organization_sector);
-    }
+      const responseData = {
+        data: response.data.data,
+        total_pages: response.data.total_pages,
+        current_page: response.data.current_page,
+        count: response.data.count,
+        next: response.data.next,
+        previous: response.data.previous
+      };
 
-    if (location) {
-      params.append('district', location);
+      setCachedData(cacheKey, responseData);
+      return responseData;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
     }
-
-    if (project_type) {
-      params.append('loproject_typeation', project_type);
-    }
-
-    if (procurement_type) {
-      params.append('procurement_type', procurement_type);
-    }
-    if (category) {
-      params.append('category', category);
-    }
-    if (page) {
-      params.append('page', page);
-    }
-    if (search) {
-      params.append('search', search);
-    }
-
-    if (published_date) {
-      params.append('published_date', published_date);
-    }
-    const response = await axios.get(
-      ` ${BASE_URL}/tender/apis/tender/list/?${params.toString()}`,
-    );
-    const data = response.data;
-    return data;
-  },
+  }
 );
 
 export const fetchOneTenderData = createAsyncThunk(
@@ -95,25 +101,32 @@ export const savebid = createAsyncThunk(
 const cardSlice = createSlice({
   name: 'card',
   initialState: {
-    data: [],
+    data: null,
     one: [],
     status: 'idle',
     error: null,
     message: '',
+    loading: false,
   },
   reducers: {},
   extraReducers: builder => {
     builder
-      .addCase(fetchTenderListData.pending, state => {
+      .addCase(fetchTenderListData.pending, (state) => {
+        state.loading = true;
         state.status = 'loading';
+        state.error = null;
       })
       .addCase(fetchTenderListData.fulfilled, (state, action) => {
+        state.loading = false;
         state.status = 'succeeded';
         state.data = action.payload;
+        console.log('Tender list data updated in state:', action.payload);
       })
       .addCase(fetchTenderListData.rejected, (state, action) => {
+        state.loading = false;
         state.status = 'failed';
-        state.error = action.error.message;
+        state.error = action.payload;
+        console.error('Tender list error in state:', action.payload);
       })
       .addCase(fetchOneTenderData.pending, state => {
         state.status = 'loading';

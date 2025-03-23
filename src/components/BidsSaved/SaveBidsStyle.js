@@ -5,6 +5,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  listContent: {
     padding: 10,
   },
   title: {
@@ -24,8 +26,8 @@ const styles = StyleSheet.create({
     elevation: 5,
     marginBottom: 15,
     borderRadius: 6,
-    width: '100%', // Set full width
-    alignSelf: 'stretch', // Ensures it stretches fully
+    width: '100%',
+    alignSelf: 'stretch',
   },
   image: {
     height: 90,

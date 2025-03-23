@@ -1,140 +1,169 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
 import { colors, fonts } from '../../theme';
+
+const { width } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.white,
+    backgroundColor: '#fff',
   },
   header: {
     flexDirection: 'row',
-    padding: 10,
     alignItems: 'center',
+    padding: 16,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
   },
   headerText: {
-    color: 'black',
     fontSize: 20,
-    marginLeft: 10,
+    fontWeight: 'bold',
+    marginLeft: 16,
+    color: '#333',
   },
-  title: {
-    color: '#0375B7',
-    fontSize: 24,
-    alignSelf: 'center',
-    marginTop: 10,
+  scrollContent: {
+    flex: 1,
   },
   aboutSection: {
+    padding: 16,
+    backgroundColor: '#fff',
+  },
+  imageContainer: {
+    width: '100%',
+    height: 250,
+    backgroundColor: '#f8f8f8',
+    borderRadius: 8,
+    marginBottom: 16,
+    justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 10,
+    overflow: 'hidden',
+  },
+  aboutImage: {
+    width: '100%',
+    height: '100%',
   },
   quotation: {
-    color: 'black',
     fontSize: 24,
     fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 12,
+    textAlign: 'center',
   },
-  description: {
-    color: 'black',
-    fontSize: 16,
-    padding: 20,
-    textAlign: 'justify',
-  },
-  serviceContainer: {
-    backgroundColor: colors.background,
-    marginTop: 10,
-    padding: 10,
-  },
-  sectionTitle: {
-    color: 'black',
-    fontSize: 24,
-    fontWeight: 'bold',
-    alignSelf: 'center',
-  },
-  serviceDescription: {
-    color: 'black',
-    fontSize: 16,
-    alignSelf: 'center',
-    marginTop: 10,
-  },
-  serviceItem: {
-    alignItems: 'center',
-    marginTop: 5,
-  },
-  teamContainer: {
-    flex: 1,
-    marginTop: 20,
-    padding: 10,
-  },
-  teamTitle: {
-    color: 'black',
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  teamMembers: {
-    padding: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    flexWrap: 'wrap',
-  },
-  teamMembers: {
-    padding: 10,
-    flexDirection: 'row',
-    justifyContent: 'flex-start', // Align items to the start
-    flexWrap: 'wrap',
-  },
-  
-  teamMember: {
-    width: '40%',
-    marginTop: 10,// Center items horizontally
-  },
-
-  teamImage: {
-    height: 72, // Reduced from 80 to 72 (10% reduction)
-    width: '54%', // Reduced from 60% to 54% (10% reduction)
-    aspectRatio: 1.5,
-    marginBottom: 8, // Add some space between the image and text
-  },
-
-  memberName: {
-    color: 'black',
-    fontSize: 14,
-  },
-
-  memberPosition: {
-    color: 'black',
-    fontSize: 12,
-
-  },
-  Formcontainer: {
-    marginTop: 20,
-    padding: 6,
-    borderRadius: 10,
-    marginBottom: 20,
-    backgroundColor: colors.background,
+  descriptionContainer: {
+    marginTop: 16,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 16,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  descriptionImage: {
+    width: '100%',
+    height: 300,
+    borderRadius: 8,
+    marginBottom: 16,
+    backgroundColor: '#f8f8f8',
+  },
+  descriptionText: {
+    fontSize: 16,
+    color: '#333',
+    lineHeight: 24,
+    textAlign: 'justify',
+  },
+  serviceContainer: {
+    padding: 16,
+    backgroundColor: '#f8f8f8',
+  },
+  sectionTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  teamSection: {
+    marginBottom: 24,
+  },
+  teamTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 12,
+  },
+  teamMembers: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  teamMember: {
+    width: (width - 48) / 2,
+    marginBottom: 16,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 8,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  teamImage: {
+    width: '100%',
+    height: 150,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  memberName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 4,
+  },
+  memberPosition: {
+    fontSize: 14,
+    color: '#666',
+  },
+  formContainer: {
+    padding: 16,
+    backgroundColor: '#fff',
   },
   contactTitle: {
-    color: '#0375B7',
-    fontSize: 24,
-    alignSelf: 'center',
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 8,
+    textAlign: 'center',
   },
   contactSubtitle: {
-    color: 'black',
     fontSize: 16,
-    alignSelf: 'center',
+    color: '#666',
+    marginBottom: 20,
+    textAlign: 'center',
   },
   input: {
-    borderRadius: 10,
-    padding: 10,
-    marginTop: 10,
-    marginBottom: 10,
-    backgroundColor: '#F9FAFB',
-    color: 'black',
+    backgroundColor: '#f8f8f8',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  submitButton: {
+    marginTop: 8,
+    backgroundColor: '#007AFF',
+    borderRadius: 8,
+    padding: 16,
   },
 });
 

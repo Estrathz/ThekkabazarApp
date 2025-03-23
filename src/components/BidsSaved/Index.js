@@ -26,11 +26,7 @@ const Index = ({navigation}) => {
         Saved Bids
       </Text> */}
       <View style={styles.bidsCard}>
-        <TouchableOpacity
-          onPress={() => setActive('bids')}
-          style={[styles.tabButton, active === 'bids' && styles.activeTab]}>
-          <Text style={styles.tabButtonText}>Saved Bids</Text>
-        </TouchableOpacity>
+        <View style={[styles.tabButton, active === 'bids' && styles.activeTab]} />
         {/* <TouchableOpacity
           onPress={() => setActive('interest')}
           style={[styles.tabButton, active === 'interest' && styles.activeTab]}>

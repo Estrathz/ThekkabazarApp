@@ -120,7 +120,6 @@ const cardSlice = createSlice({
         state.loading = false;
         state.status = 'succeeded';
         state.data = action.payload;
-        console.log('Tender list data updated in state:', action.payload);
       })
       .addCase(fetchTenderListData.rejected, (state, action) => {
         state.loading = false;

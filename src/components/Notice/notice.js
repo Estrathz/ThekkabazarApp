@@ -14,10 +14,6 @@ const Notice = ({navigation}) => {
     dispatch(fetchNoticeData());
   }, [dispatch]);
 
-  useEffect(() => {
-    console.log('Notice data:', data);
-  }, [dispatch]);
-
   return (
     <View style={styles.container}>
       <View style={{display: 'flex', flexDirection: 'row', padding: 15}}>

@@ -7,8 +7,9 @@ import {
   Modal,
   TouchableOpacity,
   TextInput,
+  RefreshControl,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useCallback} from 'react';
 import styles from './privateWorkStyles';
 import Custombutton from '../../Containers/Button/button';
 import {getPrivateWork, postPrivateWork} from '../../reducers/privateWorkSlice';
@@ -26,9 +27,18 @@ const PrivateWork = ({navigation}) => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [rate, setRate] = useState('');
   const [page, setPage] = useState(1);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     dispatch(getPrivateWork({page: page}));
+  }, [dispatch, page]);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    setPage(1);
+    dispatch(getPrivateWork({page: 1})).then(() => {
+      setRefreshing(false);
+    });
   }, [dispatch]);
 
   const openModal = () => {
@@ -97,6 +107,9 @@ const PrivateWork = ({navigation}) => {
 
   return (
     <ScrollView
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
       onScroll={({nativeEvent}) => {
         if (isCloseToBottom(nativeEvent) && !loading) {
           handleLoadMore();

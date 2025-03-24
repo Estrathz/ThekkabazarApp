@@ -29,19 +29,14 @@ const Detail = ({ route, navigation }) => {
   // Memoized fetch function
   const fetchDetails = useCallback(async (id) => {
     try {
-      console.log('Fetching details for tender ID:', id);
       const result = await dispatch(fetchOneResultData({ tenderId: id })).unwrap();
       
       if (!result) {
-        console.error('No data received from server');
         Alert.alert('Error', 'No data received from the server');
         navigation.goBack();
         return;
       }
-
-      console.log('Received tender details:', result);
     } catch (error) {
-      console.error('Error fetching result details:', error);
       if (error.status === 404) {
         Alert.alert('Not Found', 'This tender result could not be found.');
         navigation.goBack();
@@ -55,7 +50,6 @@ const Detail = ({ route, navigation }) => {
   useEffect(() => {
     const { id } = route.params;
     if (!tenderData && id && (!currentId || currentId !== id)) {
-      console.log('Fetching new data for ID:', id);
       fetchDetails(id);
     }
   }, [route.params?.id, currentId, fetchDetails, tenderData]);
@@ -63,7 +57,6 @@ const Detail = ({ route, navigation }) => {
   // Effect for handling errors
   useEffect(() => {
     if (error) {
-      console.error('Error state updated:', error);
       if (error.status === 404) {
         Alert.alert('Not Found', 'This tender result could not be found.');
         navigation.goBack();
@@ -99,7 +92,6 @@ const Detail = ({ route, navigation }) => {
         Alert.alert('Download Failed', 'Failed to download image.');
       }
     } catch (error) {
-      console.error('Could not download image', error);
       Alert.alert('Download Failed', 'Failed to download image');
     }
   };
@@ -114,7 +106,6 @@ const Detail = ({ route, navigation }) => {
         Alert.alert('Download Failed', 'Failed to download file');
       }
     } catch (error) {
-      console.error('Error downloading file: ', error);
       Alert.alert('Download Failed', 'Failed to download file');
     }
   };

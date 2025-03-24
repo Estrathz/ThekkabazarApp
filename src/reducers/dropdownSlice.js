@@ -7,7 +7,6 @@ export const fetchDropdownData = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const url = `${BASE_URL}/tender/apis/master/list/`;
-      console.log('Fetching dropdown data from:', url);
       
       const response = await axios.get(url, {
         headers: {
@@ -16,16 +15,8 @@ export const fetchDropdownData = createAsyncThunk(
         }
       });
       
-      console.log('Dropdown API Response:', response.data);
-      
-      // Return the data object from the response
       return response.data.data;
     } catch (error) {
-      console.error('Dropdown API Error:', error);
-      if (error.response) {
-        console.error('Error response:', error.response.data);
-        console.error('Error status:', error.response.status);
-      }
       return rejectWithValue(error.response?.data || error.message);
     }
   }
@@ -51,13 +42,11 @@ const dropdownSlice = createSlice({
         state.loading = false;
         state.status = 'succeeded';
         state.dropdowndata = action.payload;
-        console.log('Dropdown data updated in state:', action.payload);
       })
       .addCase(fetchDropdownData.rejected, (state, action) => {
         state.loading = false;
         state.status = 'failed';
         state.dropdownerror = action.payload;
-        console.error('Dropdown error in state:', action.payload);
       });
   },
 });

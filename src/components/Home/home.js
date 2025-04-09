@@ -11,6 +11,7 @@ import {
   useWindowDimensions,
   StyleSheet,
   ActivityIndicator,
+  ImageBackground,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import moment from 'moment';
@@ -54,6 +55,20 @@ const PARAM_MAPPING = {
   projectTypeData: 'project_type',
   procurementData: 'procurement_type',
   sourceData: 'source',
+};
+
+// Add new AdSpace component before the Home component
+const AdSpace = () => {
+  return (
+    <View style={styles.adContainer}>
+      <ImageBackground
+        source={require('../../assets/dummy-ads.jpg')} // You can use .gif or .png
+        style={styles.adImage}
+        resizeMode="cover"
+      >
+      </ImageBackground>
+    </View>
+  );
 };
 
 const Home = ({ navigation }) => {
@@ -522,70 +537,142 @@ const Home = ({ navigation }) => {
     </Modal>
   ), [selectedImage, closeImageModal]);
 
-  // Render item for FlatList
-  const renderItem = useCallback(({ item }) => (
-    <View style={styles.Card}>
-      <TouchableOpacity onPress={() => openImageModal(item.image)}>
-        <Image source={dummyImage} style={styles.image} />
-      </TouchableOpacity>
-      <View style={{ padding: 8, flex: 1 }}>
-        <Text
-          numberOfLines={2}
-          style={{ color: '#0375B7', fontSize: 16, fontWeight: 'bold', marginTop: 8 }}
-          onPress={() => handleDetailNavigation(item.pk)}>
-          {item.title}
-        </Text>
-        <Text numberOfLines={2} style={{ color: 'black', fontSize: 15 }}>
-          {item.public_entry_name}
-        </Text>
-        <View style={{ flexDirection: 'row', marginTop: 8 }}>
-          <View style={{ flexDirection: 'row' }}>
-            <Icon2 name="bag-handle" size={18} color="black" />
-            <Text style={{ color: 'black', fontSize: 15, fontWeight: 'bold' }}>Service:</Text>
+  // Modify the renderItem function
+  const renderItem = useCallback(({ item, index }) => {
+    // Show ad after every 8 items
+    if (index > 0 && index % 8 === 0) {
+      return (
+        <>
+          <AdSpace />
+          <View style={styles.Card}>
+            <TouchableOpacity onPress={() => openImageModal(item.image)}>
+              <Image source={dummyImage} style={styles.image} />
+            </TouchableOpacity>
+            <View style={{ padding: 8, flex: 1 }}>
+              <Text
+                numberOfLines={2}
+                style={{ color: '#0375B7', fontSize: 16, fontWeight: 'bold', marginTop: 8 }}
+                onPress={() => handleDetailNavigation(item.pk)}>
+                {item.title}
+              </Text>
+              <Text numberOfLines={2} style={{ color: 'black', fontSize: 15 }}>
+                {item.public_entry_name}
+              </Text>
+              <View style={{ flexDirection: 'row', marginTop: 8 }}>
+                <View style={{ flexDirection: 'row' }}>
+                  <Icon2 name="bag-handle" size={18} color="black" />
+                  <Text style={{ color: 'black', fontSize: 15, fontWeight: 'bold' }}>Service:</Text>
+                </View>
+                {item.project_type?.map((project, index) => (
+                  <Text key={index} numberOfLines={2} style={{ color: '#000', flex: 1 }}>
+                    {project.name}
+                  </Text>
+                ))}
+              </View>
+              <View style={{ flexDirection: 'row', marginTop: 8 }}>
+                <View style={{ flexDirection: 'row' }}>
+                  <Icon3 name="update" size={18} color="black" />
+                  <Text style={{ color: 'black', fontSize: 15, fontWeight: 'bold' }}>Published:</Text>
+                </View>
+                <Text style={styles.CardText}>{item.published_date}</Text>
+                <Text style={{ color: '#FF0000', marginRight: 10, fontSize: 12 }}>
+                  {item.days_left}
+                </Text>
+              </View>
+              <View style={{ flexDirection: 'row', marginTop: 8 }}>
+                <View style={{ flexDirection: 'row' }}>
+                  <Icon2 name="newspaper" size={18} color="black" />
+                  <Text style={{ color: 'black', fontSize: 15, fontWeight: 'bold' }}>Source:</Text>
+                </View>
+                <Text style={styles.CardText}>{item.source}</Text>
+              </View>
+              <View style={{ flexDirection: 'row', marginTop: 8 }}>
+                <View style={{ flexDirection: 'row' }}>
+                  <Icon2 name="location" size={18} color="black" />
+                  <Text style={{ color: 'black', fontSize: 15, fontWeight: 'bold' }}>Location:</Text>
+                </View>
+                {item.district?.map((loc, index) => (
+                  <Text key={index} numberOfLines={2} style={{ color: '#000', flex: 1, marginLeft: 5 }}>
+                    {loc.name}
+                  </Text>
+                ))}
+              </View>
+              <View style={{ justifyContent: 'flex-end', alignItems: 'center' }}>
+                <TouchableOpacity onPress={() => handleSaveBids(item.pk)} style={styles.cusBottom}>
+                  <Icon2 name="save-outline" size={20} color="#000" />
+                  <Text style={{ color: '#000', fontSize: 15 }}>Save Bids</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
           </View>
-          {item.project_type?.map((project, index) => (
-            <Text key={index} numberOfLines={2} style={{ color: '#000', flex: 1 }}>
-              {project.name}
-            </Text>
-          ))}
-        </View>
-        <View style={{ flexDirection: 'row', marginTop: 8 }}>
-          <View style={{ flexDirection: 'row' }}>
-            <Icon3 name="update" size={18} color="black" />
-            <Text style={{ color: 'black', fontSize: 15, fontWeight: 'bold' }}>Published:</Text>
-          </View>
-          <Text style={styles.CardText}>{item.published_date}</Text>
-          <Text style={{ color: '#FF0000', marginRight: 10, fontSize: 12 }}>
-            {item.days_left}
+        </>
+      );
+    }
+
+    return (
+      <View style={styles.Card}>
+        <TouchableOpacity onPress={() => openImageModal(item.image)}>
+          <Image source={dummyImage} style={styles.image} />
+        </TouchableOpacity>
+        <View style={{ padding: 8, flex: 1 }}>
+          <Text
+            numberOfLines={2}
+            style={{ color: '#0375B7', fontSize: 16, fontWeight: 'bold', marginTop: 8 }}
+            onPress={() => handleDetailNavigation(item.pk)}>
+            {item.title}
           </Text>
-        </View>
-        <View style={{ flexDirection: 'row', marginTop: 8 }}>
-          <View style={{ flexDirection: 'row' }}>
-            <Icon2 name="newspaper" size={18} color="black" />
-            <Text style={{ color: 'black', fontSize: 15, fontWeight: 'bold' }}>Source:</Text>
+          <Text numberOfLines={2} style={{ color: 'black', fontSize: 15 }}>
+            {item.public_entry_name}
+          </Text>
+          <View style={{ flexDirection: 'row', marginTop: 8 }}>
+            <View style={{ flexDirection: 'row' }}>
+              <Icon2 name="bag-handle" size={18} color="black" />
+              <Text style={{ color: 'black', fontSize: 15, fontWeight: 'bold' }}>Service:</Text>
+            </View>
+            {item.project_type?.map((project, index) => (
+              <Text key={index} numberOfLines={2} style={{ color: '#000', flex: 1 }}>
+                {project.name}
+              </Text>
+            ))}
           </View>
-          <Text style={styles.CardText}>{item.source}</Text>
-        </View>
-        <View style={{ flexDirection: 'row', marginTop: 8 }}>
-          <View style={{ flexDirection: 'row' }}>
-            <Icon2 name="location" size={18} color="black" />
-            <Text style={{ color: 'black', fontSize: 15, fontWeight: 'bold' }}>Location:</Text>
-          </View>
-          {item.district?.map((loc, index) => (
-            <Text key={index} numberOfLines={2} style={{ color: '#000', flex: 1, marginLeft: 5 }}>
-              {loc.name}
+          <View style={{ flexDirection: 'row', marginTop: 8 }}>
+            <View style={{ flexDirection: 'row' }}>
+              <Icon3 name="update" size={18} color="black" />
+              <Text style={{ color: 'black', fontSize: 15, fontWeight: 'bold' }}>Published:</Text>
+            </View>
+            <Text style={styles.CardText}>{item.published_date}</Text>
+            <Text style={{ color: '#FF0000', marginRight: 10, fontSize: 12 }}>
+              {item.days_left}
             </Text>
-          ))}
-        </View>
-        <View style={{ justifyContent: 'flex-end', alignItems: 'center' }}>
-          <TouchableOpacity onPress={() => handleSaveBids(item.pk)} style={styles.cusBottom}>
-            <Icon2 name="save-outline" size={20} color="#000" />
-            <Text style={{ color: '#000', fontSize: 15 }}>Save Bids</Text>
-          </TouchableOpacity>
+          </View>
+          <View style={{ flexDirection: 'row', marginTop: 8 }}>
+            <View style={{ flexDirection: 'row' }}>
+              <Icon2 name="newspaper" size={18} color="black" />
+              <Text style={{ color: 'black', fontSize: 15, fontWeight: 'bold' }}>Source:</Text>
+            </View>
+            <Text style={styles.CardText}>{item.source}</Text>
+          </View>
+          <View style={{ flexDirection: 'row', marginTop: 8 }}>
+            <View style={{ flexDirection: 'row' }}>
+              <Icon2 name="location" size={18} color="black" />
+              <Text style={{ color: 'black', fontSize: 15, fontWeight: 'bold' }}>Location:</Text>
+            </View>
+            {item.district?.map((loc, index) => (
+              <Text key={index} numberOfLines={2} style={{ color: '#000', flex: 1, marginLeft: 5 }}>
+                {loc.name}
+              </Text>
+            ))}
+          </View>
+          <View style={{ justifyContent: 'flex-end', alignItems: 'center' }}>
+            <TouchableOpacity onPress={() => handleSaveBids(item.pk)} style={styles.cusBottom}>
+              <Icon2 name="save-outline" size={20} color="#000" />
+              <Text style={{ color: '#000', fontSize: 15 }}>Save Bids</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
-    </View>
-  ), [handleDetailNavigation, handleSaveBids, openImageModal]);
+    );
+  }, [handleDetailNavigation, handleSaveBids, openImageModal]);
 
   // Optimized FlatList props for better performance
   const flatListProps = useMemo(() => ({

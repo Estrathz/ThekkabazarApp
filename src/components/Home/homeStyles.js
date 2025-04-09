@@ -345,6 +345,33 @@ const styles = StyleSheet.create({
     marginTop: 20,
     paddingHorizontal: 5,
   },
+  adContainer: {
+    marginVertical: 15,
+    marginHorizontal: 10,
+    borderRadius: 10,
+    overflow: 'hidden',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  adImage: {
+    width: '100%',
+    height: 120,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  adOverlay: {
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    padding: 5,
+    borderRadius: 5,
+  },
+  adText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
 });
 
 export default styles;

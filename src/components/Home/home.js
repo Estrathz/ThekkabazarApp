@@ -57,15 +57,16 @@ const PARAM_MAPPING = {
   sourceData: 'source',
 };
 
-// Add new AdSpace component before the Home component
+// Add AdSpace component
 const AdSpace = () => {
   return (
     <View style={styles.adContainer}>
       <ImageBackground
-        source={require('../../assets/dummy-ads.jpg')} // You can use .gif or .png
+        source={require('../../assets/dummy-ads.jpg')}
         style={styles.adImage}
         resizeMode="cover"
       >
+        
       </ImageBackground>
     </View>
   );
@@ -139,7 +140,10 @@ const Home = ({ navigation }) => {
 
   // API parameters builder
   const buildApiParams = useCallback((pageNum = 1) => {
-    const apiParams = { page: pageNum };
+    const apiParams = { 
+      page: pageNum,
+      page_size: 50  // Set page size to 50
+    };
 
     // Add filters only if they have values
     Object.entries(filters).forEach(([key, value]) => {
@@ -181,11 +185,13 @@ const Home = ({ navigation }) => {
       if (result.payload?.data) {
         setAllData(prevData => {
           if (pageNum === 1) return result.payload.data;
-          // Optimize array merging by using Set for unique IDs
-          const newData = result.payload.data.filter(newItem => 
-            !prevData.some(prevItem => prevItem.pk === newItem.pk)
-          );
-          return [...prevData, ...newData];
+          
+          // Create a Set of existing IDs for faster lookup
+          const existingIds = new Set(prevData.map(item => item.pk));
+          
+          // Filter out duplicates and add new items
+          const newItems = result.payload.data.filter(item => !existingIds.has(item.pk));
+          return [...prevData, ...newItems];
         });
       }
     } catch (err) {
@@ -292,15 +298,18 @@ const Home = ({ navigation }) => {
 
   // Optimized end reached handler
   const handleEndReached = useCallback(() => {
-    if (isSearching || !data || page >= data.total_pages || isLoadingMore) return;
+    if (isSearching || isLoadingMore) return;
     
-    setIsLoadingMore(true);
-    const nextPage = page + 1;
-    setPage(nextPage);
-    
-    fetchData(nextPage).finally(() => {
-      setIsLoadingMore(false);
-    });
+    // Check if we have more pages to load
+    if (data?.total_pages && page < data.total_pages) {
+      setIsLoadingMore(true);
+      const nextPage = page + 1;
+      setPage(nextPage);
+      
+      fetchData(nextPage).finally(() => {
+        setIsLoadingMore(false);
+      });
+    }
   }, [page, data?.total_pages, fetchData, isSearching, isLoadingMore]);
 
   // Optimized refresh handler
@@ -537,10 +546,10 @@ const Home = ({ navigation }) => {
     </Modal>
   ), [selectedImage, closeImageModal]);
 
-  // Modify the renderItem function
+  // Modify the renderItem function to include ads
   const renderItem = useCallback(({ item, index }) => {
-    // Show ad after every 8 items
-    if (index > 0 && index % 8 === 0) {
+    // Show ad after every 12 items
+    if (index > 0 && index % 12 === 0) {
       return (
         <>
           <AdSpace />
@@ -683,15 +692,14 @@ const Home = ({ navigation }) => {
     onEndReachedThreshold: 0.5,
     refreshControl: <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />,
     removeClippedSubviews: true,
-    maxToRenderPerBatch: 5,
-    windowSize: 3,
-    initialNumToRender: 5,
-    updateCellsBatchingPeriod: 50,
-    getItemLayout: (data, index) => ({
-      length: 200,
-      offset: 200 * index,
-      index,
-    }),
+    maxToRenderPerBatch: 50,  // Increased to match page size
+    windowSize: 5,
+    initialNumToRender: 50,   // Increased to match page size
+    updateCellsBatchingPeriod: 100,
+    maintainVisibleContentPosition: {
+      minIndexForVisible: 0,
+      autoscrollToTopThreshold: 10,
+    },
     ListEmptyComponent: !refreshing && allData.length === 0 ? (
       <View style={styles.emptyContainer}>
         <View style={styles.emptyContent}>
@@ -705,7 +713,6 @@ const Home = ({ navigation }) => {
             <Text style={styles.emptyDescription}>
               We couldn't find any results matching your search criteria.
             </Text>
-            
           </View>
         </View>
       </View>
@@ -761,4 +768,5 @@ const Home = ({ navigation }) => {
   );
 };
 
+// Single export default
 export default React.memo(Home);

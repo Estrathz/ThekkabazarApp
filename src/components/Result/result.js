@@ -378,7 +378,6 @@ const Result = ({ navigation }) => {
             <Icon2 name="update" size={18} color="#000" />
             <Text style={styles.cardLabel}>Published:</Text>
             <Text style={styles.cardText}>{item.published_date || 'N/A'}</Text>
-            <Text style={styles.daysLeft}>{item.days_left || 'N/A'}</Text>
           </View>
           <View style={styles.cardRow}>
             <Icon name="newspaper" size={18} color="#000" />

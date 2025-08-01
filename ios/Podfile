@@ -5,6 +5,11 @@ require Pod::Executable.execute_command('node', ['-p',
     {paths: [process.argv[1]]},
   )', __dir__]).strip
 
+# Ultra-fast build optimizations
+ENV['FAST_BUILD'] = 'true'
+ENV['SWIFT_OPTIMIZATION_LEVEL'] = '-Onone'
+ENV['GCC_OPTIMIZATION_LEVEL'] = '0'
+
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
 
@@ -51,5 +56,33 @@ target 'thekkabazar' do
       config[:reactNativePath],
       :mac_catalyst_enabled => false
     )
+    
+    # ULTRA-FAST iOS Build Optimizations
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        # Disable all optimizations for maximum speed
+        config.build_settings['ENABLE_BITCODE'] = 'NO'
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+        config.build_settings['GCC_OPTIMIZATION_LEVEL'] = '0'
+        config.build_settings['SWIFT_OPTIMIZATION_LEVEL'] = '-Onone'
+        config.build_settings['SWIFT_COMPILATION_MODE'] = 'singlefile'
+        
+        # Disable index store for faster builds
+        config.build_settings['COMPILER_INDEX_STORE_ENABLE'] = 'NO'
+        config.build_settings['SWIFT_INDEX_STORE_ENABLE'] = 'NO'
+        
+        # Disable debugging symbols for speed
+        config.build_settings['GCC_GENERATE_DEBUGGING_SYMBOLS'] = 'NO'
+        config.build_settings['COPY_PHASE_STRIP'] = 'YES'
+        
+        # Enable parallel builds
+        config.build_settings['SWIFT_WHOLE_MODULE_OPTIMIZATION'] = 'NO'
+        config.build_settings['SWIFT_USE_PARALLEL_WHOLE_MODULE_OPTIMIZATION'] = 'NO'
+        
+        # Disable unnecessary features
+        config.build_settings['ENABLE_TESTABILITY'] = 'NO'
+        config.build_settings['SWIFT_EMIT_LOC_STRINGS'] = 'NO'
+      end
+    end
   end
 end

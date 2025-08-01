@@ -1,4 +1,4 @@
-import {View, Text, TextInput, ScrollView} from 'react-native';
+import {View, Text, TextInput, ScrollView, ActivityIndicator} from 'react-native';
 import React, {useState} from 'react';
 import styles from './RegisterStyle';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -9,6 +9,7 @@ import Toast from 'react-native-toast-message';
 
 const Register = ({navigation}) => {
   const dispatch = useDispatch();
+  const {loading} = useSelector(state => state.users);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -16,20 +17,22 @@ const Register = ({navigation}) => {
   const [phone, setPhone] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [email, setEmail] = useState('');
-  const handleRegister = () => {
+
+  const handleRegister = async () => {
     if (
-      !username ||
+      !username.trim() ||
       !password ||
       !confirmPassword ||
-      !fullname ||
-      !phone ||
-      !companyName ||
-      !email
+      !fullname.trim() ||
+      !phone.trim() ||
+      !companyName.trim() ||
+      !email.trim()
     ) {
       Toast.show({
         type: 'error',
-        text1: 'Please fill all the fields',
-        visibilityTime: 2000,
+        text1: 'Validation Error',
+        text2: 'Please fill all the fields',
+        visibilityTime: 3000,
         position: 'bottom',
       });
       return;
@@ -38,26 +41,35 @@ const Register = ({navigation}) => {
     if (password !== confirmPassword) {
       Toast.show({
         type: 'error',
-        text1: 'Passwords do not match',
-        visibilityTime: 2000,
+        text1: 'Password Mismatch',
+        text2: 'Passwords do not match',
+        visibilityTime: 3000,
         position: 'bottom',
       });
       return;
     }
-    dispatch(
-      register({
-        username: username,
-        password: password,
-        password2: confirmPassword,
-        fullname: fullname,
-        phone_number: phone,
-        company_name: companyName,
-        email: email,
-      }),
-    )
-      .then(navigation.navigate('Login'))
-      .catch(error => console.log(error));
+
+    try {
+      const result = await dispatch(
+        register({
+          username: username.trim(),
+          password: password,
+          password2: confirmPassword,
+          fullname: fullname.trim(),
+          phone_number: phone.trim(),
+          company_name: companyName.trim(),
+          email: email.trim(),
+        }),
+      ).unwrap();
+      
+      // Registration successful, navigate to login
+      navigation.navigate('Login');
+    } catch (error) {
+      console.log('Registration error:', error);
+      // Error is already handled by the Redux slice with Toast
+    }
   };
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.Barline}></View>
@@ -74,6 +86,9 @@ const Register = ({navigation}) => {
           placeholderTextColor={'black'}
           value={username}
           onChangeText={text => setUsername(text)}
+          editable={!loading}
+          autoCapitalize="none"
+          autoCorrect={false}
         />
         <TextInput
           style={styles.input}
@@ -81,6 +96,10 @@ const Register = ({navigation}) => {
           placeholderTextColor={'black'}
           value={password}
           onChangeText={text => setPassword(text)}
+          editable={!loading}
+          autoCapitalize="none"
+          autoCorrect={false}
+          secureTextEntry={true}
         />
         <TextInput
           style={styles.input}
@@ -88,6 +107,10 @@ const Register = ({navigation}) => {
           placeholderTextColor={'black'}
           value={confirmPassword}
           onChangeText={text => setConfirmPassword(text)}
+          editable={!loading}
+          autoCapitalize="none"
+          autoCorrect={false}
+          secureTextEntry={true}
         />
       </View>
 
@@ -99,6 +122,10 @@ const Register = ({navigation}) => {
           placeholderTextColor={'black'}
           value={email}
           onChangeText={text => setEmail(text)}
+          editable={!loading}
+          autoCapitalize="none"
+          autoCorrect={false}
+          keyboardType="email-address"
         />
         <TextInput
           style={styles.input}
@@ -106,6 +133,8 @@ const Register = ({navigation}) => {
           placeholderTextColor={'black'}
           value={phone}
           onChangeText={text => setPhone(text)}
+          editable={!loading}
+          keyboardType="phone-pad"
         />
         <TextInput
           style={styles.input}
@@ -113,6 +142,8 @@ const Register = ({navigation}) => {
           placeholderTextColor={'black'}
           value={fullname}
           onChangeText={text => setFullname(text)}
+          editable={!loading}
+          autoCapitalize="words"
         />
         <TextInput
           style={styles.input}
@@ -120,10 +151,19 @@ const Register = ({navigation}) => {
           placeholderTextColor={'black'}
           value={companyName}
           onChangeText={text => setCompanyName(text)}
+          editable={!loading}
+          autoCapitalize="words"
         />
       </View>
 
-      <Custombutton title="Register" onPress={() => handleRegister()} />
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0375B7" />
+          <Text style={styles.loadingText}>Creating account...</Text>
+        </View>
+      ) : (
+        <Custombutton title="Register" onPress={handleRegister} />
+      )}
     </ScrollView>
   );
 };

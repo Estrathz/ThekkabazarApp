@@ -18,27 +18,12 @@ const EditProfile = ({ navigation }) => {
   const [phone, setPhone] = useState(data?.phone_number || '');
   const [companyName, setCompanyName] = useState(data?.company_name || '');
   const [gender, setGender] = useState(data?.gender || '');
-  const [access_token, setAccessToken] = useState('');
 
   const genderData = ['Male', 'Female'];
-
-  useEffect(() => {
-    getToken();
-  }, []);
-
-  const getToken = async () => {
-    try {
-      const token = await AsyncStorage.getItem('access_token');
-      setAccessToken(token);
-    } catch (error) {
-      console.error('Error retrieving token:', error);
-    }
-  };
 
   const handleProfileUpdate = () => {
     dispatch(
       updateProfile({
-        access_token,
         fullname,
         company_name: companyName,
         phone_number: phone,

@@ -6,10 +6,17 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const getProfile = createAsyncThunk(
   'data/getProfile',
-  async ({access_token}) => {
+  async (_, {getState}) => {
+    const state = getState();
+    const token = state.users.access_token;
+    
+    if (!token) {
+      throw new Error('No access token available');
+    }
+    
     const config = {
       headers: {
-        Authorization: `Bearer ${access_token}`,
+        Authorization: `Bearer ${token}`,
       },
     };
     try {
@@ -48,7 +55,6 @@ export const changePassword = createAsyncThunk(
 export const updateProfile = createAsyncThunk(
   'data/updateProfile',
   async ({
-    access_token,
     fullname,
     company_name,
     office_name,
@@ -58,10 +64,17 @@ export const updateProfile = createAsyncThunk(
     municipality,
     phone_number,
     gender,
-  }) => {
+  }, {getState}) => {
+    const state = getState();
+    const token = state.users.access_token;
+    
+    if (!token) {
+      throw new Error('No access token available');
+    }
+    
     const config = {
       headers: {
-        Authorization: `Bearer ${access_token}`,
+        Authorization: `Bearer ${token}`,
       },
     };
 
@@ -103,10 +116,17 @@ export const getUserInterest = createAsyncThunk(
 
 export const getSavedBids = createAsyncThunk(
   'data/getSavedBids',
-  async ({access_token}) => {
+  async (_, {getState}) => {
+    const state = getState();
+    const token = state.users.access_token;
+    
+    if (!token) {
+      throw new Error('No access token available');
+    }
+    
     const config = {
       headers: {
-        Authorization: `Bearer ${access_token}`,
+        Authorization: `Bearer ${token}`,
       },
     };
     const response = await axios.get(

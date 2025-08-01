@@ -18,18 +18,14 @@ import Toast from 'react-native-toast-message';
 const BidsSaved = () => {
   const dispatch = useDispatch();
   const { savedBids } = useSelector(state => state.userprofile);
-  const [token, setToken] = useState('');
+  const { isAuthenticated } = useSelector(state => state.users);
   const [filteredBids, setFilteredBids] = useState([]);
 
   useEffect(() => {
-    getToken();
-  }, []);
-
-  useEffect(() => {
-    if (token) {
-      dispatch(getSavedBids({ access_token: token }));
+    if (isAuthenticated) {
+      dispatch(getSavedBids());
     }
-  }, [token, dispatch]);
+  }, [isAuthenticated, dispatch]);
 
   useEffect(() => {
     if (savedBids?.data) {
@@ -37,17 +33,10 @@ const BidsSaved = () => {
     }
   }, [savedBids]);
 
-  const getToken = async () => {
-    try {
-      const token = await AsyncStorage.getItem('access_token');
-      setToken(token);
-    } catch (error) {
-      console.error('Error retrieving token from AsyncStorage:', error);
-    }
-  };
+
 
   const handleUnSaveBids = async id => {
-    dispatch(savebid({ id, access_token: token }));
+    dispatch(savebid({ id }));
     Toast.show({
       type: 'success',
       text1: 'Bid Unsaved Successfully',

@@ -8,39 +8,46 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
 import { useDispatch, useSelector } from 'react-redux';
 import { getProfile, resetUserProfile } from '../../reducers/profileSlice';
+import { logout, checkAuthStatus } from '../../reducers/userSlice';
 import { useFocusEffect } from '@react-navigation/native';
-
 
 const Profile = ({ navigation }) => {
   const dispatch = useDispatch();
   const { data } = useSelector(state => state.userprofile);
-  const [token, setToken] = useState('');
-
-  const fetchToken = async () => {
-    try {
-      const storedToken = await AsyncStorage.getItem('access_token');
-      if (storedToken) {
-        setToken(storedToken);
-        dispatch(getProfile({ access_token: storedToken }));
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  const { isAuthenticated, loading } = useSelector(state => state.users);
 
   useFocusEffect(
     useCallback(() => {
-      fetchToken();
-    }, [dispatch])
+      if (isAuthenticated) {
+        dispatch(getProfile());
+      }
+      // Check authentication status
+      dispatch(checkAuthStatus());
+    }, [dispatch, isAuthenticated])
   );
 
-  const handleLogout = () => {
-    dispatch(resetUserProfile());
-    Toast.show({ type: 'success', text1: 'Logout Successful', visibilityTime: 3000 });
-    navigation.navigate('MainScreen', {
-      screen: 'BottomNav',
-      params: { screen: 'Home', params: { screen: 'HomeScreen' } },
-    });
+  const handleLogout = async () => {
+    try {
+      // Dispatch logout action
+      await dispatch(logout()).unwrap();
+      
+      // Reset profile data
+      dispatch(resetUserProfile());
+      
+      // Navigate to home
+      navigation.navigate('MainScreen', {
+        screen: 'BottomNav',
+        params: { screen: 'Home', params: { screen: 'HomeScreen' } },
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Logout Failed',
+        text2: 'Please try again',
+        visibilityTime: 3000,
+      });
+    }
   };
 
   return (
@@ -58,22 +65,19 @@ const Profile = ({ navigation }) => {
 
         {/* Upgrade or Login Button */}
         <Custombutton
-          title={token ? 'View Plans' : 'Login'}
+          title={isAuthenticated ? 'View Plans' : 'Login'}
           onPress={() => {
-            if (token) {
+            if (isAuthenticated) {
               navigation.navigate('PricingWebview', { url: 'https://thekkabazar.com/pricing/' });
             } else {
-              navigation.navigate('MainScreen', {
-                screen: 'BottomNav',
-                params: { screen: 'Home', params: { screen: 'Login' } },
-              });
+              navigation.navigate('Login');
             }
           }}
           style={styles.actionButton}
         />
 
         {/* Profile Actions - Only show when logged in */}
-        {token && (
+        {isAuthenticated && (
           <View style={styles.section}>
             {[
               { icon: 'person-outline', label: 'Profile', route: 'UserProfile' },
@@ -90,10 +94,16 @@ const Profile = ({ navigation }) => {
         )}
 
         {/* Logout Button - Only show when logged in */}
-        {token && (
-          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+        {isAuthenticated && (
+          <TouchableOpacity 
+            style={styles.logoutButton} 
+            onPress={handleLogout}
+            disabled={loading}
+          >
             <Icon name="exit-outline" size={28} color="red" />
-            <Text style={styles.logoutText}>Log Out</Text>
+            <Text style={styles.logoutText}>
+              {loading ? 'Logging out...' : 'Log Out'}
+            </Text>
           </TouchableOpacity>
         )}
 

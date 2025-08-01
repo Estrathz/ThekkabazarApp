@@ -115,6 +115,11 @@ const resultSlice = createSlice({
       state.data = null;
       state.one = null;
       state.currentId = null;
+    },
+    clearSingleResult: (state) => {
+      state.one = null;
+      state.currentId = null;
+      // Don't clear state.data to preserve the list
     }
   },
   extraReducers: (builder) => {
@@ -152,5 +157,5 @@ const resultSlice = createSlice({
   },
 });
 
-export const { clearError, clearData } = resultSlice.actions;
+export const { clearError, clearData, clearSingleResult } = resultSlice.actions;
 export default resultSlice.reducer;

@@ -44,7 +44,6 @@ const Result = ({ navigation }) => {
   const [allData, setAllData] = useState([]);
   const [filters, setFilters] = useState(INITIAL_FILTERS);
   const [refreshing, setRefreshing] = useState(false);
-  const [token, setToken] = useState('');
   const [isImageVisible, setIsImageVisible] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
   const [page, setPage] = useState(1);
@@ -57,6 +56,7 @@ const Result = ({ navigation }) => {
   const dispatch = useDispatch();
   const { data, error: apiError, loading } = useSelector(state => state.result);
   const { dropdowndata } = useSelector(state => state.dropdown);
+  const { isAuthenticated } = useSelector(state => state.users);
 
   // Memoized data
   const organizationData = useMemo(() => dropdowndata?.organization_sectors || [], [dropdowndata]);
@@ -78,9 +78,6 @@ const Result = ({ navigation }) => {
     useCallback(() => {
       const loadInitialData = async () => {
         try {
-          const storedToken = await AsyncStorage.getItem('access_token');
-          setToken(storedToken);
-          
           await Promise.all([
             dispatch(fetchDropdownData()),
             dispatch(fetchresultData({ page: 1 }))
@@ -326,7 +323,7 @@ const Result = ({ navigation }) => {
       <View key={item.pk} style={styles.Card}>
         <TouchableOpacity 
           onPress={() => {
-            if (token) {
+            if (isAuthenticated) {
               setSelectedImage(item.image);
               setIsImageVisible(item.pk);
             } else {
@@ -401,7 +398,7 @@ const Result = ({ navigation }) => {
         </View>
       </View>
     );
-  }, [token, navigation, handleDetailNavigation]);
+  }, [isAuthenticated, navigation, handleDetailNavigation]);
 
   // FlatList props
   const flatListProps = useMemo(() => ({

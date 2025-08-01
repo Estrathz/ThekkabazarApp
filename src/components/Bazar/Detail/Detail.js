@@ -1,7 +1,6 @@
 import {
   View,
   Text,
-  Model,
   TouchableOpacity,
   FlatList,
   Image,
@@ -9,474 +8,485 @@ import {
   Modal,
   ScrollView,
   TextInput,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import styles from './DetailStyle';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Icon2 from 'react-native-vector-icons/Octicons';
-import {useDispatch, useSelector} from 'react-redux';
-import {fetchproductListData} from '../../../reducers/bazarSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchproductListData } from '../../../reducers/bazarSlice';
 import Custombutton from '../../../Containers/Button/button';
+import { colors, fonts } from '../../../theme';
+import { wp, hp, normalize, spacing, deviceInfo } from '../../../utils/responsive';
 
-const Detail = ({route, navigation}) => {
+const Detail = ({ route, navigation }) => {
   const dispatch = useDispatch();
-  const {productList, error} = useSelector(state => state.bazar);
+  
+  // Redux state selectors
+  const { productList, error, status } = useSelector(state => state.bazar);
+  const { isAuthenticated, access_token } = useSelector(state => state.users);
+
+  // Route parameters
+  const pathname = route.params?.pathname;
+  const mainCategory = route.params?.name;
+
+  // Component state
   const [isModalVisible, setModalVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const pathname = route.params.pathname;
-
   const [relatedCategory, setRelatedCategory] = useState('');
   const [location, setLocation] = useState('');
   const [search, setSearch] = useState('');
   const [businessType, setBusinessType] = useState('');
   const [page, setPage] = useState(1);
-  const mainCategory = route.params.name;
   const [allProducts, setAllProducts] = useState([]);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
+  // Ensure page is always a valid positive integer
+  const validPage = useMemo(() => Math.max(1, page), [page]);
+
+  // Validate route parameters
   useEffect(() => {
-    // setMainCategory(route.params.name);
-    console.log('akdhbajsdbh');
-    getProductData();
-  }, [dispatch, route, page]);
+    if (!pathname || !mainCategory) {
+      Alert.alert('Error', 'Invalid navigation parameters', [
+        { text: 'OK', onPress: () => navigation.goBack() }
+      ]);
+    }
+  }, [pathname, mainCategory, navigation]);
 
+  // Authentication check and data fetch
+  useEffect(() => {
+    console.log('Detail component - Auth state:', { isAuthenticated, hasToken: !!access_token });
+    
+    if (!isAuthenticated || !access_token || access_token.trim() === '') {
+      console.log('User not authenticated, redirecting to login');
+      Alert.alert(
+        'Login Required',
+        'Please login to view product details.',
+        [
+          { text: 'Cancel', onPress: () => navigation.goBack() },
+          { text: 'Login', onPress: () => navigation.navigate('Login') }
+        ]
+      );
+      return;
+    }
+
+    getProductData();
+  }, [dispatch, route, validPage, isAuthenticated, access_token]);
+
+  // Update allProducts when productList changes
   useEffect(() => {
     if (productList && productList.data) {
-      // setAllProducts(productList.data);
-      setAllProducts(prevdata => {
-        return {...prevdata, ...productList.data};
+      setAllProducts(prevData => {
+        return { ...prevData, ...productList.data };
       });
     }
   }, [productList]);
 
-  const getProductData = () => {
-    console.log('akdhbajsdbh', pathname, mainCategory);
-    if (pathname === 'mainProduct') {
-      dispatch(
-        fetchproductListData({
-          mainCategory: mainCategory,
-          page: page,
-        }),
-      );
-    } else if (pathname === 'subProduct') {
-      dispatch(
-        fetchproductListData({
-          subcategory: mainCategory,
-          page: page,
-        }),
+  // Error handling
+  useEffect(() => {
+    if (error) {
+      console.error('Product list error:', error);
+      Alert.alert(
+        'Error',
+        'Failed to load products. Please try again.',
+        [{ text: 'OK' }]
       );
     }
-  };
+  }, [error]);
 
-  const openModal = () => {
+  // Fetch product data with error handling
+  const getProductData = useCallback(async () => {
+    console.log('getProductData called - Auth state:', { isAuthenticated, hasToken: !!access_token });
+    
+    if (!isAuthenticated || !access_token || access_token.trim() === '') {
+      console.log('User not authenticated in getProductData, redirecting to login');
+      navigation.navigate('Login');
+      return;
+    }
+
+    if (!pathname || !mainCategory) {
+      console.log('Missing required parameters');
+      return;
+    }
+
+    try {
+      console.log('Fetching product data for:', pathname, mainCategory);
+      
+      const params = {
+        page: validPage,
+      };
+
+      if (pathname === 'mainProduct') {
+        params.mainCategory = mainCategory;
+      } else if (pathname === 'subProduct') {
+        params.subcategory = mainCategory;
+      }
+
+      await dispatch(fetchproductListData(params)).unwrap();
+    } catch (error) {
+      console.error('Failed to fetch product data:', error);
+      Alert.alert(
+        'Error',
+        'Failed to load products. Please check your internet connection and try again.',
+        [{ text: 'OK' }]
+      );
+    }
+  }, [isAuthenticated, access_token, navigation, pathname, mainCategory, validPage, dispatch]);
+
+  // Modal handlers
+  const openModal = useCallback(() => {
     setModalVisible(true);
-  };
+  }, []);
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setModalVisible(false);
-  };
+  }, []);
 
-  const handleRefresh = () => {
+  // Refresh handler
+  const handleRefresh = useCallback(async () => {
     setRefreshing(true);
     setSearch('');
-    setAllProducts(productList.data);
-
-    setTimeout(() => {
+    setPage(1);
+    setAllProducts([]);
+    
+    try {
+      await getProductData();
+    } catch (error) {
+      console.error('Refresh failed:', error);
+    } finally {
       setRefreshing(false);
-    }, 1000);
-  };
-
-  const handleFilter = () => {
-    dispatch(
-      fetchproductListData({
-        mainCategory: relatedCategory,
-        location: location,
-        businessType: businessType,
-      }),
-    );
-    closeModal();
-  };
-
-  const handleEndReached = () => {
-    console.log('end reached', page);
-    setPage(page + 1);
-    if (page < productList.total_pages) {
-      getProductData();
     }
-    // if (!filtering) {
-    //   getProductData();
-    // }
-  };
+  }, [getProductData]);
 
-  const EmptyListMessage = () => {
-    return (
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-        <Text style={{fontSize: 18, textAlign: 'center', color: 'black'}}>
-          No products available!!
+  // Filter handler
+  const handleFilter = useCallback(async () => {
+    if (!isAuthenticated || !access_token || access_token.trim() === '') {
+      console.log('User not authenticated for filter, redirecting to login');
+      navigation.navigate('Login');
+      return;
+    }
+
+    try {
+      const params = {};
+      
+      if (relatedCategory && relatedCategory.trim() !== '') {
+        params.mainCategory = relatedCategory.trim();
+      }
+      if (location && location.trim() !== '') {
+        params.location = location.trim();
+      }
+      if (businessType && businessType.trim() !== '') {
+        params.businessType = businessType.trim();
+      }
+
+      await dispatch(fetchproductListData(params)).unwrap();
+      closeModal();
+    } catch (error) {
+      console.error('Filter failed:', error);
+      Alert.alert('Error', 'Failed to apply filter. Please try again.');
+    }
+  }, [isAuthenticated, access_token, navigation, relatedCategory, location, businessType, dispatch, closeModal]);
+
+  // Pagination handler
+  const handleEndReached = useCallback(async () => {
+    console.log('End reached, page:', page);
+    
+    if (!isAuthenticated || !access_token || access_token.trim() === '') {
+      console.log('User not authenticated for pagination, redirecting to login');
+      navigation.navigate('Login');
+      return;
+    }
+
+    if (isLoadingMore || !productList?.total_pages || page >= productList.total_pages) {
+      return;
+    }
+
+    setIsLoadingMore(true);
+    setPage(prevPage => prevPage + 1);
+    setIsLoadingMore(false);
+  }, [isAuthenticated, access_token, navigation, page, productList?.total_pages, isLoadingMore]);
+
+  // Search handler
+  const handleSearch = useCallback((text) => {
+    setSearch(text);
+    
+    if (!allProducts?.products) {
+      console.log('No products available for search.');
+      return;
+    }
+
+    if (!text || text.trim() === '') {
+      // Reset to original data
+      setAllProducts(prevData => ({
+        ...prevData,
+        products: productList?.data?.products || []
+      }));
+      return;
+    }
+
+    const filteredProducts = allProducts.products.filter(product =>
+      product.name?.toLowerCase().includes(text.toLowerCase()) ||
+      product.brand?.toLowerCase().includes(text.toLowerCase())
+    );
+    
+    setAllProducts(prevData => ({
+      ...prevData,
+      products: filteredProducts
+    }));
+  }, [allProducts, productList]);
+
+  // Render empty list message
+  const EmptyListMessage = useCallback(() => (
+    <View style={styles.emptyContainer}>
+      <Text style={styles.emptyText}>No products available</Text>
+      <Text style={styles.emptySubText}>Try adjusting your search or filters</Text>
+    </View>
+  ), []);
+
+  // Render loading footer
+  const LoadingFooter = useCallback(() => (
+    isLoadingMore ? (
+      <View style={styles.loadingFooter}>
+        <ActivityIndicator size="small" color={colors.primary} />
+        <Text style={styles.loadingFooterText}>Loading more products...</Text>
+      </View>
+    ) : null
+  ), [isLoadingMore]);
+
+  // Render product item
+  const renderProductItem = useCallback(({ item, index }) => (
+    <View key={`product-${index}`} style={styles.productCardList}>
+      <View style={{ flexDirection: 'row' }}>
+        <Image
+          style={styles.ProductImage}
+          source={{ uri: item.image }}
+          defaultSource={require('../../../assets/dummy-image.png')}
+          onError={(error) => console.log('Product image load error:', error.nativeEvent.error)}
+        />
+        <View style={styles.productInfo}>
+          <Text style={styles.productName}>
+            {item.name || 'Unnamed Product'}
+          </Text>
+          <Text style={styles.productBrand}>
+            Brand: {item.brand || 'Unknown'}
+          </Text>
+          <Text style={styles.productPrice}>
+            Price: {item.price || 'N/A'}
+          </Text>
+        </View>
+      </View>
+
+      <View style={styles.supplierInfo}>
+        <Text style={styles.supplierTitle}>Supplier Information</Text>
+        <View style={styles.supplierDivider}>
+          <View style={styles.supplierDividerAccent} />
+        </View>
+
+        <Text style={styles.supplierName}>
+          {item.suppliername || 'Unknown Supplier'}
         </Text>
+
+        <View style={styles.supplierDetail}>
+          <Icon name="location-on" size={20} color={colors.primary} />
+          <Text style={styles.supplierDetailText}>
+            {item.city || 'Unknown'}, {item.district || 'Unknown'}
+          </Text>
+        </View>
+
+        <View style={styles.supplierDetail}>
+          <Icon name="phone" size={20} color={colors.primary} />
+          <Text style={styles.supplierDetailText}>
+            {item.mobile_number || 'N/A'}
+          </Text>
+        </View>
+      </View>
+    </View>
+  ), []);
+
+  // Render header component
+  const renderHeader = useCallback(() => (
+    <View style={styles.container}>
+      <View style={styles.headerRow}>
+        <Icon
+          name="arrow-back"
+          size={30}
+          color="black"
+          onPress={() => navigation.goBack()}
+        />
+        <Text style={styles.headerTitle}>Products</Text>
+      </View>
+
+      <View style={styles.SearchContainer}>
+        <Icon
+          name="filter-alt"
+          size={35}
+          color={colors.primary}
+          style={styles.filterIcon}
+          onPress={openModal}
+        />
+        <View style={styles.searchSection}>
+          <Icon
+            style={styles.searchIcon}
+            name="search"
+            size={20}
+            color="#000"
+          />
+          <TextInput
+            style={styles.input}
+            underlineColorAndroid="transparent"
+            placeholder="Search Products"
+            placeholderTextColor={'#424242'}
+            autoCapitalize="none"
+            value={search}
+            onChangeText={handleSearch}
+          />
+        </View>
+      </View>
+
+      <Text style={styles.categoryTitle}>{mainCategory}</Text>
+
+      <View style={styles.relatedProductsHeader}>
+        <Icon style={styles.checklistIcon} name="checklist" size={20} color="#000" />
+        <Text style={styles.relatedProductsText}>Related Products</Text>
+      </View>
+    </View>
+  ), [navigation, openModal, search, handleSearch, mainCategory]);
+
+  // Render filter modal
+  const renderFilterModal = useCallback(() => (
+    <Modal visible={isModalVisible} animationType="slide" transparent={true}>
+      <ScrollView style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>Filter Category</Text>
+            <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
+              <Icon name="close" size={30} color="black" />
+            </TouchableOpacity>
+          </View>
+          
+          <Text style={styles.modalSubtitle}>
+            Choose a filter category from the provided list.
+          </Text>
+
+          {/* Related Category Filter */}
+          {allProducts?.related_categories && allProducts.related_categories.length > 0 && (
+            <View style={styles.relatedCategory}>
+              <View style={styles.filterSectionHeader}>
+                <Icon name="format-align-justify" size={20} color="black" />
+                <Text style={styles.filterSectionTitle}>Related Category</Text>
+              </View>
+              {allProducts.related_categories.map((items, index) => (
+                <TouchableOpacity
+                  key={`related-${index}`}
+                  style={styles.filterOption}
+                  onPress={() => setRelatedCategory(items.name)}
+                >
+                  <Icon2
+                    name="dot-fill"
+                    size={20}
+                    color={colors.primary}
+                  />
+                  <Text style={[
+                    styles.filterOptionText,
+                    { color: relatedCategory === items.name ? 'red' : colors.primary }
+                  ]}>
+                    {items.name}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+
+          {/* Location Filter */}
+          {allProducts?.location && allProducts.location.length > 0 && (
+            <View style={styles.relatedCategory}>
+              <View style={styles.filterSectionHeader}>
+                <Icon name="location-on" size={20} color="black" />
+                <Text style={styles.filterSectionTitle}>Location</Text>
+              </View>
+              {allProducts.location.map((items, index) => (
+                <TouchableOpacity
+                  key={`location-${index}`}
+                  style={styles.filterOption}
+                  onPress={() => setLocation(items.name)}
+                >
+                  <Icon2 name="dot-fill" size={20} color={colors.primary} />
+                  <Text style={[
+                    styles.filterOptionText,
+                    { color: location === items.name ? 'red' : colors.primary }
+                  ]}>
+                    {items.name}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+
+          {/* Business Type Filter */}
+          {allProducts?.businesstype && allProducts.businesstype.length > 0 && (
+            <View style={styles.relatedCategory}>
+              <View style={styles.filterSectionHeader}>
+                <Icon name="format-align-justify" size={20} color="black" />
+                <Text style={styles.filterSectionTitle}>Business Type</Text>
+              </View>
+              {allProducts.businesstype.map((items, index) => (
+                <TouchableOpacity
+                  key={`business-${index}`}
+                  style={styles.filterOption}
+                  onPress={() => setBusinessType(items.name)}
+                >
+                  <Icon2 name="dot-fill" size={20} color={colors.primary} />
+                  <Text style={[
+                    styles.filterOptionText,
+                    { color: businessType === items.name ? 'red' : colors.primary }
+                  ]}>
+                    {items.name}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+
+          <Custombutton title="Apply Filter" onPress={handleFilter} />
+        </View>
+      </ScrollView>
+    </Modal>
+  ), [isModalVisible, closeModal, allProducts, relatedCategory, location, businessType, handleFilter]);
+
+  // Show loading state if initial load
+  if (status === 'loading' && !allProducts.products) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={styles.loadingText}>Loading products...</Text>
       </View>
     );
-  };
-
-  const handleSearch = text => {
-    if (allProducts && allProducts.products) {
-      const filteredProducts = allProducts.products.filter(product =>
-        product.name.toLowerCase().includes(text.toLowerCase()),
-      );
-      setAllProducts({...allProducts, products: filteredProducts});
-    } else {
-      console.log('No products available for search.');
-    }
-  };
+  }
 
   return (
     <>
       <FlatList
-        style={{marginTop: 8}}
-        ListHeaderComponent={
-          <>
-            <View style={styles.container}>
-              <View style={{flexDirection: 'row', padding: 15}}>
-                <Icon
-                  name="arrow-back"
-                  size={30}
-                  color="black"
-                  onPress={() => navigation.goBack()}
-                />
-                <Text style={{color: 'black', fontSize: 24, marginLeft: 10}}>
-                  Products
-                </Text>
-              </View>
-
-              <View style={styles.SearchContainer}>
-                <Icon
-                  name="filter-alt"
-                  size={35}
-                  color="#0375B7"
-                  style={{paddingLeft: 10, paddingRight: 10, top: 5}}
-                  onPress={() => openModal()}
-                />
-                <View
-                  // onPress={openModal}
-                  style={styles.searchSection}>
-                  <Icon
-                    style={styles.searchIcon}
-                    name="search"
-                    size={20}
-                    color="#000"
-                  />
-
-                  <TextInput
-                    style={styles.input}
-                    // onChangeText={searchString => this.setState({searchString})}
-                    underlineColorAndroid="transparent"
-                    placeholder="Search Products"
-                    placeholderTextColor={'#424242'}
-                    autoCapitalize="none"
-                    value={search}
-                    onChangeText={text => {
-                      setSearch(text);
-                      handleSearch(text);
-                    }}
-                  />
-                </View>
-              </View>
-
-              <Text
-                style={{
-                  color: 'black',
-                  fontSize: 20,
-                  fontWeight: 'bold',
-                  marginTop: 10,
-                  marginLeft: 10,
-                }}>
-                {mainCategory}
-              </Text>
-
-              <View style={{flexDirection: 'row', padding: 10, marginTop: 10}}>
-                <Icon
-                  style={styles.searchIcon}
-                  name="checklist"
-                  size={20}
-                  color="#000"
-                />
-
-                <Text
-                  style={{
-                    color: '#0375B7',
-                    fontSize: 18,
-                    marginLeft: 10,
-                    fontFamily: 'Poppins-Regular',
-                    alignSelf: 'center',
-                  }}>
-                  Related Products
-                </Text>
-              </View>
-            </View>
-          </>
-        }
-        data={allProducts.products}
-        renderItem={({item, index}) => (
-          <View key={index} style={styles.productCardList}>
-            <View style={{flexDirection: 'row'}}>
-              <Image
-                style={styles.ProductImage}
-                source={{uri: item.image}}
-                alt="bazar"
-              />
-              <View>
-                <Text style={{color: '#185CAB', fontSize: 18}}>
-                  {item.name}
-                </Text>
-                <Text style={{color: 'black', fontSize: 16}}>
-                  Brand: {item.brand}
-                </Text>
-                <Text style={{color: 'black', fontSize: 16}}>
-                  Price: {item.price}
-                </Text>
-              </View>
-            </View>
-
-            <View style={styles.supplierInfo}>
-              <Text style={{color: '#F45115', fontSize: 20}}>
-                Supplier Information
-              </Text>
-              <View
-                style={{
-                  borderBottomColor: '#E4E4E4',
-                  borderBottomWidth: 1,
-                  marginTop: 10,
-                }}>
-                <View
-                  style={{
-                    borderBottomColor: '#F45115',
-                    borderBottomWidth: 3,
-                    width: '20%',
-                  }}></View>
-              </View>
-
-              <Text style={{color: 'black', fontSize: 18, marginTop: 10}}>
-                {item.suppliername}
-              </Text>
-
-              <View style={{flexDirection: 'row', padding: 10, marginTop: 10}}>
-                <Icon
-                  style={{color: '#0375B7'}}
-                  name="location-on"
-                  size={20}
-                  color="#000"
-                />
-
-                <Text
-                  style={{
-                    color: 'black',
-                    fontSize: 18,
-                    marginLeft: 10,
-                    fontFamily: 'Poppins-Regular',
-                    alignSelf: 'center',
-                  }}>
-                  {item.city}, {item.district}
-                </Text>
-              </View>
-
-              <View style={{flexDirection: 'row', padding: 10, marginTop: 10}}>
-                <Icon
-                  style={{color: '#0375B7'}}
-                  name="phone"
-                  size={20}
-                  color="#000"
-                />
-
-                <Text
-                  style={{
-                    color: 'black',
-                    fontSize: 18,
-                    marginLeft: 10,
-                    fontFamily: 'Poppins-Regular',
-                    alignSelf: 'center',
-                  }}>
-                  {item.mobile_number}
-                </Text>
-              </View>
-            </View>
-          </View>
-        )}
-        keyExtractor={item => item.id}
+        style={styles.flatList}
+        ListHeaderComponent={renderHeader}
+        data={allProducts.products || []}
+        renderItem={renderProductItem}
+        keyExtractor={(item, index) => `product-${item.id || index}`}
         onEndReached={handleEndReached}
         onEndReachedThreshold={0.1}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            colors={[colors.primary]}
+            tintColor={colors.primary}
+          />
         }
-        ListEmptyComponent={<EmptyListMessage />}
+        ListEmptyComponent={EmptyListMessage}
+        ListFooterComponent={LoadingFooter}
       />
-      <Modal visible={isModalVisible} animationType="slide" transparent={true}>
-        <ScrollView style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <View
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-              }}>
-              <Text
-                style={{fontSize: 20, color: '#0375B7', alignSelf: 'center'}}>
-                Filter Category
-              </Text>
-              <TouchableOpacity
-                onPress={closeModal}
-                style={{alignSelf: 'flex-end', margin: 10}}>
-                <Icon name="close" size={30} color="black" />
-              </TouchableOpacity>
-            </View>
-            <Text style={{fontSize: 16, color: '#595D65', alignSelf: 'center'}}>
-              Choose a filter category from the provided list.
-            </Text>
-
-            <View style={styles.relatedCategory}>
-              <View style={{flexDirection: 'row'}}>
-                <Icon
-                  name="format-align-justify"
-                  size={20}
-                  color="black"
-                  style={{alignSelf: 'center'}}
-                />
-                <Text
-                  style={{
-                    fontSize: 18,
-                    color: 'black',
-                    marginLeft: 10,
-                    fontWeight: 'bold',
-                  }}>
-                  Related Category
-                </Text>
-              </View>
-              {allProducts?.related_categories?.map((items, index) => (
-                <View key={index} style={{marginTop: 8}}>
-                  <TouchableOpacity
-                    style={{
-                      margin: 5,
-                      flexDirection: 'row',
-                    }}
-                    onPress={() => {
-                      setRelatedCategory(items.name);
-                    }}>
-                    <Icon2
-                      name="dot-fill"
-                      size={20}
-                      color="#0375B7"
-                      style={{alignSelf: 'center'}}
-                    />
-                    <Text
-                      style={{
-                        marginLeft: 10,
-                        fontSize: 18,
-                        color:
-                          relatedCategory === items.name ? 'red' : '#0375B7',
-                      }}>
-                      {items.name}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              ))}
-            </View>
-
-            <View style={styles.relatedCategory}>
-              <View style={{flexDirection: 'row'}}>
-                <Icon
-                  name="location-on"
-                  size={20}
-                  color="black"
-                  style={{alignSelf: 'center'}}
-                />
-                <Text
-                  style={{
-                    fontSize: 18,
-                    color: 'black',
-                    marginLeft: 10,
-                    fontWeight: 'bold',
-                  }}>
-                  Location
-                </Text>
-              </View>
-              {allProducts?.location?.map((items, index) => (
-                <View key={index} style={{marginTop: 8}}>
-                  <TouchableOpacity
-                    style={{
-                      margin: 5,
-                      flexDirection: 'row',
-                    }}
-                    onPress={() => {
-                      setLocation(items.name);
-                    }}>
-                    <Icon2
-                      name="dot-fill"
-                      size={20}
-                      color="#0375B7"
-                      style={{alignSelf: 'center'}}
-                    />
-                    <Text
-                      style={{
-                        marginLeft: 10,
-                        color: location === items.name ? 'red' : '#0375B7',
-                        fontSize: 18,
-                      }}>
-                      {items.name}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              ))}
-            </View>
-
-            <View style={styles.relatedCategory}>
-              <View style={{flexDirection: 'row'}}>
-                <Icon
-                  name="format-align-justify"
-                  size={20}
-                  color="black"
-                  style={{alignSelf: 'center'}}
-                />
-                <Text
-                  style={{
-                    fontSize: 18,
-                    color: 'black',
-                    marginLeft: 10,
-                    fontWeight: 'bold',
-                  }}>
-                  Business Type
-                </Text>
-              </View>
-              {allProducts?.businesstype?.map((items, index) => (
-                <View key={index} style={{marginTop: 8}}>
-                  <TouchableOpacity
-                    style={{
-                      margin: 5,
-                      flexDirection: 'row',
-                    }}
-                    onPress={() => {
-                      setBusinessType(items.name);
-                    }}>
-                    <Icon2
-                      name="dot-fill"
-                      size={20}
-                      color="#0375B7"
-                      style={{alignSelf: 'center'}}
-                    />
-                    <Text
-                      style={{
-                        marginLeft: 10,
-                        color: businessType === items.name ? 'red' : '#0375B7',
-                        fontSize: 18,
-                      }}>
-                      {items.name}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              ))}
-            </View>
-
-            <Custombutton title="Add filter" onPress={() => handleFilter()} />
-          </View>
-        </ScrollView>
-      </Modal>
+      {renderFilterModal()}
     </>
   );
 };

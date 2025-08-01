@@ -4,7 +4,7 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Home from '../../components/Home/home';
 import Bazar from '../../components/Bazar/bazar';
 import PrivateWork from '../../components/PrivateWorks/privateWork';
-import Result from '../../components/Result/result';
+
 import Profile from '../../components/Profile/profile';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Detail from '../../components/Home/Detail/detail';
@@ -19,12 +19,16 @@ import BazarDetail from '../../components/Bazar/Detail/Detail';
 import SavedBids from '../../components/BidsSaved/Index';
 import AboutUs from '../../components/AboutUs/About';
 import Register from '../../components/Register/Register';
+import ImageGallery from '../../components/Home/ImageGallery';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useFocusEffect} from '@react-navigation/native';
+import {useDispatch, useSelector} from 'react-redux';
+import {checkAuthStatus} from '../../reducers/userSlice';
+import { deviceInfo, normalize } from '../../utils/responsive';
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createStackNavigator();
-const ResultStack = createStackNavigator();
+const AboutUsStack = createStackNavigator();
 const ProfileStack = createStackNavigator();
 const Bazarstack = createStackNavigator();
 
@@ -42,6 +46,11 @@ const HomeStackScreen = () => {
         options={{headerShown: false, unmountOnBlur: true}}
       />
       <HomeStack.Screen
+        name="ResultDetails"
+        component={ResultDetails}
+        options={{headerShown: false}}
+      />
+      <HomeStack.Screen
         name="Login"
         component={Login}
         options={{headerShown: false}}
@@ -51,24 +60,34 @@ const HomeStackScreen = () => {
         component={Register}
         options={{headerShown: false}}
       />
+      <HomeStack.Screen
+        name="ImageGallery"
+        component={ImageGallery}
+        options={{headerShown: false}}
+      />
     </HomeStack.Navigator>
   );
 };
 
-const ResultStackScreen = () => {
+const AboutUsStackScreen = () => {
   return (
-    <ResultStack.Navigator>
-      <ResultStack.Screen
-        name="ResultScreen"
-        component={Result}
+    <AboutUsStack.Navigator>
+      <AboutUsStack.Screen
+        name="AboutUsScreen"
+        component={AboutUs}
         options={{headerShown: false}}
       />
-      <ResultStack.Screen
-        name="ResultDetails"
-        component={ResultDetails}
+      <AboutUsStack.Screen
+        name="Login"
+        component={Login}
         options={{headerShown: false}}
       />
-    </ResultStack.Navigator>
+      <AboutUsStack.Screen
+        name="Register"
+        component={Register}
+        options={{headerShown: false}}
+      />
+    </AboutUsStack.Navigator>
   );
 };
 
@@ -76,7 +95,7 @@ const ProfileStackScreen = () => {
   return (
     <ProfileStack.Navigator>
       <ProfileStack.Screen
-        name="Profile"
+        name="ProfileScreen"
         component={Profile}
         options={{headerShown: false}}
       />
@@ -110,6 +129,16 @@ const ProfileStackScreen = () => {
         component={AboutUs}
         options={{headerShown: false}}
       />
+      <ProfileStack.Screen
+        name="Login"
+        component={Login}
+        options={{headerShown: false}}
+      />
+      <ProfileStack.Screen
+        name="Register"
+        component={Register}
+        options={{headerShown: false}}
+      />
     </ProfileStack.Navigator>
   );
 };
@@ -127,31 +156,33 @@ const BazarStackScreen = () => {
         component={BazarDetail}
         options={{headerShown: false}}
       />
+      <Bazarstack.Screen
+        name="Login"
+        component={Login}
+        options={{headerShown: false}}
+      />
+      <Bazarstack.Screen
+        name="Register"
+        component={Register}
+        options={{headerShown: false}}
+      />
     </Bazarstack.Navigator>
   );
 };
 
 const BottomNav = () => {
-  const [token, setToken] = React.useState('');
-  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  const dispatch = useDispatch();
+  const {isAuthenticated} = useSelector(state => state.users);
+
+  console.log('BottomNav - isAuthenticated:', isAuthenticated);
 
   useFocusEffect(
     React.useCallback(() => {
-      getToken();
-      setIsLoggedIn(!!token);
-      console.log(token);
-    }, [token]),
+      console.log('BottomNav - Component focused, checking auth status...');
+      // Check authentication status when component focuses
+      dispatch(checkAuthStatus());
+    }, [dispatch]),
   );
-
-  const getToken = async () => {
-    try {
-      console.log('adsbdjasvd');
-      const token = await AsyncStorage.getItem('access_token');
-      setToken(token);
-    } catch (error) {
-      console.error('Error retrieving token from AsyncStorage:', error);
-    }
-  };
 
   return (
     <Tab.Navigator detachInactiveScreens={true}>
@@ -172,20 +203,21 @@ const BottomNav = () => {
           tabBarActiveTintColor: '#0375B7',
           headerBackTitleVisible: false,
           tabBarInactiveTintColor: 'gray',
-          tabBarLabelStyle: {fontSize: 14},
-          tabBarStyle: {padding: 5},
+          tabBarLabelStyle: {fontSize: normalize(12), marginTop: deviceInfo.isTablet ? 4 : 2},
+          tabBarIconStyle: {marginTop: deviceInfo.isTablet ? 4 : 2},
+          tabBarStyle: {height: deviceInfo.isTablet ? 70 : 60, paddingBottom: deviceInfo.isTablet ? 10 : 5, paddingTop: deviceInfo.isTablet ? 10 : 5},
           unmountOnBlur: true,
         }}
       />
       <Tab.Screen
-        name="Result"
-        component={ResultStackScreen}
+        name="About Us"
+        component={AboutUsStackScreen}
         options={{
           headerShown: false,
           tabBarIcon: ({focused, color}) => {
             return (
               <Icon
-                name={focused ? 'newspaper' : 'newspaper-outline'}
+                name={focused ? 'information-circle' : 'information-circle-outline'}
                 size={25}
                 color={color}
               />
@@ -194,7 +226,9 @@ const BottomNav = () => {
           tabBarActiveTintColor: '#0375B7',
           headerBackTitleVisible: false,
           tabBarInactiveTintColor: 'gray',
-          tabBarLabelStyle: {fontSize: 14},
+          tabBarLabelStyle: {fontSize: normalize(12), marginTop: deviceInfo.isTablet ? 4 : 2},
+          tabBarIconStyle: {marginTop: deviceInfo.isTablet ? 4 : 2},
+          tabBarStyle: {height: deviceInfo.isTablet ? 70 : 60, paddingBottom: deviceInfo.isTablet ? 10 : 5, paddingTop: deviceInfo.isTablet ? 10 : 5},
           unmountOnBlur: true,
         }}
       />
@@ -203,41 +237,26 @@ const BottomNav = () => {
         component={BazarStackScreen}
         options={{
           headerShown: false,
-          tabBarIcon: ({focused}) => {
+          tabBarIcon: ({focused, color}) => {
             return (
               <Icon
-                name={focused ? 'storefront' : 'storefront-outline'}
-                size={28}
-                color="white"
-                style={{
-                  backgroundColor: '#0375B7',
-                  borderRadius: 20,
-                  padding: 10,
-                  transform: [{translateY: -15}, {translateX: 0}],
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  height: 50,
-                  width: 50,
-                  shadowOffset: {
-                    width: 2,
-                    height: 2,
-                  },
-                  shadowOpacity: 0.85,
-                  shadowRadius: 5.84,
-                  elevation: 5,
-                }}
+                name={focused ? 'business' : 'business-outline'}
+                size={25}
+                color={color}
               />
             );
           },
           tabBarActiveTintColor: '#0375B7',
           headerBackTitleVisible: false,
           tabBarInactiveTintColor: 'gray',
-          tabBarLabelStyle: {fontSize: 14},
+          tabBarLabelStyle: {fontSize: normalize(12), marginTop: deviceInfo.isTablet ? 4 : 2},
+          tabBarIconStyle: {marginTop: deviceInfo.isTablet ? 4 : 2},
+          tabBarStyle: {height: deviceInfo.isTablet ? 70 : 60, paddingBottom: deviceInfo.isTablet ? 10 : 5, paddingTop: deviceInfo.isTablet ? 10 : 5},
           unmountOnBlur: true,
         }}
       />
       <Tab.Screen
-        name="Private Work"
+        name="PrivateWork"
         component={PrivateWork}
         options={{
           headerShown: false,
@@ -253,19 +272,21 @@ const BottomNav = () => {
           tabBarActiveTintColor: '#0375B7',
           headerBackTitleVisible: false,
           tabBarInactiveTintColor: 'gray',
-          tabBarLabelStyle: {fontSize: 14},
+          tabBarLabelStyle: {fontSize: normalize(12), marginTop: deviceInfo.isTablet ? 4 : 2},
+          tabBarIconStyle: {marginTop: deviceInfo.isTablet ? 4 : 2},
+          tabBarStyle: {height: deviceInfo.isTablet ? 70 : 60, paddingBottom: deviceInfo.isTablet ? 10 : 5, paddingTop: deviceInfo.isTablet ? 10 : 5},
           unmountOnBlur: true,
         }}
       />
       <Tab.Screen
-        name="More"
+        name="Profile"
         component={ProfileStackScreen}
         options={{
           headerShown: false,
           tabBarIcon: ({focused, color}) => {
             return (
               <Icon
-                name={focused ? 'menu' : 'menu-outline'}
+                name={focused ? 'person' : 'person-outline'}
                 size={25}
                 color={color}
               />
@@ -274,7 +295,9 @@ const BottomNav = () => {
           tabBarActiveTintColor: '#0375B7',
           headerBackTitleVisible: false,
           tabBarInactiveTintColor: 'gray',
-          tabBarLabelStyle: {fontSize: 14},
+          tabBarLabelStyle: {fontSize: normalize(12), marginTop: deviceInfo.isTablet ? 4 : 2},
+          tabBarIconStyle: {marginTop: deviceInfo.isTablet ? 4 : 2},
+          tabBarStyle: {height: deviceInfo.isTablet ? 70 : 60, paddingBottom: deviceInfo.isTablet ? 10 : 5, paddingTop: deviceInfo.isTablet ? 10 : 5},
           unmountOnBlur: true,
         }}
       />

@@ -10,8 +10,9 @@ const colors = {
 };
 
 const fonts = {
-  regular: 'Poppins-Medium',
-  medium: 'Poppins-Bold',
+  regular: 'Poppins-Regular',
+  medium: 'Poppins-Medium',
+  bold: 'Poppins-Bold',
 };
 
 export {colors, fonts};

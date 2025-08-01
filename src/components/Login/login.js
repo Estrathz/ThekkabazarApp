@@ -1,48 +1,65 @@
 // Login.js
 import React, {useEffect, useState} from 'react';
-import {View, Text, TextInput, TouchableOpacity, Image} from 'react-native';
+import {View, Text, TextInput, TouchableOpacity, Image, ActivityIndicator} from 'react-native';
 import styles from './loginStyle';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import {login} from '../../reducers/userSlice';
+import {login, checkAuthStatus} from '../../reducers/userSlice';
 import {useDispatch, useSelector} from 'react-redux';
 import Custombutton from '../../Containers/Button/button';
-
 import Toast from 'react-native-toast-message';
 
 const Login = ({navigation}) => {
-  // const navigation = useNavigation();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [hasNavigated, setHasNavigated] = useState(false);
   const dispatch = useDispatch();
 
-  const {isAuthenticated} = useSelector(state => state.users);
+  const {isAuthenticated, loading, error} = useSelector(state => state.users || {});
 
+  // Check if user is already logged in on component mount
   useEffect(() => {
-    if (isAuthenticated) {
-      navigation.navigate('MainScreen', {
-        screen: 'BottomNav',
-        params: {
-          screen: 'Home',
-          params: {screen: 'HomeScreen'},
-        },
-      });
-      // navigation.navigate('HomeScreen');
-    }
-  }, [dispatch, isAuthenticated]);
+    dispatch(checkAuthStatus());
+  }, [dispatch]);
 
-  const handleLogin = () => {
-    if (!username || !password) {
-      return Toast.show({
+  // Navigate to home if already authenticated
+  useEffect(() => {
+    console.log('Login component - isAuthenticated changed:', isAuthenticated);
+    if (isAuthenticated && !hasNavigated) {
+      console.log('User is authenticated, automatically navigating to home...');
+      setHasNavigated(true);
+      
+      // Small delay to ensure the success toast is shown
+      setTimeout(() => {
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'MainScreen' }],
+        });
+      }, 500);
+    }
+  }, [isAuthenticated, navigation, hasNavigated]);
+
+  const handleLogin = async () => {
+    if (!username.trim() || !password.trim()) {
+      Toast.show({
         type: 'error',
-        text1: 'Username and Password are required',
-        text2: 'Please fill all fields',
+        text1: 'Validation Error',
+        text2: 'Username and Password are required',
         visibilityTime: 3000,
         autoHide: true,
       });
+      return;
     }
 
-    dispatch(login({username, password}));
+    try {
+      console.log('Attempting login...');
+      const result = await dispatch(login({username: username.trim(), password})).unwrap();
+      console.log('Login successful, will automatically navigate to home...');
+      // Navigation will be handled automatically by the useEffect above
+    } catch (error) {
+      console.log('Login failed:', error);
+      // Error is already handled by the Redux slice with Toast
+    }
   };
 
   const togglePasswordVisibility = () => {
@@ -69,6 +86,9 @@ const Login = ({navigation}) => {
           onChangeText={text => setUsername(text)}
           value={username}
           placeholderTextColor={'#000000'}
+          editable={!loading}
+          autoCapitalize="none"
+          autoCorrect={false}
         />
 
         <Text style={styles.text3}>Password</Text>
@@ -80,10 +100,14 @@ const Login = ({navigation}) => {
             value={password}
             secureTextEntry={!showPassword}
             placeholderTextColor={'#000000'}
+            editable={!loading}
+            autoCapitalize="none"
+            autoCorrect={false}
           />
           <TouchableOpacity
             onPress={togglePasswordVisibility}
-            style={styles.eyeIcon}>
+            style={styles.eyeIcon}
+            disabled={loading}>
             <Icon
               name={showPassword ? 'eye-slash' : 'eye'}
               size={23}
@@ -91,11 +115,17 @@ const Login = ({navigation}) => {
             />
           </TouchableOpacity>
         </View>
+        
         <Text style={styles.text4}>Forget Password ?</Text>
-        {/* <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Login</Text>
-        </TouchableOpacity> */}
-        <Custombutton title="Login" onPress={handleLogin} />
+        
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#0375B7" />
+            <Text style={styles.loadingText}>Logging in...</Text>
+          </View>
+        ) : (
+          <Custombutton title="Login" onPress={handleLogin} />
+        )}
 
         <View style={styles.lineform}></View>
         <View style={styles.textContainer}>

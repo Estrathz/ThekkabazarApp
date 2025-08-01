@@ -1,0 +1,27 @@
+// iOS Build Configuration for Faster Builds
+
+// Compiler Optimizations
+GCC_OPTIMIZATION_LEVEL = 0
+SWIFT_OPTIMIZATION_LEVEL = -Onone
+SWIFT_COMPILATION_MODE = singlefile
+
+// Parallel Build Settings
+SWIFT_WHOLE_MODULE_OPTIMIZATION = YES
+SWIFT_USE_PARALLEL_WHOLE_MODULE_OPTIMIZATION = YES
+
+// Disable Bitcode for faster builds
+ENABLE_BITCODE = NO
+
+// Deployment Target
+IPHONEOS_DEPLOYMENT_TARGET = 13.0
+
+// Build Performance
+COMPILER_INDEX_STORE_ENABLE = NO
+SWIFT_INDEX_STORE_ENABLE = NO
+
+// Disable unnecessary features for faster builds
+GCC_GENERATE_DEBUGGING_SYMBOLS = NO
+COPY_PHASE_STRIP = YES
+
+// Enable parallel builds
+PARALLEL_TARGETS = YES 

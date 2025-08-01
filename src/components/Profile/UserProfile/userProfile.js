@@ -11,28 +11,18 @@ import { useFocusEffect, CommonActions, useRoute } from '@react-navigation/nativ
 const UserProfile = ({ navigation }) => {
   const dispatch = useDispatch();
   const { data, error } = useSelector(state => state.userprofile);
-  const [token, setToken] = useState('');
+  const { isAuthenticated } = useSelector(state => state.users);
   const route = useRoute();
-
-  const getToken = async () => {
-    try {
-      const storedToken = await AsyncStorage.getItem('access_token');
-      if (storedToken) {
-        setToken(storedToken);
-        dispatch(getProfile({ access_token: storedToken }));
-      }
-    } catch (error) {
-      console.error('Error retrieving token:', error);
-    }
-  };
 
   useFocusEffect(
     useCallback(() => {
-      getToken();
+      if (isAuthenticated) {
+        dispatch(getProfile());
+      }
       if (error) {
         console.log(error);
       }
-    }, [error])
+    }, [isAuthenticated, error])
   );
 
   useEffect(() => {

@@ -10,30 +10,23 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const Interest = () => {
   const dispatch = useDispatch();
   const {interestdata, interesterror} = useSelector(state => state.interest);
-  const [access_token, setAccessToken] = useState('');
+  const { isAuthenticated } = useSelector(state => state.users);
 
   useEffect(() => {
-    getToken();
-
-    dispatch(fetchInterestData({access_token: access_token}));
+    if (isAuthenticated) {
+      dispatch(fetchInterestData());
+    }
 
     if (interesterror) {
       console.log(interesterror);
     }
-  }, [dispatch, access_token]);
+  }, [dispatch, isAuthenticated]);
 
   useEffect(() => {
     console.log(interestdata);
   });
 
-  const getToken = async () => {
-    try {
-      const token = await AsyncStorage.getItem('access_token');
-      setAccessToken(token);
-    } catch (error) {
-      console.error('Error retrieving token from AsyncStorage:', error);
-    }
-  };
+
 
   return (
     <View style={styles.container}>

@@ -76,11 +76,18 @@ export const fetchOneTenderData = createAsyncThunk(
 
 export const savebid = createAsyncThunk(
   'data/savebid',
-  async ({id, access_token}) => {
-    console.log('savebid', id, access_token);
+  async ({id}, {getState}) => {
+    console.log('savebid', id);
+    const state = getState();
+    const token = state.users.access_token;
+    
+    if (!token) {
+      throw new Error('No access token available');
+    }
+    
     const config = {
       headers: {
-        Authorization: `Bearer ${access_token}`,
+        Authorization: `Bearer ${token}`,
       },
     };
     try {

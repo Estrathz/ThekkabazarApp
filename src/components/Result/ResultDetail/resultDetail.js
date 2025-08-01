@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
   Modal,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchOneResultData, clearSingleResult } from '../../../reducers/resultSlice';
 import Custombutton from '../../../Containers/Button/button';
@@ -23,7 +24,7 @@ import styles from './resultdetailStyle';
 
 const Detail = ({ route, navigation }) => {
   const dispatch = useDispatch();
-  const { one: items, error, loading, currentId } = useSelector(state => state.result);
+  const { one: items, error: apiError, loading: cardLoading } = useSelector(state => state.result);
   const { width } = useWindowDimensions();
   const { tenderData } = route.params;
   const [downloadModal, setDownloadModal] = useState(false);
@@ -60,15 +61,15 @@ const Detail = ({ route, navigation }) => {
 
   // Effect for handling errors
   useEffect(() => {
-    if (error) {
-      if (error.status === 404) {
+    if (apiError) {
+      if (apiError.status === 404) {
         Alert.alert('Not Found', 'This tender result could not be found.');
         navigation.goBack();
       } else {
-        Alert.alert('Error', error.message || 'Failed to load tender details');
+        Alert.alert('Error', apiError.message || 'Failed to load tender details');
       }
     }
-  }, [error, navigation]);
+  }, [apiError, navigation]);
 
   // Cleanup effect - only clear single result data, not the list data
   useEffect(() => {
@@ -275,140 +276,148 @@ const Detail = ({ route, navigation }) => {
   console.log('Tender files length:', displayData?.tender_files?.length);
   console.log('=== END COMPLETE DATA DEBUG ===');
 
-  if (!tenderData && loading) {
+  if (!tenderData && cardLoading) {
     return (
-      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color="#0375B7" />
-        <Text style={styles.loadingText}>Loading details...</Text>
-      </View>
+      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+        <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+          <ActivityIndicator size="large" color="#0375B7" />
+          <Text style={styles.loadingText}>Loading details...</Text>
+        </View>
+      </SafeAreaView>
     );
   }
 
-  if (!tenderData && error) {
+  if (!tenderData && apiError) {
     return (
-      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <Text style={styles.errorText}>{error.message || 'Failed to load details'}</Text>
-        <Custombutton 
-          title="Retry" 
-          onPress={() => fetchDetails(route.params.id)} 
-        />
-      </View>
+      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+        <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+          <Text style={styles.errorText}>{apiError.message || 'Failed to load details'}</Text>
+          <Custombutton 
+            title="Retry" 
+            onPress={() => fetchDetails(route.params.id)} 
+          />
+        </View>
+      </SafeAreaView>
     );
   }
 
   if (!displayData) {
     return (
-      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <Text style={styles.errorText}>No details available</Text>
-      </View>
+      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+        <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+          <Text style={styles.errorText}>No details available</Text>
+        </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Icon name="arrow-back" size={24} color="#000" />
-        </TouchableOpacity>
-        <Text style={styles.headerText}>Result Details</Text>
-      </View>
-
-      <View style={styles.detailCardContainer}>
-        <View style={styles.imageContainer}>
-          <Image
-            source={displayData.image ? { uri: displayData.image } : require('../../../assets/dummy-image.png')}
-            style={styles.image}
-            resizeMode="contain"
-          />
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <Icon name="arrow-back" size={24} color="#000" />
+          </TouchableOpacity>
+          <Text style={styles.headerText}>Result Details</Text>
         </View>
 
-        <View style={styles.buttonContainer}>
-          {displayData.image && (
-            <Custombutton title="Download Image" onPress={() => handleDownload(displayData.image)} />
-          )}
-        </View>
-
-        <Text style={styles.tenderDetailsTitle}>Tender Details</Text>
-        <View style={styles.detailContainer}>
-          <Text style={styles.detailText}>
-            <Text style={styles.boldText}>Tender Title: </Text>
-            {displayData.title}
-          </Text>
-          <Text style={styles.detailText}>
-            <Text style={styles.boldText}>Public Entity Name: </Text>
-            {displayData.public_entry_name}
-          </Text>
-
-          <View style={styles.dateContainer}>
-            <Icon name="calendar-month" size={23} color="red" />
-            <Text style={styles.dateText}><Text style={styles.boldText}>Published Date: </Text>{displayData.published_date}</Text>
+        <View style={styles.detailCardContainer}>
+          <View style={styles.imageContainer}>
+            <Image
+              source={displayData.image ? { uri: displayData.image } : require('../../../assets/dummy-image.png')}
+              style={styles.image}
+              resizeMode="contain"
+            />
           </View>
 
-          <Text style={styles.sourceText}><Text style={styles.boldText}>Source: </Text>{displayData.source}</Text>
+          <View style={styles.buttonContainer}>
+            {displayData.image && (
+              <Custombutton title="Download Image" onPress={() => handleDownload(displayData.image)} />
+            )}
+          </View>
 
-          {displayData?.organization_sector?.map((org, index) => (
-            <Text key={index} style={styles.organizationText}>
-              <Text style={styles.boldText}>Organization Sector: </Text>{org.name}
+          <Text style={styles.tenderDetailsTitle}>Tender Details</Text>
+          <View style={styles.detailContainer}>
+            <Text style={styles.detailText}>
+              <Text style={styles.boldText}>Tender Title: </Text>
+              {displayData.title}
             </Text>
-          ))}
-
-          {displayData?.district?.map((location, index) => (
-            <Text key={index} style={styles.locationText}>
-              <Text style={styles.boldText}>Location: </Text>{location.name}
+            <Text style={styles.detailText}>
+              <Text style={styles.boldText}>Public Entity Name: </Text>
+              {displayData.public_entry_name}
             </Text>
-          ))}
 
-          {displayData?.project_type?.map((project, index) => (
-            <Text key={index} style={styles.projectTypeText}>
-              <Text style={styles.boldText}>Project Type: </Text>{project.name}
-            </Text>
-          ))}
-
-          {displayData?.procurement_type?.map((pro, index) => (
-            <Text key={index} style={styles.procurementTypeText}>
-              <Text style={styles.boldText}>Procurement Type: </Text>{pro.name}
-            </Text>
-          ))}
-
-          <Text style={styles.awardedToText}>Awarded To:</Text>
-          {displayData.description ? (
-            <HTML contentWidth={width} source={{ html: displayData.description }} style={styles.htmlContent} />
-          ) : (
-            <Text style={styles.detailText}>No description available</Text>
-          )}
-
-          {displayData?.tender_files?.length > 0 && (
-            <View style={styles.fileContainer}>
-              <Text style={styles.fileSectionTitle}>Attached Files:</Text>
-              {displayData.tender_files.map((file, index) => {
-                console.log('=== FILE DEBUG INFO ===');
-                console.log('File object:', JSON.stringify(file, null, 2));
-                console.log('File.files value:', file.files);
-                console.log('File.file value:', file.file);
-                console.log('File.url value:', file.url);
-                console.log('File.download_url value:', file.download_url);
-                console.log('File.link value:', file.link);
-                console.log('All file properties:', Object.keys(file));
-                console.log('=== END FILE DEBUG ===');
-                
-                // Try different possible property names for the file URL
-                const fileUrl = file.files || file.file || file.url || file.download_url || file.link;
-                
-                return (
-                  <View key={index} style={styles.fileRow}>
-                    <Text style={styles.fileTitle}>{file.title}</Text>
-                    {fileUrl && fileUrl.trim() !== '' ? (
-                      <Button color="#0375B7" title="Open in Browser" onPress={() => handlePdfDownload(fileUrl)} />
-                    ) : (
-                      <Text style={{ color: '#999', fontSize: 12 }}>No file available</Text>
-                    )}
-                  </View>
-                );
-              })}
+            <View style={styles.dateContainer}>
+              <Icon name="calendar-month" size={23} color="red" />
+              <Text style={styles.dateText}><Text style={styles.boldText}>Published Date: </Text>{displayData.published_date}</Text>
             </View>
-          )}
+
+            <Text style={styles.sourceText}><Text style={styles.boldText}>Source: </Text>{displayData.source}</Text>
+
+            {displayData?.organization_sector?.map((org, index) => (
+              <Text key={index} style={styles.organizationText}>
+                <Text style={styles.boldText}>Organization Sector: </Text>{org.name}
+              </Text>
+            ))}
+
+            {displayData?.district?.map((location, index) => (
+              <Text key={index} style={styles.locationText}>
+                <Text style={styles.boldText}>Location: </Text>{location.name}
+              </Text>
+            ))}
+
+            {displayData?.project_type?.map((project, index) => (
+              <Text key={index} style={styles.projectTypeText}>
+                <Text style={styles.boldText}>Project Type: </Text>{project.name}
+              </Text>
+            ))}
+
+            {displayData?.procurement_type?.map((pro, index) => (
+              <Text key={index} style={styles.procurementTypeText}>
+                <Text style={styles.boldText}>Procurement Type: </Text>{pro.name}
+              </Text>
+            ))}
+
+            <Text style={styles.awardedToText}>Awarded To:</Text>
+            {displayData.description ? (
+              <HTML contentWidth={width} source={{ html: displayData.description }} style={styles.htmlContent} />
+            ) : (
+              <Text style={styles.detailText}>No description available</Text>
+            )}
+
+            {displayData?.tender_files?.length > 0 && (
+              <View style={styles.fileContainer}>
+                <Text style={styles.fileSectionTitle}>Attached Files:</Text>
+                {displayData.tender_files.map((file, index) => {
+                  console.log('=== FILE DEBUG INFO ===');
+                  console.log('File object:', JSON.stringify(file, null, 2));
+                  console.log('File.files value:', file.files);
+                  console.log('File.file value:', file.file);
+                  console.log('File.url value:', file.url);
+                  console.log('File.download_url value:', file.download_url);
+                  console.log('File.link value:', file.link);
+                  console.log('All file properties:', Object.keys(file));
+                  console.log('=== END FILE DEBUG ===');
+                  
+                  // Try different possible property names for the file URL
+                  const fileUrl = file.files || file.file || file.url || file.download_url || file.link;
+                  
+                  return (
+                    <View key={index} style={styles.fileRow}>
+                      <Text style={styles.fileTitle}>{file.title}</Text>
+                      {fileUrl && fileUrl.trim() !== '' ? (
+                        <Button color="#0375B7" title="Open in Browser" onPress={() => handlePdfDownload(fileUrl)} />
+                      ) : (
+                        <Text style={{ color: '#999', fontSize: 12 }}>No file available</Text>
+                      )}
+                    </View>
+                  );
+                })}
+              </View>
+            )}
+          </View>
         </View>
-      </View>
+      </ScrollView>
 
       <Modal
         visible={downloadModal}
@@ -423,11 +432,11 @@ const Detail = ({ route, navigation }) => {
               <View style={[styles.progressBar, { width: `${downloadProgress}%` }]} />
             </View>
             <Text style={styles.progressText}>{downloadProgress}%</Text>
-                         <ActivityIndicator size="small" color="#0375B7" style={styles.activityIndicator} />
+            <ActivityIndicator size="small" color="#0375B7" style={styles.activityIndicator} />
           </View>
         </View>
       </Modal>
-    </ScrollView>
+    </SafeAreaView>
   );
 };
 

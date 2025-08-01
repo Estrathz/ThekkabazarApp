@@ -1,27 +1,41 @@
-// iOS Build Configuration for Faster Builds
+// iOS Build Configuration for Thekkabazar
+// This file contains build settings for optimized iOS builds
 
-// Compiler Optimizations
-GCC_OPTIMIZATION_LEVEL = 0
-SWIFT_OPTIMIZATION_LEVEL = -Onone
-SWIFT_COMPILATION_MODE = singlefile
+// Version and Build Number
+MARKETING_VERSION = 22.0
+CURRENT_PROJECT_VERSION = 22
 
-// Parallel Build Settings
-SWIFT_WHOLE_MODULE_OPTIMIZATION = YES
-SWIFT_USE_PARALLEL_WHOLE_MODULE_OPTIMIZATION = YES
-
-// Disable Bitcode for faster builds
-ENABLE_BITCODE = NO
+// Bundle Identifier
+PRODUCT_BUNDLE_IDENTIFIER = com.thekkabazar
 
 // Deployment Target
 IPHONEOS_DEPLOYMENT_TARGET = 13.0
 
-// Build Performance
-COMPILER_INDEX_STORE_ENABLE = NO
-SWIFT_INDEX_STORE_ENABLE = NO
+// Optimization Settings
+GCC_OPTIMIZATION_LEVEL = s
+SWIFT_OPTIMIZATION_LEVEL = -O
+SWIFT_COMPILATION_MODE = wholemodule
 
-// Disable unnecessary features for faster builds
+// Disable Bitcode
+ENABLE_BITCODE = NO
+
+// Enable App Transport Security
+ENABLE_APP_TRANSPORT_SECURITY = YES
+
+// Code Signing
+CODE_SIGN_STYLE = Automatic
+DEVELOPMENT_TEAM = 
+
+// Build Settings for Release
 GCC_GENERATE_DEBUGGING_SYMBOLS = NO
+STRIP_INSTALLED_PRODUCT = YES
 COPY_PHASE_STRIP = YES
 
-// Enable parallel builds
-PARALLEL_TARGETS = YES 
+// Enable Dead Code Stripping
+DEAD_CODE_STRIPPING = YES
+
+// Enable Link Time Optimization
+LLVM_LTO = YES
+
+// Swift Compiler Flags
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = RELEASE 

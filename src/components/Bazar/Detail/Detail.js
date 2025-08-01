@@ -11,6 +11,7 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import styles from './DetailStyle';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -458,15 +459,17 @@ const Detail = ({ route, navigation }) => {
   // Show loading state if initial load
   if (status === 'loading' && !allProducts.products) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colors.primary} />
-        <Text style={styles.loadingText}>Loading products...</Text>
-      </View>
+      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={styles.loadingText}>Loading products...</Text>
+        </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <FlatList
         style={styles.flatList}
         ListHeaderComponent={renderHeader}
@@ -487,7 +490,7 @@ const Detail = ({ route, navigation }) => {
         ListFooterComponent={LoadingFooter}
       />
       {renderFilterModal()}
-    </>
+    </SafeAreaView>
   );
 };
 

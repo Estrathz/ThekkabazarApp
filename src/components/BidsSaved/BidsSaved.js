@@ -5,6 +5,7 @@ import {
   Image,
   TouchableOpacity,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useEffect, useState } from 'react';
 import styles from './SaveBidsStyle';
 import Icon3 from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -129,7 +130,7 @@ const BidsSaved = () => {
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <FlatList
         data={filteredBids}
         renderItem={renderItem}
@@ -137,7 +138,7 @@ const BidsSaved = () => {
         ListHeaderComponent={renderHeader}
         contentContainerStyle={styles.listContent}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 

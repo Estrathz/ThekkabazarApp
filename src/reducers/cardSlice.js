@@ -64,13 +64,38 @@ export const fetchTenderListData = createAsyncThunk(
 
 export const fetchOneTenderData = createAsyncThunk(
   'data/fetchOneTenderData',
-  async ({tenderId}) => {
-    const response = await axios.get(
-      `   ${BASE_URL}/tender/apis/tenders/${tenderId}/`,
-    );
+  async ({tenderId}, { rejectWithValue }) => {
+    try {
+      console.log('Fetching tender details for ID:', tenderId);
+      const response = await axios.get(
+        `${BASE_URL}/tender/apis/tenders/${tenderId}/`,
+        {
+          headers: {
+            'accept': 'application/json',
+            'X-CSRFToken': 'bwQJROlt74LsvQqQuOi10XS8WEyGPgpVSfLN7HfQbsFEAu5NMRk3KkYuNsIenqFO'
+          }
+        }
+      );
 
-    const data = response.data;
-    return data;
+      const data = response.data;
+      console.log('Tender details fetched:', data);
+      return data;
+    } catch (error) {
+      console.error('API Error:', error);
+      
+      if (error.response?.status === 404) {
+        return rejectWithValue({
+          message: 'Tender not found',
+          status: 404
+        });
+      }
+
+      return rejectWithValue({
+        message: error.response?.data?.message || 'Failed to fetch tender details',
+        status: error.response?.status || 500,
+        response: error.response?.data
+      });
+    }
   },
 );
 
@@ -109,13 +134,28 @@ const cardSlice = createSlice({
   name: 'card',
   initialState: {
     data: null,
-    one: [],
+    one: null,
     status: 'idle',
     error: null,
     message: '',
     loading: false,
+    currentId: null,
   },
-  reducers: {},
+  reducers: {
+    clearError: (state) => {
+      state.error = null;
+    },
+    clearData: (state) => {
+      state.data = null;
+      state.one = null;
+      state.currentId = null;
+    },
+    clearSingleTender: (state) => {
+      state.one = null;
+      state.currentId = null;
+      // Don't clear state.data to preserve the list
+    }
+  },
   extraReducers: builder => {
     builder
       .addCase(fetchTenderListData.pending, (state) => {
@@ -134,16 +174,21 @@ const cardSlice = createSlice({
         state.error = action.payload;
         console.error('Tender list error in state:', action.payload);
       })
-      .addCase(fetchOneTenderData.pending, state => {
+      .addCase(fetchOneTenderData.pending, (state, action) => {
         state.status = 'loading';
+        state.error = null;
+        state.currentId = action.meta.arg.tenderId;
       })
       .addCase(fetchOneTenderData.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.one = action.payload;
+        state.error = null;
       })
       .addCase(fetchOneTenderData.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.error.message;
+        state.error = action.payload;
+        state.one = null;
+        state.currentId = null;
       })
       .addCase(savebid.pending, state => {
         state.status = 'loading';
@@ -163,5 +208,7 @@ const cardSlice = createSlice({
       });
   },
 });
+
+export const { clearError, clearData, clearSingleTender } = cardSlice.actions;
 
 export default cardSlice.reducer;

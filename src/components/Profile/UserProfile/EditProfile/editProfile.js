@@ -1,4 +1,5 @@
 import { View, Text, TextInput, ScrollView, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useEffect, useState } from 'react';
 import styles from './editProfileStyle';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -37,7 +38,7 @@ const EditProfile = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       {/* Header Section */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
@@ -91,7 +92,7 @@ const EditProfile = ({ navigation }) => {
           <Custombutton title="Update Profile" onPress={handleProfileUpdate} style={styles.updateButton} />
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 

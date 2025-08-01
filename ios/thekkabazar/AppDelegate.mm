@@ -11,6 +11,11 @@
   // They will be passed down to the ViewController used by React Native.
   self.initialProps = @{};
 
+  // Configure appearance for iOS 13+
+  if (@available(iOS 13.0, *)) {
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
+  }
+
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }
 

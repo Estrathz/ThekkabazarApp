@@ -14,6 +14,7 @@ import {
   ImageBackground,
   ScrollView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import moment from 'moment';
 
@@ -652,11 +653,14 @@ const Home = ({ navigation }) => {
       return;
     }
     
+    // Find the tender data from the current display data
+    const tenderData = displayData.find(item => item.pk === pk);
+    
     // Navigate to different screens based on active filter
     if (activeFilter === 'Result') {
-      navigation.navigate('ResultDetails', { id: pk });
+      navigation.navigate('ResultDetails', { id: pk, tenderData });
     } else {
-      navigation.navigate('HomeDetails', { id: pk });
+      navigation.navigate('HomeDetails', { id: pk, tenderData });
     }
   }, [isAuthenticated, navigation, activeFilter, displayData]);
 
@@ -1064,8 +1068,8 @@ const Home = ({ navigation }) => {
 
     const isResultData = activeFilter === 'Result';
     
-    // Show ad after every 12 items in the filtered data
-    if (index > 0 && index % 12 === 0) {
+    // Show ad after every 20 items in the filtered data (reduced frequency for more compact layout)
+    if (index > 0 && index % 20 === 0) {
       return (
         <>
           <AdSpace />
@@ -1073,76 +1077,76 @@ const Home = ({ navigation }) => {
             <TouchableOpacity onPress={() => openImageModal(item.image)}>
               <Image source={dummyImage} style={styles.image} />
             </TouchableOpacity>
-            <View style={{ padding: 8, flex: 1 }}>
-              <Text
-                numberOfLines={2}
-                style={{ color: '#0375B7', fontSize: 16, fontWeight: 'bold', marginTop: 8 }}
-                onPress={() => handleDetailNavigation(item.pk)}>
-                {item.title || 'Untitled'}
-              </Text>
-              <Text numberOfLines={2} style={{ color: 'black', fontSize: 15 }}>
-                {item.public_entry_name || 'No description available'}
-              </Text>
-              <View style={{ flexDirection: 'row', marginTop: 8 }}>
-                <View style={{ flexDirection: 'row' }}>
-                  <Icon2 name="bag-handle" size={18} color="black" />
-                  <Text style={{ color: 'black', fontSize: 15, fontWeight: 'bold' }}>Service:</Text>
-                </View>
-                {/* ✅ Safe array mapping with null checks */}
-                {item.project_type && Array.isArray(item.project_type) && item.project_type.length > 0 ? (
-                  item.project_type.map((project, projectIndex) => (
-                    <Text key={projectIndex} numberOfLines={2} style={{ color: '#000', flex: 1 }}>
-                      {project?.name || 'Unknown Service'}
-                    </Text>
-                  ))
-                ) : (
-                  <Text style={{ color: '#666', flex: 1 }}>No service specified</Text>
-                )}
+                      <View style={{ padding: 6, flex: 1 }}>
+            <Text
+              numberOfLines={2}
+              style={{ color: '#0375B7', fontSize: 15, fontWeight: 'bold', marginTop: 4 }}
+              onPress={() => handleDetailNavigation(item.pk)}>
+              {item.title || 'Untitled'}
+            </Text>
+            <Text numberOfLines={2} style={{ color: 'black', fontSize: 14, marginTop: 2 }}>
+              {item.public_entry_name || 'No description available'}
+            </Text>
+            <View style={{ flexDirection: 'row', marginTop: 6 }}>
+              <View style={{ flexDirection: 'row' }}>
+                <Icon2 name="bag-handle" size={16} color="black" />
+                <Text style={{ color: 'black', fontSize: 14, fontWeight: 'bold' }}>Service:</Text>
               </View>
-              <View style={{ flexDirection: 'row', marginTop: 8 }}>
-                <View style={{ flexDirection: 'row' }}>
-                  <Icon3 name="update" size={16} color="black" />
-                  <Text style={{ color: 'black', fontSize: 13, fontWeight: 'bold' }}>Published:</Text>
-                </View>
-                <Text style={[styles.CardText, { fontSize: 12, flex: 1 }]}>{item.published_date || 'Date not available'}</Text>
-                {!isResultData && (
-                  <Text style={{ color: '#FF0000', marginRight: 10, fontSize: 11 }}>
-                    {item.days_left || ''}
+              {/* ✅ Safe array mapping with null checks */}
+              {item.project_type && Array.isArray(item.project_type) && item.project_type.length > 0 ? (
+                item.project_type.map((project, projectIndex) => (
+                  <Text key={projectIndex} numberOfLines={2} style={{ color: '#000', flex: 1 }}>
+                    {project?.name || 'Unknown Service'}
                   </Text>
-                )}
-              </View>
-              <View style={{ flexDirection: 'row', marginTop: 8 }}>
-                <View style={{ flexDirection: 'row' }}>
-                  <Icon2 name="newspaper" size={18} color="black" />
-                  <Text style={{ color: 'black', fontSize: 15, fontWeight: 'bold' }}>Source:</Text>
-                </View>
-                <Text style={styles.CardText}>{item.source || 'Unknown Source'}</Text>
-              </View>
-              <View style={{ flexDirection: 'row', marginTop: 8 }}>
-                <View style={{ flexDirection: 'row' }}>
-                  <Icon2 name="location" size={18} color="black" />
-                  <Text style={{ color: 'black', fontSize: 15, fontWeight: 'bold' }}>Location:</Text>
-                </View>
-                {/* ✅ Safe array mapping with null checks */}
-                {item.district && Array.isArray(item.district) && item.district.length > 0 ? (
-                  item.district.map((loc, locIndex) => (
-                    <Text key={locIndex} numberOfLines={2} style={{ color: '#000', flex: 1, marginLeft: 5 }}>
-                      {loc?.name || 'Unknown Location'}
-                    </Text>
-                  ))
-                ) : (
-                  <Text style={{ color: '#666', flex: 1, marginLeft: 5 }}>Location not specified</Text>
-                )}
-              </View>
-              {!isResultData && (
-                <View style={{ justifyContent: 'flex-end', alignItems: 'center' }}>
-                  <TouchableOpacity onPress={() => handleSaveBids(item.pk)} style={styles.cusBottom}>
-                    <Icon2 name="save-outline" size={20} color="#000" />
-                    <Text style={{ color: '#000', fontSize: 15 }}>Save Bids</Text>
-                  </TouchableOpacity>
-                </View>
+                ))
+              ) : (
+                <Text style={{ color: '#666', flex: 1 }}>No service specified</Text>
               )}
             </View>
+            <View style={{ flexDirection: 'row', marginTop: 6 }}>
+              <View style={{ flexDirection: 'row' }}>
+                <Icon3 name="update" size={14} color="black" />
+                <Text style={{ color: 'black', fontSize: 12, fontWeight: 'bold' }}>Published:</Text>
+              </View>
+              <Text style={[styles.CardText, { fontSize: 11, flex: 1 }]}>{item.published_date || 'Date not available'}</Text>
+              {!isResultData && (
+                <Text style={{ color: '#FF0000', marginRight: 10, fontSize: 10 }}>
+                  {item.days_left || ''}
+                </Text>
+              )}
+            </View>
+            <View style={{ flexDirection: 'row', marginTop: 6 }}>
+              <View style={{ flexDirection: 'row' }}>
+                <Icon2 name="newspaper" size={16} color="black" />
+                <Text style={{ color: 'black', fontSize: 14, fontWeight: 'bold' }}>Source:</Text>
+              </View>
+              <Text style={styles.CardText}>{item.source || 'Unknown Source'}</Text>
+            </View>
+            <View style={{ flexDirection: 'row', marginTop: 6 }}>
+              <View style={{ flexDirection: 'row' }}>
+                <Icon2 name="location" size={16} color="black" />
+                <Text style={{ color: 'black', fontSize: 14, fontWeight: 'bold' }}>Location:</Text>
+              </View>
+              {/* ✅ Safe array mapping with null checks */}
+              {item.district && Array.isArray(item.district) && item.district.length > 0 ? (
+                item.district.map((loc, locIndex) => (
+                  <Text key={locIndex} numberOfLines={2} style={{ color: '#000', flex: 1, marginLeft: 5 }}>
+                    {loc?.name || 'Unknown Location'}
+                  </Text>
+                ))
+              ) : (
+                <Text style={{ color: '#666', flex: 1, marginLeft: 5 }}>Location not specified</Text>
+              )}
+            </View>
+            {!isResultData && (
+              <View style={{ justifyContent: 'flex-end', alignItems: 'center', marginTop: 4 }}>
+                <TouchableOpacity onPress={() => handleSaveBids(item.pk)} style={styles.cusBottom}>
+                  <Icon2 name="save-outline" size={18} color="#000" />
+                  <Text style={{ color: '#000', fontSize: 14 }}>Save Bids</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
           </View>
         </>
       );
@@ -1153,20 +1157,20 @@ const Home = ({ navigation }) => {
         <TouchableOpacity onPress={() => openImageModal(item.image)}>
           <Image source={dummyImage} style={styles.image} />
         </TouchableOpacity>
-        <View style={{ padding: 8, flex: 1 }}>
+        <View style={{ padding: 6, flex: 1 }}>
           <Text
             numberOfLines={2}
-            style={{ color: '#0375B7', fontSize: 16, fontWeight: 'bold', marginTop: 8 }}
+            style={{ color: '#0375B7', fontSize: 15, fontWeight: 'bold', marginTop: 4 }}
             onPress={() => handleDetailNavigation(item.pk)}>
             {item.title || 'Untitled'}
           </Text>
-          <Text numberOfLines={2} style={{ color: 'black', fontSize: 15 }}>
+          <Text numberOfLines={2} style={{ color: 'black', fontSize: 14, marginTop: 2 }}>
             {item.public_entry_name || 'No description available'}
           </Text>
-          <View style={{ flexDirection: 'row', marginTop: 8 }}>
+          <View style={{ flexDirection: 'row', marginTop: 6 }}>
             <View style={{ flexDirection: 'row' }}>
-              <Icon2 name="bag-handle" size={18} color="black" />
-              <Text style={{ color: 'black', fontSize: 15, fontWeight: 'bold' }}>Service:</Text>
+              <Icon2 name="bag-handle" size={16} color="black" />
+              <Text style={{ color: 'black', fontSize: 14, fontWeight: 'bold' }}>Service:</Text>
             </View>
             {/* ✅ Safe array mapping with null checks */}
             {item.project_type && Array.isArray(item.project_type) && item.project_type.length > 0 ? (
@@ -1179,29 +1183,29 @@ const Home = ({ navigation }) => {
               <Text style={{ color: '#666', flex: 1 }}>No service specified</Text>
             )}
           </View>
-          <View style={{ flexDirection: 'row', marginTop: 8 }}>
+          <View style={{ flexDirection: 'row', marginTop: 6 }}>
             <View style={{ flexDirection: 'row' }}>
-              <Icon3 name="update" size={16} color="black" />
-              <Text style={{ color: 'black', fontSize: 13, fontWeight: 'bold' }}>Published:</Text>
+              <Icon3 name="update" size={14} color="black" />
+              <Text style={{ color: 'black', fontSize: 12, fontWeight: 'bold' }}>Published:</Text>
             </View>
-            <Text style={[styles.CardText, { fontSize: 12, flex: 1 }]}>{item.published_date || 'Date not available'}</Text>
+            <Text style={[styles.CardText, { fontSize: 11, flex: 1 }]}>{item.published_date || 'Date not available'}</Text>
             {!isResultData && (
-              <Text style={{ color: '#FF0000', marginRight: 10, fontSize: 11 }}>
+              <Text style={{ color: '#FF0000', marginRight: 10, fontSize: 10 }}>
                 {item.days_left || ''}
               </Text>
             )}
           </View>
-          <View style={{ flexDirection: 'row', marginTop: 8 }}>
+          <View style={{ flexDirection: 'row', marginTop: 6 }}>
             <View style={{ flexDirection: 'row' }}>
-              <Icon2 name="newspaper" size={18} color="black" />
-              <Text style={{ color: 'black', fontSize: 15, fontWeight: 'bold' }}>Source:</Text>
+              <Icon2 name="newspaper" size={16} color="black" />
+              <Text style={{ color: 'black', fontSize: 14, fontWeight: 'bold' }}>Source:</Text>
             </View>
             <Text style={styles.CardText}>{item.source || 'Unknown Source'}</Text>
           </View>
-          <View style={{ flexDirection: 'row', marginTop: 8 }}>
+          <View style={{ flexDirection: 'row', marginTop: 6 }}>
             <View style={{ flexDirection: 'row' }}>
-              <Icon2 name="location" size={18} color="black" />
-              <Text style={{ color: 'black', fontSize: 15, fontWeight: 'bold' }}>Location:</Text>
+              <Icon2 name="location" size={16} color="black" />
+              <Text style={{ color: 'black', fontSize: 14, fontWeight: 'bold' }}>Location:</Text>
             </View>
             {/* ✅ Safe array mapping with null checks */}
             {item.district && Array.isArray(item.district) && item.district.length > 0 ? (
@@ -1215,10 +1219,10 @@ const Home = ({ navigation }) => {
             )}
           </View>
           {!isResultData && (
-            <View style={{ justifyContent: 'flex-end', alignItems: 'center' }}>
+            <View style={{ justifyContent: 'flex-end', alignItems: 'center', marginTop: 4 }}>
               <TouchableOpacity onPress={() => handleSaveBids(item.pk)} style={styles.cusBottom}>
-                <Icon2 name="save-outline" size={20} color="#000" />
-                <Text style={{ color: '#000', fontSize: 15 }}>Save Bids</Text>
+                <Icon2 name="save-outline" size={18} color="#000" />
+                <Text style={{ color: '#000', fontSize: 14 }}>Save Bids</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -1227,19 +1231,19 @@ const Home = ({ navigation }) => {
     );
   }, [handleDetailNavigation, handleSaveBids, openImageModal, activeFilter]);
 
-  // Improved FlatList props with better empty state handling
+  // Improved FlatList props with better empty state handling and optimized performance
   const flatListProps = useMemo(() => ({
     data: displayData,
     renderItem,
     keyExtractor: item => item.pk?.toString() || Math.random().toString(),
     onEndReached: handleEndReached,
-    onEndReachedThreshold: 0.5,
+    onEndReachedThreshold: 0.3, // Reduced from 0.5 for better performance
     refreshControl: <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />,
     removeClippedSubviews: true,
-    maxToRenderPerBatch: 50,
-    windowSize: 5,
-    initialNumToRender: 50,
-    updateCellsBatchingPeriod: 100,
+    maxToRenderPerBatch: 30, // Reduced from 50 for better performance
+    windowSize: 3, // Reduced from 5 for better memory usage
+    initialNumToRender: 20, // Reduced from 50 for faster initial load
+    updateCellsBatchingPeriod: 50, // Reduced from 100 for more responsive updates
     maintainVisibleContentPosition: {
       minIndexForVisible: 0,
       autoscrollToTopThreshold: 10,
@@ -1395,11 +1399,12 @@ const Home = ({ navigation }) => {
 
 
   return (
-    <View style={styles.HomeContainer}>
-      <View style={{ flex: 1 }}>
+    <SafeAreaView style={styles.HomeContainer} edges={['top']}>
+      <View style={{ flex: 1, paddingBottom: 10 }}>
         <FlatList
           {...flatListProps}
           ListHeaderComponent={ListHeaderComponent}
+          contentContainerStyle={{ paddingBottom: 20 }}
         />
       </View>
 
@@ -1421,7 +1426,7 @@ const Home = ({ navigation }) => {
       </Modal>
 
       {renderImageModal()}
-    </View>
+    </SafeAreaView>
   );
 };
 

@@ -1,6 +1,7 @@
 import {StyleSheet} from 'react-native';
 import {colors, fonts} from '../../theme';
 import {wp, hp, normalize, spacing, deviceInfo} from '../../utils/responsive';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const styles = StyleSheet.create({
   HomeContainer: {
@@ -11,9 +12,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    minHeight: hp(8), // Responsive height
+    paddingHorizontal: spacing.md, // Reduced from lg
+    paddingVertical: spacing.sm, // Reduced from md
+    minHeight: hp(6), // Reduced from 8
     backgroundColor: colors.background,
   },
   iconsContainer: {
@@ -29,7 +30,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
-    marginLeft: spacing.lg,
+    marginLeft: spacing.md, // Reduced from lg
   },
   searchSection: {
     flexDirection: 'row',
@@ -37,18 +38,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: wp(2.5),
     flex: 1,
-    height: hp(5.5),
+    height: hp(4.5), // Reduced from 5.5
     borderColor: colors.gray,
     borderWidth: 1,
     paddingRight: spacing.sm,
     marginRight: spacing.sm,
   },
   searchIcon: {
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: spacing.sm, // Reduced from md
   },
   searchTextInput: {
     flex: 1,
-    height: hp(5.5),
+    height: hp(4.5), // Reduced from 5.5
     fontSize: normalize(16),
     color: '#333',
     paddingRight: spacing.sm,
@@ -60,7 +61,7 @@ const styles = StyleSheet.create({
   },
   filterButton: {
     width: wp(12),
-    height: hp(5.5),
+    height: hp(4.5), // Reduced from 5.5
     borderRadius: wp(2.5),
     backgroundColor: '#fff',
     borderColor: colors.gray,
@@ -208,7 +209,7 @@ const styles = StyleSheet.create({
     borderRadius: wp(3),
     borderWidth: 1.5,
     borderColor: '#E1E5E9',
-    marginBottom: hp(2),
+    marginBottom: hp(1.5), // Reduced from 2
     paddingHorizontal: spacing.lg,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -315,13 +316,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 10,
   },
-  // Card styles with responsive dimensions
+  // Card styles with reduced margins for more compact layout
   Card: {
     backgroundColor: colors.white,
     flexDirection: 'row',
-    marginHorizontal: spacing.md,
-    marginVertical: spacing.sm,
-    padding: spacing.md,
+    marginHorizontal: spacing.sm, // Reduced from md
+    marginVertical: spacing.xs, // Reduced from sm
+    padding: spacing.sm, // Reduced from md
     borderRadius: wp(2.5),
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.25,
@@ -329,8 +330,8 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   image: {
-    height: hp(deviceInfo.isTablet ? 20 : 25),
-    width: wp(deviceInfo.isTablet ? 20 : 25),
+    height: hp(deviceInfo.isTablet ? 18 : 22), // Reduced from 20:25
+    width: wp(deviceInfo.isTablet ? 18 : 22), // Reduced from 20:25
     resizeMode: 'contain',
   },
   CardText: {
@@ -355,8 +356,8 @@ const styles = StyleSheet.create({
     width: '40%',
     backgroundColor: colors.white,
     borderRadius: wp(2),
-    marginTop: hp(2.5),
-    height: hp(4.5),
+    marginTop: hp(2), // Reduced from 2.5
+    height: hp(4), // Reduced from 4.5
     borderWidth: 1,
     borderColor: colors.gray,
     shadowOffset: {width: 1, height: 2},
@@ -385,7 +386,7 @@ const styles = StyleSheet.create({
     borderRadius: wp(3),
     borderWidth: 1.5,
     borderColor: '#E1E5E9',
-    marginBottom: hp(2),
+    marginBottom: hp(1.5), // Reduced from 2
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     shadowColor: '#000',
@@ -424,7 +425,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.xl,
-    minHeight: hp(50),
+    minHeight: hp(40), // Reduced from 50
   },
   emptyContent: {
     alignItems: 'center',
@@ -494,7 +495,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.xl,
-    minHeight: hp(40),
+    minHeight: hp(30), // Reduced from 40
   },
   errorText: {
     fontSize: normalize(16),
@@ -522,7 +523,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   loadingMore: {
-    paddingVertical: 20,
+    paddingVertical: 15, // Reduced from 20
     alignItems: 'center',
   },
   loadingMoreText: {
@@ -536,8 +537,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.xl,
-    minHeight: hp(40),
-    paddingVertical: hp(10),
+    minHeight: hp(30), // Reduced from 40
+    paddingVertical: hp(8), // Reduced from 10
   },
   loadingText: {
     color: '#666',
@@ -550,7 +551,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', // Always side by side
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: hp(3),
+    marginTop: hp(2), // Reduced from 3
     gap: spacing.sm,
     paddingTop: spacing.md,
     borderTopWidth: 1,
@@ -604,8 +605,8 @@ const styles = StyleSheet.create({
     zIndex: 10, // Ensure date picker appears above other elements
   },
   adContainer: {
-    marginVertical: spacing.md,
-    marginHorizontal: spacing.lg,
+    marginVertical: spacing.sm, // Reduced from md
+    marginHorizontal: spacing.md, // Reduced from lg
     borderRadius: wp(2),
     overflow: 'hidden',
     elevation: 3,
@@ -616,7 +617,7 @@ const styles = StyleSheet.create({
   },
   adImage: {
     width: '100%',
-    height: hp(deviceInfo.isTablet ? 8 : 12),
+    height: hp(deviceInfo.isTablet ? 6 : 8), // Reduced from 8:12
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -630,17 +631,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  // Filter buttons - compact rectangular design
+  // Filter buttons - more compact design
   filterSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: hp(1.5), // Increased to prevent button cutoff
+    paddingVertical: hp(1), // Reduced from 1.5
     paddingHorizontal: spacing.sm,
     backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#E5E5E5',
-    minHeight: hp(deviceInfo.isTablet ? 7.5 : 6.5), // Increased to accommodate buttons
-    maxHeight: hp(deviceInfo.isTablet ? 9 : 8), // Increased to prevent cutoff
+    minHeight: hp(deviceInfo.isTablet ? 6 : 5), // Reduced from 7.5:6.5
+    maxHeight: hp(deviceInfo.isTablet ? 7 : 6), // Reduced from 9:8
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.06,
@@ -655,8 +656,8 @@ const styles = StyleSheet.create({
   filterScrollContainer: {
     alignItems: 'center',
     paddingHorizontal: spacing.xs,
-    minHeight: hp(deviceInfo.isTablet ? 6 : 5), // Increased to prevent button cutoff
-    paddingVertical: hp(0.5), // Added vertical padding for buttons
+    minHeight: hp(deviceInfo.isTablet ? 5 : 4), // Reduced from 6:5
+    paddingVertical: hp(0.3), // Reduced from 0.5
   },
   filterActionContainer: {
     flexDirection: 'row',
@@ -798,9 +799,9 @@ const styles = StyleSheet.create({
       borderRadius: wp(4),
     },
     filterSection: {
-      paddingVertical: hp(2), // Increased to prevent button cutoff on tablets
+      paddingVertical: hp(1.5), // Reduced from 2
       paddingHorizontal: spacing.lg,
-      minHeight: hp(9), // Increased to accommodate tablet buttons
+      minHeight: hp(7), // Reduced from 9
     },
     filterButton: {
       paddingHorizontal: wp(4.2), // Increased by 5% from wp(4)

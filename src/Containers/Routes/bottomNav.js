@@ -195,17 +195,29 @@ const BottomNav = () => {
             return (
               <Icon
                 name={focused ? 'home' : 'home-outline'}
-                size={25}
+                size={28}
                 color={color}
               />
             );
           },
           tabBarActiveTintColor: '#0375B7',
           headerBackTitleVisible: false,
-          tabBarInactiveTintColor: 'gray',
-          tabBarLabelStyle: {fontSize: normalize(12), marginTop: deviceInfo.isTablet ? 4 : 2},
-          tabBarIconStyle: {marginTop: deviceInfo.isTablet ? 4 : 2},
-          tabBarStyle: {height: deviceInfo.isTablet ? 70 : 60, paddingBottom: deviceInfo.isTablet ? 10 : 5, paddingTop: deviceInfo.isTablet ? 10 : 5},
+          tabBarInactiveTintColor: '#8E8E93',
+          tabBarLabelStyle: {fontSize: normalize(14), marginTop: deviceInfo.isTablet ? 4 : 3, fontWeight: '600'}, // Increased from 12 and added fontWeight
+          tabBarIconStyle: {marginTop: deviceInfo.isTablet ? 4 : 3}, // Increased from 2:1
+          tabBarStyle: {
+            height: deviceInfo.isTablet ? 85 : 75, // Increased from 65:55
+            paddingBottom: deviceInfo.isTablet ? 12 : 8, // Increased from 8:4
+            paddingTop: deviceInfo.isTablet ? 12 : 8, // Increased from 8:4
+            backgroundColor: '#FFFFFF',
+            borderTopWidth: 2,
+            borderTopColor: '#E0E0E0',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: -3 },
+            shadowOpacity: 0.15,
+            shadowRadius: 6,
+            elevation: 8,
+          },
           unmountOnBlur: true,
         }}
       />
@@ -218,17 +230,29 @@ const BottomNav = () => {
                           return (
                 <Icon
                   name={focused ? 'document-text' : 'document-text-outline'}
-                  size={25}
+                  size={28}
                   color={color}
                 />
               );
           },
           tabBarActiveTintColor: '#0375B7',
           headerBackTitleVisible: false,
-          tabBarInactiveTintColor: 'gray',
-          tabBarLabelStyle: {fontSize: normalize(12), marginTop: deviceInfo.isTablet ? 4 : 2},
-          tabBarIconStyle: {marginTop: deviceInfo.isTablet ? 4 : 2},
-          tabBarStyle: {height: deviceInfo.isTablet ? 70 : 60, paddingBottom: deviceInfo.isTablet ? 10 : 5, paddingTop: deviceInfo.isTablet ? 10 : 5},
+          tabBarInactiveTintColor: '#8E8E93',
+          tabBarLabelStyle: {fontSize: normalize(14), marginTop: deviceInfo.isTablet ? 4 : 3, fontWeight: '600'}, // Increased from 12 and added fontWeight
+          tabBarIconStyle: {marginTop: deviceInfo.isTablet ? 4 : 3}, // Increased from 2:1
+          tabBarStyle: {
+            height: deviceInfo.isTablet ? 85 : 75, // Increased from 65:55
+            paddingBottom: deviceInfo.isTablet ? 12 : 8, // Increased from 8:4
+            paddingTop: deviceInfo.isTablet ? 12 : 8, // Increased from 8:4
+            backgroundColor: '#FFFFFF',
+            borderTopWidth: 2,
+            borderTopColor: '#E0E0E0',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: -3 },
+            shadowOpacity: 0.15,
+            shadowRadius: 6,
+            elevation: 8,
+          },
           unmountOnBlur: true,
         }}
       />
@@ -241,17 +265,29 @@ const BottomNav = () => {
             return (
               <Icon
                 name={focused ? 'business' : 'business-outline'}
-                size={25}
+                size={28}
                 color={color}
               />
             );
           },
           tabBarActiveTintColor: '#0375B7',
           headerBackTitleVisible: false,
-          tabBarInactiveTintColor: 'gray',
-          tabBarLabelStyle: {fontSize: normalize(12), marginTop: deviceInfo.isTablet ? 4 : 2},
-          tabBarIconStyle: {marginTop: deviceInfo.isTablet ? 4 : 2},
-          tabBarStyle: {height: deviceInfo.isTablet ? 70 : 60, paddingBottom: deviceInfo.isTablet ? 10 : 5, paddingTop: deviceInfo.isTablet ? 10 : 5},
+          tabBarInactiveTintColor: '#8E8E93',
+          tabBarLabelStyle: {fontSize: normalize(14), marginTop: deviceInfo.isTablet ? 4 : 3, fontWeight: '600'}, // Increased from 12 and added fontWeight
+          tabBarIconStyle: {marginTop: deviceInfo.isTablet ? 4 : 3}, // Increased from 2:1
+          tabBarStyle: {
+            height: deviceInfo.isTablet ? 85 : 75, // Increased from 65:55
+            paddingBottom: deviceInfo.isTablet ? 12 : 8, // Increased from 8:4
+            paddingTop: deviceInfo.isTablet ? 12 : 8, // Increased from 8:4
+            backgroundColor: '#FFFFFF',
+            borderTopWidth: 2,
+            borderTopColor: '#E0E0E0',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: -3 },
+            shadowOpacity: 0.15,
+            shadowRadius: 6,
+            elevation: 8,
+          },
           unmountOnBlur: true,
         }}
       />
@@ -264,17 +300,29 @@ const BottomNav = () => {
             return (
               <Icon
                 name={focused ? 'briefcase' : 'briefcase-outline'}
-                size={25}
+                size={28}
                 color={color}
               />
             );
           },
           tabBarActiveTintColor: '#0375B7',
           headerBackTitleVisible: false,
-          tabBarInactiveTintColor: 'gray',
-          tabBarLabelStyle: {fontSize: normalize(12), marginTop: deviceInfo.isTablet ? 4 : 2},
-          tabBarIconStyle: {marginTop: deviceInfo.isTablet ? 4 : 2},
-          tabBarStyle: {height: deviceInfo.isTablet ? 70 : 60, paddingBottom: deviceInfo.isTablet ? 10 : 5, paddingTop: deviceInfo.isTablet ? 10 : 5},
+          tabBarInactiveTintColor: '#8E8E93',
+          tabBarLabelStyle: {fontSize: normalize(14), marginTop: deviceInfo.isTablet ? 4 : 3, fontWeight: '600'}, // Increased from 12 and added fontWeight
+          tabBarIconStyle: {marginTop: deviceInfo.isTablet ? 4 : 3}, // Increased from 2:1
+          tabBarStyle: {
+            height: deviceInfo.isTablet ? 85 : 75, // Increased from 65:55
+            paddingBottom: deviceInfo.isTablet ? 12 : 8, // Increased from 8:4
+            paddingTop: deviceInfo.isTablet ? 12 : 8, // Increased from 8:4
+            backgroundColor: '#FFFFFF',
+            borderTopWidth: 2,
+            borderTopColor: '#E0E0E0',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: -3 },
+            shadowOpacity: 0.15,
+            shadowRadius: 6,
+            elevation: 8,
+          },
           unmountOnBlur: true,
         }}
       />
@@ -287,17 +335,29 @@ const BottomNav = () => {
             return (
               <Icon
                 name={focused ? 'person' : 'person-outline'}
-                size={25}
+                size={28}
                 color={color}
               />
             );
           },
           tabBarActiveTintColor: '#0375B7',
           headerBackTitleVisible: false,
-          tabBarInactiveTintColor: 'gray',
-          tabBarLabelStyle: {fontSize: normalize(12), marginTop: deviceInfo.isTablet ? 4 : 2},
-          tabBarIconStyle: {marginTop: deviceInfo.isTablet ? 4 : 2},
-          tabBarStyle: {height: deviceInfo.isTablet ? 70 : 60, paddingBottom: deviceInfo.isTablet ? 10 : 5, paddingTop: deviceInfo.isTablet ? 10 : 5},
+          tabBarInactiveTintColor: '#8E8E93',
+          tabBarLabelStyle: {fontSize: normalize(14), marginTop: deviceInfo.isTablet ? 4 : 3, fontWeight: '600'}, // Increased from 12 and added fontWeight
+          tabBarIconStyle: {marginTop: deviceInfo.isTablet ? 4 : 3}, // Increased from 2:1
+          tabBarStyle: {
+            height: deviceInfo.isTablet ? 85 : 75, // Increased from 65:55
+            paddingBottom: deviceInfo.isTablet ? 12 : 8, // Increased from 8:4
+            paddingTop: deviceInfo.isTablet ? 12 : 8, // Increased from 8:4
+            backgroundColor: '#FFFFFF',
+            borderTopWidth: 2,
+            borderTopColor: '#E0E0E0',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: -3 },
+            shadowOpacity: 0.15,
+            shadowRadius: 6,
+            elevation: 8,
+          },
           unmountOnBlur: true,
         }}
       />

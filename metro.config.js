@@ -26,16 +26,16 @@ const config = {
   // Optimize bundle for production
   maxWorkers: require('os').cpus().length,
   resetCache: false,
-  // Enable caching for faster builds
-  cacheStores: [
-    {
-      name: 'metro-cache',
-      type: 'file',
-      options: {
-        root: require('path').join(__dirname, 'node_modules', '.cache', 'metro'),
-      },
-    },
-  ],
+  // Remove custom cache configuration to use default
+  // cacheStores: [
+  //   {
+  //     name: 'metro-cache',
+  //     type: 'file',
+  //     options: {
+  //       root: require('path').join(__dirname, 'node_modules', '.cache', 'metro'),
+  //     },
+  //   },
+  // ],
 };
 
 module.exports = mergeConfig(getDefaultConfig(__dirname), config);

@@ -210,18 +210,18 @@ const BottomNav = () => {
         }}
       />
       <Tab.Screen
-        name="About Us"
+        name="BizTax"
         component={AboutUsStackScreen}
         options={{
           headerShown: false,
           tabBarIcon: ({focused, color}) => {
-            return (
-              <Icon
-                name={focused ? 'information-circle' : 'information-circle-outline'}
-                size={25}
-                color={color}
-              />
-            );
+                          return (
+                <Icon
+                  name={focused ? 'document-text' : 'document-text-outline'}
+                  size={25}
+                  color={color}
+                />
+              );
           },
           tabBarActiveTintColor: '#0375B7',
           headerBackTitleVisible: false,

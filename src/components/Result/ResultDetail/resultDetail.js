@@ -24,7 +24,7 @@ import styles from './resultdetailStyle';
 
 const Detail = ({ route, navigation }) => {
   const dispatch = useDispatch();
-  const { one: items, error: apiError, loading: cardLoading } = useSelector(state => state.result);
+  const { one: items, error: apiError, loading: cardLoading, currentId } = useSelector(state => state.result);
   const { width } = useWindowDimensions();
   const { tenderData } = route.params;
   const [downloadModal, setDownloadModal] = useState(false);

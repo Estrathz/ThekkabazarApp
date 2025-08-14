@@ -1,68 +1,109 @@
 import {StyleSheet} from 'react-native';
-import {colors, fonts} from '../../theme';
+import {colors, fonts as themeFonts} from '../../theme';
+import {wp, hp, normalize, spacing, deviceInfo} from '../../utils/responsive';
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
   container: {
     flex: 1,
     backgroundColor: colors.background,
-    padding: 10,
   },
-  Barline: {
-    // backgroundColor: '#0F9E1D',
-    backgroundColor: colors.primary,
-    height: 20,
-    borderRadius: 20,
-    marginTop: 10,
-    shadowColor: 'black',
-    shadowOffset: {width: 3, height: 2},
-    shadowOpacity: 1,
-    shadowRadius: 8,
+  scrollContainer: {
+    flex: 1,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+  },
+  registerForm: {
+    backgroundColor: colors.white,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.xl,
+    minHeight: hp(deviceInfo.isTablet ? 60 : 70), // Responsive height
+    borderRadius: wp(2.5),
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
     elevation: 5,
   },
-  heading: {
-    color: colors.black,
-    fontSize: 20,
-    fontFamily: fonts.regular,
-    marginLeft: 10,
-    alignSelf: 'center',
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: hp(1.5),
   },
-  loginCard: {
-    backgroundColor: colors.white,
-    padding: 10,
-    borderRadius: 10,
-    marginTop: 4,
-    marginBottom: 10,
-  },
-  loginHeading: {
+  titletext: {
+    fontSize: normalize(25),
+    marginLeft: spacing.sm,
     color: colors.black,
-    fontSize: 20,
-    fontFamily: fonts.regular,
     fontWeight: 'bold',
-    marginTop: 15,
+    fontFamily: themeFonts.regular,
+  },
+  subtitle: {
+    fontSize: normalize(16),
+    marginBottom: hp(2.5),
+    color: colors.black,
+    textAlign: 'center',
+    fontFamily: themeFonts.regular,
+  },
+  sectionContainer: {
+    marginBottom: hp(3),
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: hp(1.5),
+  },
+  sectionTitle: {
+    fontSize: normalize(18),
+    marginLeft: spacing.sm,
+    color: colors.black,
+    fontWeight: '800',
+    fontFamily: themeFonts.medium,
   },
   input: {
-    backgroundColor: colors.background,
-    height: 56,
-    marginTop: 10,
-    borderRadius: 8,
-    padding: 10,
+    height: hp(7),
+    borderColor: colors.gray,
+    borderWidth: 1,
+    borderRadius: wp(2.5),
+    marginBottom: hp(1.3),
+    paddingHorizontal: spacing.md,
+    fontSize: normalize(16),
     color: colors.black,
-    shadowColor: 'black',
-    shadowOffset: {width: 3, height: 2},
-    shadowOpacity: 1,
-    shadowRadius: 8,
-    elevation: 5,
+    backgroundColor: colors.white,
   },
   loadingContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 20,
+    paddingVertical: hp(2.5),
   },
   loadingText: {
-    marginTop: 10,
-    fontSize: 16,
+    marginTop: hp(1.3),
+    fontSize: normalize(16),
     color: colors.primary,
-    fontFamily: fonts.regular,
+    fontFamily: themeFonts.regular,
+  },
+  lineform: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#AAABAB',
+    marginTop: hp(4),
+  },
+  textContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: hp(2.5),
+  },
+  text6: {
+    fontSize: normalize(16),
+    color: colors.black,
+    fontFamily: themeFonts.regular,
+  },
+  text7: {
+    fontSize: normalize(16),
+    color: colors.primary,
+    fontFamily: themeFonts.medium,
   },
 });
 

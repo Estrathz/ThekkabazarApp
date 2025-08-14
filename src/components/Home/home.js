@@ -35,7 +35,7 @@ import ImageZoomViewer from 'react-native-image-zoom-viewer';
 
 // Redux Actions
 import { fetchDropdownData } from '../../reducers/dropdownSlice';
-import { fetchTenderListData, savebid } from '../../reducers/cardSlice';
+import { fetchTenderListData, savebid, searchTenderData } from '../../reducers/cardSlice';
 import { fetchresultData } from '../../reducers/resultSlice';
 
 // Styles and Utils
@@ -181,7 +181,6 @@ const Home = ({ navigation }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
   const [searchText, setSearchText] = useState('');
-  const [debouncedSearchText, setDebouncedSearchText] = useState('');
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
   const [isRetrying, setIsRetrying] = useState(false);
@@ -205,15 +204,6 @@ const Home = ({ navigation }) => {
 
   // Dummy image path
   const dummyImage = require('../../assets/dummy-image.png');
-
-  // Debounce search text for performance
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchText(searchText);
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [searchText]);
 
   // Initial data loading
   useEffect(() => {
@@ -270,37 +260,63 @@ const Home = ({ navigation }) => {
     }, [dispatch, activeFilter, data?.data, resultData?.data, hasActiveFilters, filtersJustApplied])
   );
 
-  // Optimized keyword search function
-  const searchByKeywords = useCallback((items, searchText) => {
+  // Server-side search function
+  const performServerSideSearch = useCallback(async (searchText, pageNum = 1) => {
     if (!searchText || searchText.trim() === '' || searchText.trim().length < 2) {
-      return items;
+      return;
     }
     
-    const searchLower = searchText.toLowerCase().trim();
-    
-    return items.filter(item => {
-      // Quick checks first (most common matches)
-      if ((item.title || '').toLowerCase().includes(searchLower)) return true;
-      if ((item.public_entry_name || '').toLowerCase().includes(searchLower)) return true;
-      if ((item.source || '').toLowerCase().includes(searchLower)) return true;
+    try {
+      setIsSearching(true);
+      setRefreshing(true);
       
-      // Check project types
-      if (item.project_type && Array.isArray(item.project_type)) {
-        for (const pt of item.project_type) {
-          if ((pt?.name || '').toLowerCase().includes(searchLower)) return true;
-        }
+      const searchParams = {
+        searchText: searchText.trim(),
+        page: pageNum,
+        page_size: 50,
+        activeFilter,
+        ...filters,
+        ...(useCustomDate && { published_date: moment(date).format('YYYY-MM-DD') })
+      };
+      
+      // Call the search API
+      if (activeFilter === 'Result') {
+        await dispatch(fetchresultData(searchParams));
+      } else if (activeFilter === 'All') {
+        await Promise.all([
+          dispatch(searchTenderData(searchParams)),
+          dispatch(fetchresultData(searchParams))
+        ]);
+      } else {
+        await dispatch(searchTenderData(searchParams));
       }
       
-      // Check districts
-      if (item.district && Array.isArray(item.district)) {
-        for (const d of item.district) {
-          if ((d?.name || '').toLowerCase().includes(searchLower)) return true;
-        }
+    } catch (err) {
+      Toast.show({
+        type: 'error',
+        text1: 'Search Error',
+        text2: 'Failed to perform search. Please try again.',
+        visibilityTime: 3000,
+      });
+    } finally {
+      setRefreshing(false);
+      setIsSearching(false);
+    }
+  }, [dispatch, activeFilter, filters, useCustomDate, date]);
+
+  // Debounced search with server-side API call
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchText && searchText.trim() !== '') {
+        performServerSideSearch(searchText, 1);
+      } else {
+        // If search is cleared, fetch data without search
+        fetchData(1, true);
       }
-      
-      return false;
-    });
-  }, []);
+    }, 500); // Increased debounce time for server-side search
+
+    return () => clearTimeout(timer);
+  }, [searchText, performServerSideSearch, fetchData]);
 
   // Simple data display logic with proper empty results handling
   const displayData = useMemo(() => {
@@ -333,13 +349,10 @@ const Home = ({ navigation }) => {
       baseData = (data?.data || []).filter(item => item.source !== 'PPMO/EGP');
     }
     
-    // Step 3: Apply search if there's debounced search text
-    if (debouncedSearchText && debouncedSearchText.trim() !== '') {
-      return searchByKeywords(baseData, debouncedSearchText);
-    }
-    
+    // Step 3: Server-side search handles the filtering, so just return the base data
+    // The API will return filtered results based on search parameters
     return baseData;
-  }, [data?.data, data?.count, resultData?.data, resultData?.count, activeFilter, debouncedSearchText, searchByKeywords, hasActiveFilters]);
+  }, [data?.data, data?.count, resultData?.data, resultData?.count, activeFilter, hasActiveFilters]);
 
   // Data updates handling - displayData now handles all filtering automatically
   // No need for allData state updates since displayData useMemo provides the final data
@@ -473,11 +486,10 @@ const Home = ({ navigation }) => {
 
 
 
-  // Search text change handler - immediate UI update (client-side only, no loading states)
+  // Search text change handler - triggers server-side search
   const handleSearchChange = useCallback((text) => {
     setSearchText(text);
-    // Note: This is client-side search only, no API calls or loading states needed
-    // The displayData useMemo will automatically filter results based on debouncedSearchText
+    // Server-side search is triggered by the useEffect with debouncing
   }, []);
 
   // Simple filter handler - applies dropdown and date filters only
@@ -491,18 +503,42 @@ const Home = ({ navigation }) => {
       closeModal();
       setPage(1);
 
-      const params = buildApiParams(1, activeFilter);
-      
-      // Apply filters based on active tab
-      if (activeFilter === 'Result') {
-        await dispatch(fetchresultData(params));
-      } else if (activeFilter === 'All') {
-        await Promise.all([
-          dispatch(fetchTenderListData(params)),
-          dispatch(fetchresultData(params))
-        ]);
+      // If there's a search query, use search API with filters
+      if (searchText && searchText.trim() !== '') {
+        const searchParams = {
+          searchText: searchText.trim(),
+          page: 1,
+          page_size: 50,
+          activeFilter,
+          ...filters,
+          ...(useCustomDate && { published_date: moment(date).format('YYYY-MM-DD') })
+        };
+        
+        if (activeFilter === 'Result') {
+          await dispatch(fetchresultData(searchParams));
+        } else if (activeFilter === 'All') {
+          await Promise.all([
+            dispatch(searchTenderData(searchParams)),
+            dispatch(fetchresultData(searchParams))
+          ]);
+        } else {
+          await dispatch(searchTenderData(searchParams));
+        }
       } else {
-        await dispatch(fetchTenderListData(params));
+        // Regular filter without search
+        const params = buildApiParams(1, activeFilter);
+        
+        // Apply filters based on active tab
+        if (activeFilter === 'Result') {
+          await dispatch(fetchresultData(params));
+        } else if (activeFilter === 'All') {
+          await Promise.all([
+            dispatch(fetchTenderListData(params)),
+            dispatch(fetchresultData(params))
+          ]);
+        } else {
+          await dispatch(fetchTenderListData(params));
+        }
       }
       
       // Show success message if filters are applied
@@ -526,7 +562,7 @@ const Home = ({ navigation }) => {
       setRefreshing(false);
       setIsSearching(false);
     }
-  }, [buildApiParams, dispatch, isSearching, activeFilter, activeFilterCount]);
+  }, [buildApiParams, dispatch, isSearching, activeFilter, activeFilterCount, searchText, filters, useCustomDate, date]);
 
   // Simple clear filters handler
   const clearFilters = useCallback(async () => {
@@ -539,14 +575,13 @@ const Home = ({ navigation }) => {
       // Reset all filters and search immediately for UI responsiveness
       setFilters(INITIAL_FILTERS);
       setSearchText('');
-      setDebouncedSearchText('');
       setDate(new Date());
       setUseCustomDate(false);
       setPage(1);
       setFiltersJustApplied(false); // Reset the flag when clearing filters
       setModalVisible(false);
       
-      // Fetch fresh data without filters
+      // Fetch fresh data without filters or search
       const apiPromises = [];
       if (activeFilter === 'Result') {
         apiPromises.push(dispatch(fetchresultData({ page: 1, page_size: 100 })));
@@ -592,11 +627,41 @@ const Home = ({ navigation }) => {
       const nextPage = page + 1;
       setPage(nextPage);
       
-      fetchData(nextPage).finally(() => {
-        setIsLoadingMore(false);
-      });
+      // If there's a search query, use search API for pagination
+      if (searchText && searchText.trim() !== '') {
+        const searchParams = {
+          searchText: searchText.trim(),
+          page: nextPage,
+          page_size: 50,
+          activeFilter,
+          ...filters,
+          ...(useCustomDate && { published_date: moment(date).format('YYYY-MM-DD') })
+        };
+        
+        if (activeFilter === 'Result') {
+          dispatch(fetchresultData(searchParams)).finally(() => {
+            setIsLoadingMore(false);
+          });
+        } else if (activeFilter === 'All') {
+          Promise.all([
+            dispatch(searchTenderData(searchParams)),
+            dispatch(fetchresultData(searchParams))
+          ]).finally(() => {
+            setIsLoadingMore(false);
+          });
+        } else {
+          dispatch(searchTenderData(searchParams)).finally(() => {
+            setIsLoadingMore(false);
+          });
+        }
+      } else {
+        // Regular pagination without search
+        fetchData(nextPage).finally(() => {
+          setIsLoadingMore(false);
+        });
+      }
     }
-  }, [page, data?.total_pages, resultData?.total_pages, fetchData, isSearching, isLoadingMore, activeFilter]);
+  }, [page, data?.total_pages, resultData?.total_pages, fetchData, isSearching, isLoadingMore, activeFilter, searchText, filters, useCustomDate, date, dispatch]);
 
   // Context-aware refresh handler
   const onRefresh = useCallback(async () => {
@@ -607,26 +672,50 @@ const Home = ({ navigation }) => {
       setRefreshing(true);
       setPage(1);
       
-      const params = buildApiParams(1, activeFilter);
-      
-      // Context-aware refresh calls - maintains current filters
-      const apiCalls = [];
-      
-      if (activeFilter === 'Result') {
-        // Only refresh result data when Results tab is active
-        apiCalls.push(dispatch(fetchresultData(params)));
-      } else if (activeFilter === 'All') {
-        // Refresh both for All tab
-        apiCalls.push(
-          dispatch(fetchTenderListData(params)),
-          dispatch(fetchresultData(params))
-        );
+      // If there's a search query, refresh search results
+      if (searchText && searchText.trim() !== '') {
+        const searchParams = {
+          searchText: searchText.trim(),
+          page: 1,
+          page_size: 50,
+          activeFilter,
+          ...filters,
+          ...(useCustomDate && { published_date: moment(date).format('YYYY-MM-DD') })
+        };
+        
+        if (activeFilter === 'Result') {
+          await dispatch(fetchresultData(searchParams));
+        } else if (activeFilter === 'All') {
+          await Promise.all([
+            dispatch(searchTenderData(searchParams)),
+            dispatch(fetchresultData(searchParams))
+          ]);
+        } else {
+          await dispatch(searchTenderData(searchParams));
+        }
       } else {
-        // For PPMO and Others tabs, only refresh tender data
-        apiCalls.push(dispatch(fetchTenderListData(params)));
+        // Regular refresh without search
+        const params = buildApiParams(1, activeFilter);
+        
+        // Context-aware refresh calls - maintains current filters
+        const apiCalls = [];
+        
+        if (activeFilter === 'Result') {
+          // Only refresh result data when Results tab is active
+          apiCalls.push(dispatch(fetchresultData(params)));
+        } else if (activeFilter === 'All') {
+          // Refresh both for All tab
+          apiCalls.push(
+            dispatch(fetchTenderListData(params)),
+            dispatch(fetchresultData(params))
+          );
+        } else {
+          // For PPMO and Others tabs, only refresh tender data
+          apiCalls.push(dispatch(fetchTenderListData(params)));
+        }
+        
+        await Promise.all(apiCalls);
       }
-      
-      await Promise.all(apiCalls);
       
     } catch (err) {
       // Error handling without console.log
@@ -634,7 +723,7 @@ const Home = ({ navigation }) => {
       setRefreshing(false);
       setIsSearching(false);
     }
-  }, [buildApiParams, dispatch, isSearching, activeFilter]);
+  }, [buildApiParams, dispatch, isSearching, activeFilter, searchText, filters, useCustomDate, date]);
 
   // Modal handlers
   const openModal = () => setModalVisible(true);
@@ -978,25 +1067,21 @@ const Home = ({ navigation }) => {
   // Simple No Tender Found Component
   const NoTenderFoundComponent = useCallback(() => {
     const hasFilters = hasActiveFilters;
-    // Check both immediate search text and debounced search text
-    const hasSearch = (searchText && searchText.trim() !== '') || (debouncedSearchText && debouncedSearchText.trim() !== '');
+    const hasSearch = searchText && searchText.trim() !== '';
     const hasAnyFilter = hasFilters || hasSearch;
     
     // Simple message logic
     let icon, title, description, actionText;
     
-    // Use the current search text for display (immediate feedback)
-    const currentSearchText = searchText || debouncedSearchText;
-    
     if (hasSearch && hasFilters) {
       icon = "search-outline";
       title = "No Results Found";
-      description = `No results found for "${currentSearchText}" with applied filters.`;
+      description = `No results found for "${searchText}" with applied filters.`;
       actionText = "Try different keywords or clear filters";
     } else if (hasSearch) {
       icon = "search-outline"; 
       title = "No Search Results";
-      description = `No results found for "${currentSearchText}".`;
+      description = `No results found for "${searchText}".`;
       actionText = "Try different keywords";
     } else if (hasFilters) {
       icon = "filter-outline";
@@ -1032,7 +1117,6 @@ const Home = ({ navigation }) => {
                     // Reset all states immediately for UI responsiveness
                     setFilters(INITIAL_FILTERS);
                     setSearchText('');
-                    setDebouncedSearchText('');
                     setUseCustomDate(false);
                     setDate(new Date());
                     setPage(1);
@@ -1057,7 +1141,7 @@ const Home = ({ navigation }) => {
         </View>
       </View>
     );
-  }, [hasActiveFilters, searchText, debouncedSearchText, dispatch]);
+  }, [hasActiveFilters, searchText, dispatch]);
 
   // Fixed renderItem function with null safety
   const renderItem = useCallback(({ item, index }) => {
@@ -1254,8 +1338,7 @@ const Home = ({ navigation }) => {
       const isReduxLoading = cardLoading || resultLoading;
       const hasError = apiError || resultError;
       const hasApiData = (data?.data && data.data.length > 0) || (resultData?.data && resultData.data.length > 0);
-      // Check both immediate search text and debounced search text to prevent loading during typing
-      const hasSearch = (searchText && searchText.trim() !== '') || (debouncedSearchText && debouncedSearchText.trim() !== '');
+      const hasSearch = searchText && searchText.trim() !== '';
       const hasFilters = hasActiveFilters;
       
       // Show error if there's an API error
@@ -1311,7 +1394,6 @@ const Home = ({ navigation }) => {
     data?.data,
     resultData?.data,
     searchText,
-    debouncedSearchText,
     hasActiveFilters,
     ErrorComponent,
     NoTenderFoundComponent,
@@ -1330,9 +1412,9 @@ const Home = ({ navigation }) => {
            ]}>
                          <Icon 
                style={styles.searchIcon} 
-               name={searchText !== debouncedSearchText ? "time-outline" : "search"} 
+               name={isSearching ? "time-outline" : "search"} 
                size={20} 
-               color={searchText !== debouncedSearchText ? "#0375B7" : "#666"} 
+               color={isSearching ? "#0375B7" : "#666"} 
              />
                          <TextInput
                placeholder="Search"
@@ -1384,7 +1466,7 @@ const Home = ({ navigation }) => {
           filterCount={activeFilterCount}
         />
     </>
-  ), [openModal, activeFilter, handleFilterPress, handleImagePress, hasActiveFilters, activeFilterCount, searchText, debouncedSearchText, handleSearchChange]);
+  ), [openModal, activeFilter, handleFilterPress, handleImagePress, hasActiveFilters, activeFilterCount, searchText, handleSearchChange]);
 
   // Add a useEffect to monitor dropdown data changes
   useEffect(() => {

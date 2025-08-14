@@ -3,6 +3,10 @@ import {colors, fonts as themeFonts} from '../../theme';
 import {wp, hp, normalize, spacing, deviceInfo} from '../../utils/responsive';
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
   container: {
     flex: 1,
     justifyContent: 'center',

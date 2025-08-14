@@ -62,6 +62,80 @@ export const fetchTenderListData = createAsyncThunk(
   }
 );
 
+// New server-side search function
+export const searchTenderData = createAsyncThunk(
+  'card/searchTenderData',
+  async (searchParams, {rejectWithValue}) => {
+    try {
+      const {
+        searchText,
+        page = 1,
+        page_size = 50,
+        organization_sector,
+        category,
+        district,
+        project_type,
+        procurement_type,
+        source,
+        published_date,
+        activeFilter
+      } = searchParams;
+
+      // Build search parameters
+      const params = {
+        page,
+        page_size
+      };
+
+      // Add search text if provided
+      if (searchText && searchText.trim() !== '') {
+        params.search = searchText.trim();
+      }
+
+      // Add filter parameters
+      if (organization_sector) params.organization_sector = organization_sector;
+      if (category) params.category = category;
+      if (district) params.district = district;
+      if (project_type) params.project_type = project_type;
+      if (procurement_type) params.procurement_type = procurement_type;
+      if (source) params.source = source;
+      if (published_date) params.published_date = published_date;
+
+      // Handle source filtering based on active filter
+      if (activeFilter === 'PPMO/EGP') {
+        params.source = 'PPMO/EGP';
+      } else if (activeFilter === 'Others') {
+        // For "Others", we'll need to handle this on the server side
+        // or implement a workaround
+        params.exclude_source = 'PPMO/EGP';
+      }
+
+      const url = `${BASE_URL}/tender/apis/tender/list/`;
+      const response = await axios.get(url, {
+        params,
+        headers: {
+          'accept': 'application/json',
+          'X-CSRFToken': 'bwQJROlt74LsvQqQuOi10XS8WEyGPgpVSfLN7HfQbsFEAu5NMRk3KkYuNsIenqFO'
+        }
+      });
+
+      const responseData = {
+        data: response.data.data,
+        total_pages: response.data.total_pages,
+        current_page: response.data.current_page,
+        count: response.data.count,
+        next: response.data.next,
+        previous: response.data.previous,
+        searchParams: searchParams // Store search params for reference
+      };
+
+      return responseData;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
 export const fetchOneTenderData = createAsyncThunk(
   'data/fetchOneTenderData',
   async ({tenderId}, { rejectWithValue }) => {
@@ -173,6 +247,22 @@ const cardSlice = createSlice({
         state.status = 'failed';
         state.error = action.payload;
         console.error('Tender list error in state:', action.payload);
+      })
+      .addCase(searchTenderData.pending, (state) => {
+        state.loading = true;
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(searchTenderData.fulfilled, (state, action) => {
+        state.loading = false;
+        state.status = 'succeeded';
+        state.data = action.payload;
+      })
+      .addCase(searchTenderData.rejected, (state, action) => {
+        state.loading = false;
+        state.status = 'failed';
+        state.error = action.payload;
+        console.error('Tender search error in state:', action.payload);
       })
       .addCase(fetchOneTenderData.pending, (state, action) => {
         state.status = 'loading';

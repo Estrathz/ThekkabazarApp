@@ -35,7 +35,12 @@ const BottomNavigationBar = ({navigation}) => {
       <TouchableOpacity
         style={styles.tab}
         onPress={() => navigation.navigate('Bazar')}>
-        <Icon name="event" size={iconSize} color="white" style={styles.bazarIcon} />
+        <Icon
+          name="event"
+          size={iconSize}
+          color="white"
+          style={styles.bazarIcon}
+        />
         <Text style={styles.TextNav2}>Bazar</Text>
       </TouchableOpacity>
       <TouchableOpacity

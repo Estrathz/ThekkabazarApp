@@ -8,7 +8,7 @@ import {useDispatch, useSelector} from 'react-redux';
 
 const Notice = ({navigation}) => {
   const dispatch = useDispatch();
-  const {data, error} = useSelector(state => state.notice);
+  const {data} = useSelector(state => state.notice);
 
   useEffect(() => {
     dispatch(fetchNoticeData());

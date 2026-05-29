@@ -3,6 +3,7 @@
 ## 📋 Pre-Build Checklist
 
 ### ✅ Code Quality
+
 - [ ] All linting errors resolved
 - [ ] TypeScript type checking passes
 - [ ] All tests pass
@@ -12,6 +13,7 @@
 - [ ] No debug code or development-only features
 
 ### ✅ Environment Configuration
+
 - [ ] Production API endpoints configured
 - [ ] Environment variables set correctly
 - [ ] Debug mode disabled for production
@@ -19,6 +21,7 @@
 - [ ] Logging level set to appropriate production level
 
 ### ✅ Assets & Resources
+
 - [ ] All app icons and splash screens updated
 - [ ] App name and description finalized
 - [ ] Privacy policy and terms of service links updated
@@ -26,6 +29,7 @@
 - [ ] App store description and keywords finalized
 
 ### ✅ Security
+
 - [ ] API keys and secrets properly configured
 - [ ] No hardcoded credentials in code
 - [ ] SSL pinning implemented (if required)
@@ -35,6 +39,7 @@
 ## 🔧 Build Configuration
 
 ### Android
+
 - [ ] `android/app/build.gradle` production settings:
   - [ ] `minifyEnabled true`
   - [ ] `shrinkResources true`
@@ -44,6 +49,7 @@
   - [ ] Signing configuration set up
 
 ### iOS
+
 - [ ] `ios/thekkabazar/Info.plist` production settings:
   - [ ] Bundle identifier correct
   - [ ] Version and build number updated
@@ -53,6 +59,7 @@
 ## 🧪 Testing Checklist
 
 ### Functional Testing
+
 - [ ] All user flows tested
 - [ ] Authentication flow works
 - [ ] API integration tested
@@ -61,6 +68,7 @@
 - [ ] Navigation tested
 
 ### Performance Testing
+
 - [ ] App launch time acceptable
 - [ ] Memory usage optimized
 - [ ] Network requests optimized
@@ -68,6 +76,7 @@
 - [ ] Bundle size acceptable
 
 ### Device Testing
+
 - [ ] Tested on multiple Android versions
 - [ ] Tested on multiple iOS versions
 - [ ] Tested on different screen sizes
@@ -77,6 +86,7 @@
 ## 📱 App Store Preparation
 
 ### Google Play Store
+
 - [ ] App bundle (.aab) generated
 - [ ] Store listing content ready
 - [ ] Privacy policy URL provided
@@ -84,6 +94,7 @@
 - [ ] App signing by Google Play enabled
 
 ### Apple App Store
+
 - [ ] Archive (.xcarchive) generated
 - [ ] App Store Connect listing ready
 - [ ] Privacy policy URL provided
@@ -93,6 +104,7 @@
 ## 🚀 Deployment Checklist
 
 ### Pre-Release
+
 - [ ] Production build created
 - [ ] Build artifacts archived
 - [ ] Release notes prepared
@@ -100,6 +112,7 @@
 - [ ] Beta testing completed (if applicable)
 
 ### Release
+
 - [ ] App submitted to stores
 - [ ] Release notes published
 - [ ] Marketing materials ready
@@ -107,6 +120,7 @@
 - [ ] Monitoring tools configured
 
 ### Post-Release
+
 - [ ] App store review process monitored
 - [ ] User feedback monitored
 - [ ] Crash reports monitored
@@ -116,6 +130,7 @@
 ## 🔍 Monitoring & Analytics
 
 ### Crash Reporting
+
 - [ ] Crash reporting service configured
 - [ ] Error tracking enabled
 - [ ] Performance monitoring enabled
@@ -123,6 +138,7 @@
 - [ ] Custom events tracked
 
 ### Performance Monitoring
+
 - [ ] App performance metrics tracked
 - [ ] API response times monitored
 - [ ] User engagement metrics tracked
@@ -132,6 +148,7 @@
 ## 📋 Build Commands
 
 ### Development Build
+
 ```bash
 # Android
 npm run android
@@ -141,6 +158,7 @@ npm run ios
 ```
 
 ### Production Build
+
 ```bash
 # Full production build
 ./scripts/build-production.sh
@@ -153,6 +171,7 @@ npm run ios
 ```
 
 ### Manual Builds
+
 ```bash
 # Android APK
 npm run build:android
@@ -167,6 +186,7 @@ npm run build:ios
 ## 🛠️ Troubleshooting
 
 ### Common Issues
+
 - [ ] Build fails due to ProGuard rules
 - [ ] App crashes on release build
 - [ ] API calls fail in production
@@ -174,6 +194,7 @@ npm run build:ios
 - [ ] App store rejection
 
 ### Debug Commands
+
 ```bash
 # Clean all builds
 npm run clean
@@ -198,25 +219,30 @@ npm run analyze
 ## 📝 Release Notes Template
 
 ### Version X.X.X
+
 **Release Date**: [Date]
 
 #### 🆕 New Features
+
 - Feature 1
 - Feature 2
 
 #### 🐛 Bug Fixes
+
 - Fixed issue 1
 - Fixed issue 2
 
 #### 🔧 Improvements
+
 - Improvement 1
 - Improvement 2
 
 #### 📱 Technical Changes
+
 - Technical change 1
 - Technical change 2
 
 ---
 
 **Last Updated**: [Date]
-**Next Review**: [Date] 
+**Next Review**: [Date]

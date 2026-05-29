@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
     color: colors.black,
     fontSize: 14,
     paddingTop: 1,
-    textAlign: 'center' // Ensure text is centered below the image
+    textAlign: 'center', // Ensure text is centered below the image
   },
   CardContainer: {
     backgroundColor: colors.white,

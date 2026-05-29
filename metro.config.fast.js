@@ -2,7 +2,17 @@ const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
 
 const config = {
   resolver: {
-    assetExts: ['bin', 'txt', 'jpg', 'png', 'json', 'ttf', 'otf', 'woff', 'woff2'],
+    assetExts: [
+      'bin',
+      'txt',
+      'jpg',
+      'png',
+      'json',
+      'ttf',
+      'otf',
+      'woff',
+      'woff2',
+    ],
     enableSymlinks: true,
     // Disable symlinks for faster resolution
     disableHierarchicalLookup: true,

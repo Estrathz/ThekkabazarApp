@@ -2,17 +2,14 @@ import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import axios from 'axios';
 import {BASE_URL} from './apiUrl';
 
-export const fetchbanner = createAsyncThunk(
-  'data/fetchbanner',
-  async () => {
-    const response = await axios.get(
-      `${BASE_URL}/thekkabazar/apis/mobile-banner`,
-    );
-    const data = response.data;
-    
-    return data;
-  },
-);
+export const fetchbanner = createAsyncThunk('data/fetchbanner', async () => {
+  const response = await axios.get(
+    `${BASE_URL}/thekkabazar/apis/mobile-banner`,
+  );
+  const data = response.data;
+
+  return data;
+});
 
 const bannerSlice = createSlice({
   name: 'data',
@@ -33,7 +30,7 @@ const bannerSlice = createSlice({
       })
       .addCase(fetchbanner.rejected, (state, action) => {
         state.status = 'failed';
-        state.interesterror = action.error.message;
+        state.error = action.error.message;
       });
   },
 });

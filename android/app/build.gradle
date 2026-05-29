@@ -81,8 +81,8 @@ android {
         applicationId "com.thekkabazar"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 24
-        versionName "24.0"
+        versionCode 32
+        versionName "32.0"
     }
     signingConfigs {
         release {
@@ -92,11 +92,7 @@ android {
                 keyAlias MYAPP_UPLOAD_KEY_ALIAS
                 keyPassword MYAPP_UPLOAD_KEY_PASSWORD
             } else {
-                // Fallback to debug keystore for testing
-                storeFile file('debug.keystore')
-                storePassword 'android'
-                keyAlias 'androiddebugkey'
-                keyPassword 'android'
+                throw new RuntimeException("Missing release signing properties. Configure MYAPP_UPLOAD_* values before building release.")
             }
         }
         debug {
@@ -117,10 +113,7 @@ android {
             minifyEnabled enableProguardInReleaseBuilds
             shrinkResources true
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
-            
-            // Enable R8 optimization
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            
+
             // Disable debugging
             debuggable false
             jniDebuggable false

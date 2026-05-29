@@ -1,18 +1,11 @@
-import { StyleSheet, Dimensions } from 'react-native';
-import { colors, fonts } from '../../theme';
-
-const { width } = Dimensions.get('window');
-
-// Responsive breakpoints
-const isTablet = width >= 768;
-const isLargeScreen = width >= 1024;
+import {StyleSheet} from 'react-native';
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F8FAFC',
   },
-  
+
   // Business Header Styles - Base styles (responsive values applied in component)
   businessHeader: {
     alignItems: 'center',
@@ -57,7 +50,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
     textAlign: 'center',
     textShadowColor: 'rgba(0, 0, 0, 0.5)',
-    textShadowOffset: { width: 0, height: 2 },
+    textShadowOffset: {width: 0, height: 2},
     textShadowRadius: 4,
     marginBottom: 5,
   },

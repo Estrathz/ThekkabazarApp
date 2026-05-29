@@ -17,7 +17,7 @@ export const login = createAsyncThunk(
       const token = data.access_token;
       if (token) {
         await AsyncStorage.setItem('access_token', token);
-        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        axios.defaults.headers.common.Authorization = `Bearer ${token}`;
         console.log('Login successful, token stored');
       } else {
         throw new Error('No access token received');
@@ -26,10 +26,10 @@ export const login = createAsyncThunk(
     } catch (error) {
       console.log('Login error:', error.response?.data || error.message);
       return rejectWithValue(
-        error.response?.data?.message || 
-        error.response?.data?.detail || 
-        error.message || 
-        'Login failed'
+        error.response?.data?.message ||
+          error.response?.data?.detail ||
+          error.message ||
+          'Login failed',
       );
     }
   },
@@ -41,10 +41,10 @@ export const logout = createAsyncThunk(
     try {
       // Clear token from AsyncStorage
       await AsyncStorage.removeItem('access_token');
-      
+
       // Clear axios default headers
-      delete axios.defaults.headers.common['Authorization'];
-      
+      delete axios.defaults.headers.common.Authorization;
+
       console.log('Logout successful, token cleared');
       return true;
     } catch (error) {
@@ -56,15 +56,18 @@ export const logout = createAsyncThunk(
 
 export const register = createAsyncThunk(
   'data/register',
-  async ({
-    username,
-    fullname,
-    password,
-    email,
-    password2,
-    phone_number,
-    company_name,
-  }, {rejectWithValue}) => {
+  async (
+    {
+      username,
+      fullname,
+      password,
+      email,
+      password2,
+      phone_number,
+      company_name,
+    },
+    {rejectWithValue},
+  ) => {
     try {
       const response = await axios.post(
         `${BASE_URL}/accounts/apis/usermanagement/create/user/`,
@@ -83,10 +86,10 @@ export const register = createAsyncThunk(
     } catch (error) {
       console.log('Registration error:', error.response?.data || error.message);
       return rejectWithValue(
-        error.response?.data?.message || 
-        error.response?.data?.detail || 
-        error.message || 
-        'Registration failed'
+        error.response?.data?.message ||
+          error.response?.data?.detail ||
+          error.message ||
+          'Registration failed',
       );
     }
   },
@@ -100,8 +103,8 @@ export const checkAuthStatus = createAsyncThunk(
       const token = await AsyncStorage.getItem('access_token');
       if (token) {
         // Set axios default header
-        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        return { access_token: token };
+        axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+        return {access_token: token};
       }
       return rejectWithValue('No token found');
     } catch (error) {
@@ -121,10 +124,10 @@ const usersSlice = createSlice({
     loading: false,
   },
   reducers: {
-    clearError: (state) => {
+    clearError: state => {
       state.error = null;
     },
-    resetAuthState: (state) => {
+    resetAuthState: state => {
       state.isAuthenticated = false;
       state.access_token = '';
       state.error = null;
@@ -170,7 +173,7 @@ const usersSlice = createSlice({
         state.status = 'loading';
         state.loading = true;
       })
-      .addCase(logout.fulfilled, (state) => {
+      .addCase(logout.fulfilled, state => {
         state.status = 'idle';
         state.loading = false;
         state.isAuthenticated = false;
@@ -206,7 +209,7 @@ const usersSlice = createSlice({
         state.access_token = action.payload.access_token;
         state.error = null;
       })
-      .addCase(checkAuthStatus.rejected, (state) => {
+      .addCase(checkAuthStatus.rejected, state => {
         state.status = 'idle';
         state.loading = false;
         state.isAuthenticated = false;
@@ -241,5 +244,5 @@ const usersSlice = createSlice({
   },
 });
 
-export const { clearError, resetAuthState } = usersSlice.actions;
+export const {clearError, resetAuthState} = usersSlice.actions;
 export default usersSlice.reducer;

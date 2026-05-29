@@ -9,7 +9,7 @@ import Icon2 from 'react-native-vector-icons/Ionicons';
 
 const Price = ({navigation}) => {
   const dispatch = useDispatch();
-  const {data, status, error} = useSelector(state => state.price);
+  const {data} = useSelector(state => state.price);
   const [isModalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {

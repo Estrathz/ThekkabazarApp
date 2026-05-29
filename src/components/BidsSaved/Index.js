@@ -1,12 +1,11 @@
-import {View, Text, TouchableOpacity} from 'react-native';
-import React, {useState, useEffect} from 'react';
+import {View, Text} from 'react-native';
+import React, {useState} from 'react';
 import styles from './SaveBidsStyle';
 import Icon2 from 'react-native-vector-icons/MaterialIcons';
 import BidsComponent from './BidsSaved';
-import InterestComponent from './Interest';
 
 const Index = ({navigation}) => {
-  const [active, setActive] = useState('bids');
+  const [active] = useState('bids');
 
   return (
     <View style={styles.container}>
@@ -26,7 +25,9 @@ const Index = ({navigation}) => {
         Saved Bids
       </Text> */}
       <View style={styles.bidsCard}>
-        <View style={[styles.tabButton, active === 'bids' && styles.activeTab]} />
+        <View
+          style={[styles.tabButton, active === 'bids' && styles.activeTab]}
+        />
         {/* <TouchableOpacity
           onPress={() => setActive('interest')}
           style={[styles.tabButton, active === 'interest' && styles.activeTab]}>

@@ -1,8 +1,15 @@
-import {Text, View, TouchableOpacity} from 'react-native';
+import {Text, TouchableOpacity} from 'react-native';
 import React from 'react';
 import styles from './buttonStyle';
 
-const Custombutton = ({title, onPress, style, textStyle, disabled, ...props}) => {
+const Custombutton = ({
+  title,
+  onPress,
+  style,
+  textStyle,
+  disabled,
+  ...props
+}) => {
   return (
     <TouchableOpacity
       activeOpacity={0.8}

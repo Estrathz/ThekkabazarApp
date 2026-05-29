@@ -1,6 +1,6 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { config, API_CONFIG, isProduction } from '../config/environment';
+import {API_CONFIG, isProduction} from '../config/environment';
 
 // Create axios instance with production configuration
 const apiClient = axios.create({
@@ -8,13 +8,13 @@ const apiClient = axios.create({
   timeout: API_CONFIG.timeout,
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json',
+    Accept: 'application/json',
   },
 });
 
 // Request interceptor for authentication
 apiClient.interceptors.request.use(
-  async (config) => {
+  async config => {
     try {
       const token = await AsyncStorage.getItem('access_token');
       if (token) {
@@ -23,42 +23,42 @@ apiClient.interceptors.request.use(
     } catch (error) {
       console.error('Error getting auth token:', error);
     }
-    
+
     // Add request timestamp for debugging
     if (!isProduction()) {
-      config.metadata = { startTime: new Date() };
+      config.metadata = {startTime: new Date()};
     }
-    
+
     return config;
   },
-  (error) => {
+  error => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // Response interceptor for error handling
 apiClient.interceptors.response.use(
-  (response) => {
+  response => {
     // Log response time in development
     if (!isProduction() && response.config.metadata) {
       const endTime = new Date();
       const duration = endTime - response.config.metadata.startTime;
       console.log(`API Response: ${response.config.url} - ${duration}ms`);
     }
-    
+
     return response;
   },
-  async (error) => {
+  async error => {
     const originalRequest = error.config;
-    
+
     // Handle 401 Unauthorized - token refresh logic
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-      
+
       try {
         // Clear invalid token
         await AsyncStorage.removeItem('access_token');
-        
+
         // Redirect to login or refresh token logic here
         // For now, we'll just reject the request
         return Promise.reject(error);
@@ -67,7 +67,7 @@ apiClient.interceptors.response.use(
         return Promise.reject(error);
       }
     }
-    
+
     // Handle network errors
     if (!error.response) {
       console.error('Network error:', error.message);
@@ -76,19 +76,23 @@ apiClient.interceptors.response.use(
         isNetworkError: true,
       });
     }
-    
+
     // Handle server errors
     if (error.response.status >= 500) {
-      console.error('Server error:', error.response.status, error.response.data);
+      console.error(
+        'Server error:',
+        error.response.status,
+        error.response.data,
+      );
       return Promise.reject({
         message: 'Server error. Please try again later.',
         status: error.response.status,
         isServerError: true,
       });
     }
-    
+
     return Promise.reject(error);
-  }
+  },
 );
 
 // Retry logic for failed requests
@@ -97,7 +101,9 @@ const retryRequest = async (requestFn, retryCount = 0) => {
     return await requestFn();
   } catch (error) {
     if (retryCount < API_CONFIG.retryAttempts && shouldRetry(error)) {
-      await new Promise(resolve => setTimeout(resolve, API_CONFIG.retryDelay * (retryCount + 1)));
+      await new Promise(resolve =>
+        setTimeout(resolve, API_CONFIG.retryDelay * (retryCount + 1)),
+      );
       return retryRequest(requestFn, retryCount + 1);
     }
     throw error;
@@ -105,19 +111,23 @@ const retryRequest = async (requestFn, retryCount = 0) => {
 };
 
 // Determine if request should be retried
-const shouldRetry = (error) => {
+const shouldRetry = error => {
   // Retry on network errors
-  if (error.isNetworkError) return true;
-  
+  if (error.isNetworkError) {
+    return true;
+  }
+
   // Retry on 5xx server errors
-  if (error.isServerError) return true;
-  
+  if (error.isServerError) {
+    return true;
+  }
+
   // Retry on specific HTTP status codes
   const retryableStatuses = [408, 429, 500, 502, 503, 504];
   if (error.response && retryableStatuses.includes(error.response.status)) {
     return true;
   }
-  
+
   return false;
 };
 
@@ -127,27 +137,27 @@ export const apiService = {
   get: async (url, config = {}) => {
     return retryRequest(() => apiClient.get(url, config));
   },
-  
+
   // POST request
   post: async (url, data = {}, config = {}) => {
     return retryRequest(() => apiClient.post(url, data, config));
   },
-  
+
   // PUT request
   put: async (url, data = {}, config = {}) => {
     return retryRequest(() => apiClient.put(url, data, config));
   },
-  
+
   // DELETE request
   delete: async (url, config = {}) => {
     return retryRequest(() => apiClient.delete(url, config));
   },
-  
+
   // PATCH request
   patch: async (url, data = {}, config = {}) => {
     return retryRequest(() => apiClient.patch(url, data, config));
   },
-  
+
   // Upload file
   upload: async (url, formData, config = {}) => {
     const uploadConfig = {
@@ -159,7 +169,7 @@ export const apiService = {
     };
     return retryRequest(() => apiClient.post(url, formData, uploadConfig));
   },
-  
+
   // Download file
   download: async (url, config = {}) => {
     const downloadConfig = {
@@ -171,7 +181,7 @@ export const apiService = {
 };
 
 // Error handling utilities
-export const handleApiError = (error) => {
+export const handleApiError = error => {
   if (error.isNetworkError) {
     return {
       title: 'Connection Error',
@@ -179,7 +189,7 @@ export const handleApiError = (error) => {
       type: 'network',
     };
   }
-  
+
   if (error.isServerError) {
     return {
       title: 'Server Error',
@@ -187,7 +197,7 @@ export const handleApiError = (error) => {
       type: 'server',
     };
   }
-  
+
   if (error.response?.status === 401) {
     return {
       title: 'Authentication Error',
@@ -195,15 +205,15 @@ export const handleApiError = (error) => {
       type: 'auth',
     };
   }
-  
+
   if (error.response?.status === 403) {
     return {
       title: 'Access Denied',
-      message: 'You don\'t have permission to perform this action.',
+      message: "You don't have permission to perform this action.",
       type: 'permission',
     };
   }
-  
+
   if (error.response?.status === 404) {
     return {
       title: 'Not Found',
@@ -211,15 +221,17 @@ export const handleApiError = (error) => {
       type: 'notFound',
     };
   }
-  
+
   if (error.response?.status === 422) {
     return {
       title: 'Validation Error',
-      message: error.response.data?.message || 'Please check your input and try again.',
+      message:
+        error.response.data?.message ||
+        'Please check your input and try again.',
       type: 'validation',
     };
   }
-  
+
   // Default error
   return {
     title: 'Error',
@@ -228,4 +240,4 @@ export const handleApiError = (error) => {
   };
 };
 
-export default apiService; 
+export default apiService;

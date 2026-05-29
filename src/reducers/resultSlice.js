@@ -1,97 +1,102 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import axios from 'axios';
-import { BASE_URL } from './apiUrl';
+import {BASE_URL, API_HEADERS} from './apiUrl';
 
-// Common headers for API calls
-const API_HEADERS = {
-  'accept': 'application/json',
-  'X-CSRFToken': 'bwQJROlt74LsvQqQuOi10XS8WEyGPgpVSfLN7HfQbsFEAu5NMRk3KkYuNsIenqFO'
+const MAX_DETAIL_PAGES = 25;
+
+const buildQueryKey = params => {
+  const queryParams = {...(params || {})};
+  delete queryParams.page;
+  return JSON.stringify(queryParams);
 };
 
 // Common error handler
-const handleApiError = (error) => {
+const handleApiError = error => {
   console.error('API Error:', {
     status: error.response?.status,
     data: error.response?.data,
-    message: error.message
+    message: error.message,
   });
 
   if (error.response?.status === 404) {
     return {
       message: 'Tender not found',
-      status: 404
+      status: 404,
     };
   }
 
   return {
     message: error.response?.data?.message || 'Failed to fetch data',
     status: error.response?.status || 500,
-    response: error.response?.data
+    response: error.response?.data,
   };
 };
 
 // Fetch list of tender results
 export const fetchresultData = createAsyncThunk(
   'result/fetchresultData',
-  async (params, { rejectWithValue }) => {
+  async (params, {rejectWithValue}) => {
     try {
-      const response = await axios.get(`${BASE_URL}/tender/apis/tender-awarded-to/`, { 
-        params,
-        headers: API_HEADERS
-      });
+      const response = await axios.get(
+        `${BASE_URL}/tender/apis/tender-awarded-to/`,
+        {
+          params,
+          headers: API_HEADERS,
+        },
+      );
       return response.data;
     } catch (error) {
       return rejectWithValue(handleApiError(error));
     }
-  }
+  },
 );
 
 // Fetch single tender result
 export const fetchOneResultData = createAsyncThunk(
   'result/fetchOneResultData',
-  async ({ tenderId }, { rejectWithValue }) => {
+  async ({tenderId}, {rejectWithValue}) => {
     try {
-      console.log('Fetching tender details for ID:', tenderId);
       let foundTender = null;
       let currentPage = 1;
       let hasNextPage = true;
 
-      while (hasNextPage && !foundTender) {
-        const response = await axios.get(`${BASE_URL}/tender/apis/tender-awarded-to/`, {
-          params: { page: currentPage },
-          headers: API_HEADERS
-        });
-        
-        console.log(`Fetching page ${currentPage}`);
-        
+      while (hasNextPage && !foundTender && currentPage <= MAX_DETAIL_PAGES) {
+        const response = await axios.get(
+          `${BASE_URL}/tender/apis/tender-awarded-to/`,
+          {
+            params: {page: currentPage},
+            headers: API_HEADERS,
+          },
+        );
+
         // Validate response data
         if (!response.data?.data || response.data.data.length === 0) {
           break;
         }
-        
+
         // Find the specific tender by ID
         foundTender = response.data.data.find(item => item.pk === tenderId);
-        
+
         // Check if we need to fetch the next page
         hasNextPage = !!response.data.next;
         currentPage++;
       }
-      
+
       if (!foundTender) {
-        console.error('Tender not found with ID:', tenderId);
         return rejectWithValue({
-          message: 'Tender not found',
-          status: 404
+          message:
+            currentPage > MAX_DETAIL_PAGES
+              ? 'Unable to find tender details. Please try again.'
+              : 'Tender not found',
+          status: 404,
         });
       }
-      
-      console.log('Found tender:', foundTender);
+
       return foundTender;
     } catch (error) {
-      console.error('API Error:', error);
       return rejectWithValue(handleApiError(error));
     }
-  }
+  },
 );
 
 // Initial state
@@ -101,6 +106,7 @@ const initialState = {
   error: null,
   loading: false,
   currentId: null,
+  listQueryKey: null,
 };
 
 // Create the slice
@@ -108,30 +114,63 @@ const resultSlice = createSlice({
   name: 'result',
   initialState,
   reducers: {
-    clearError: (state) => {
+    clearError: state => {
       state.error = null;
     },
-    clearData: (state) => {
+    clearData: state => {
       state.data = null;
       state.one = null;
       state.currentId = null;
+      state.listQueryKey = null;
     },
-    clearSingleResult: (state) => {
+    clearSingleResult: state => {
       state.one = null;
       state.currentId = null;
       // Don't clear state.data to preserve the list
-    }
+    },
+    hydrateResultListFromCache: (state, action) => {
+      if (action.payload?.data && Array.isArray(action.payload.data)) {
+        state.data = action.payload;
+        state.loading = false;
+        state.error = null;
+      }
+    },
   },
-  extraReducers: (builder) => {
+  extraReducers: builder => {
     builder
       // Handle fetchresultData
-      .addCase(fetchresultData.pending, (state) => {
+      .addCase(fetchresultData.pending, state => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchresultData.fulfilled, (state, action) => {
         state.loading = false;
-        state.data = action.payload;
+        const page = Number(action.meta.arg?.page || 1);
+        const queryKey = buildQueryKey(action.meta.arg);
+        const incomingData = action.payload?.data || [];
+
+        if (
+          page > 1 &&
+          state.listQueryKey === queryKey &&
+          Array.isArray(state.data?.data)
+        ) {
+          const merged = [...state.data.data, ...incomingData];
+          const uniqueByPk = new Map();
+          merged.forEach(item => {
+            const key =
+              item?.pk ?? item?.id ?? `${item?.title}-${item?.published_date}`;
+            uniqueByPk.set(key, item);
+          });
+
+          state.data = {
+            ...action.payload,
+            data: Array.from(uniqueByPk.values()),
+          };
+        } else {
+          state.data = action.payload;
+        }
+
+        state.listQueryKey = queryKey;
       })
       .addCase(fetchresultData.rejected, (state, action) => {
         state.loading = false;
@@ -144,11 +183,17 @@ const resultSlice = createSlice({
         state.currentId = action.meta.arg.tenderId;
       })
       .addCase(fetchOneResultData.fulfilled, (state, action) => {
+        if (action.meta.arg.tenderId !== state.currentId) {
+          return;
+        }
         state.loading = false;
         state.one = action.payload;
         state.error = null;
       })
       .addCase(fetchOneResultData.rejected, (state, action) => {
+        if (action.meta.arg.tenderId !== state.currentId) {
+          return;
+        }
         state.loading = false;
         state.error = action.payload;
         state.one = null;
@@ -157,5 +202,10 @@ const resultSlice = createSlice({
   },
 });
 
-export const { clearError, clearData, clearSingleResult } = resultSlice.actions;
+export const {
+  clearError,
+  clearData,
+  clearSingleResult,
+  hydrateResultListFromCache,
+} = resultSlice.actions;
 export default resultSlice.reducer;

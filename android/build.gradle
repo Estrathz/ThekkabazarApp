@@ -4,7 +4,8 @@ buildscript {
         minSdkVersion = 21
         compileSdkVersion = 35
         targetSdkVersion = 35
-        ndkVersion = "25.1.8937393"
+        // NDK r27+ is recommended for 16 KB page-size compatible native libs.
+        ndkVersion = "27.1.12297006"
         kotlinVersion = "1.8.0"
     }
     repositories {

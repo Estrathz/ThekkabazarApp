@@ -1,6 +1,6 @@
-import { Dimensions, PixelRatio, Platform, StatusBar } from 'react-native';
+import {Dimensions, PixelRatio, Platform, StatusBar} from 'react-native';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const {width: SCREEN_WIDTH, height: SCREEN_HEIGHT} = Dimensions.get('window');
 
 // Enhanced device detection
 const isTablet = SCREEN_WIDTH >= 768;
@@ -17,37 +17,36 @@ const statusBarHeight = StatusBar.currentHeight || 0;
 
 // Base dimensions (design based on iPhone 11: 414x896)
 const BASE_WIDTH = 414;
-const BASE_HEIGHT = 896;
 
 // Responsive scaling functions with performance optimization
-export const wp = (percentage) => {
+export const wp = percentage => {
   const value = (percentage * SCREEN_WIDTH) / 100;
   return Math.round(PixelRatio.roundToNearestPixel(value));
 };
 
-export const hp = (percentage) => {
+export const hp = percentage => {
   const value = (percentage * SCREEN_HEIGHT) / 100;
   return Math.round(PixelRatio.roundToNearestPixel(value));
 };
 
 // Enhanced font scaling with accessibility support
-export const normalize = (size) => {
+export const normalize = size => {
   const scale = SCREEN_WIDTH / BASE_WIDTH;
   let newSize = size * scale;
-  
+
   // Apply device-specific adjustments
   if (isTablet) {
     newSize *= 1.1; // Slightly larger on tablets
   } else if (isSmallPhone) {
     newSize *= 0.9; // Slightly smaller on small phones
   }
-  
+
   // Ensure minimum readable size
   const minSize = 12;
   const maxSize = 32;
-  
+
   newSize = Math.max(minSize, Math.min(maxSize, newSize));
-  
+
   return Math.round(PixelRatio.roundToNearestPixel(newSize));
 };
 
@@ -94,7 +93,7 @@ export const getImageDimensions = (baseWidth, baseHeight) => {
   const aspectRatio = baseHeight / baseWidth;
   const maxWidth = isTablet ? wp(30) : wp(40);
   const calculatedHeight = maxWidth * aspectRatio;
-  
+
   return {
     width: maxWidth,
     height: calculatedHeight,
@@ -105,7 +104,7 @@ export const getImageDimensions = (baseWidth, baseHeight) => {
 export const getSafeAreaInsets = () => {
   const topInset = isIOS ? 44 : statusBarHeight;
   const bottomInset = isIOS ? 34 : 0;
-  
+
   return {
     top: topInset,
     bottom: bottomInset,
@@ -170,11 +169,11 @@ export const getCachedDimensions = () => {
 };
 
 // Orientation change handler
-export const handleOrientationChange = (callback) => {
-  const subscription = Dimensions.addEventListener('change', ({ window }) => {
-    const { width, height } = window;
+export const handleOrientationChange = callback => {
+  const subscription = Dimensions.addEventListener('change', ({window}) => {
+    const {width, height} = window;
     const newIsLandscape = width > height;
-    
+
     if (newIsLandscape !== isLandscape) {
       callback({
         width,
@@ -184,7 +183,7 @@ export const handleOrientationChange = (callback) => {
       });
     }
   });
-  
+
   return subscription;
 };
 
@@ -197,7 +196,7 @@ export const breakpoints = {
 };
 
 // Check if current screen size matches breakpoint
-export const isBreakpoint = (breakpoint) => {
+export const isBreakpoint = breakpoint => {
   return SCREEN_WIDTH >= breakpoints[breakpoint];
 };
 
@@ -227,4 +226,4 @@ export default {
   breakpoints,
   isBreakpoint,
   responsiveValue,
-}; 
+};

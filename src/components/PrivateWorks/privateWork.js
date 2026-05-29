@@ -19,7 +19,7 @@ import Toast from 'react-native-toast-message';
 
 const PrivateWork = ({navigation}) => {
   const dispatch = useDispatch();
-  const {data, error} = useSelector(state => state.privateWork);
+  const {data, status} = useSelector(state => state.privateWork);
   const [isModalVisible, setModalVisible] = useState(false);
   const [work, setWork] = useState('');
   const [address, setAddress] = useState('');
@@ -50,7 +50,10 @@ const PrivateWork = ({navigation}) => {
   };
 
   const handleLoadMore = () => {
-    setPage(page + 1);
+    if (status === 'loading') {
+      return;
+    }
+    setPage(prevPage => prevPage + 1);
   };
 
   const handleFormSubmit = () => {
@@ -111,7 +114,7 @@ const PrivateWork = ({navigation}) => {
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
       onScroll={({nativeEvent}) => {
-        if (isCloseToBottom(nativeEvent) && !loading) {
+        if (isCloseToBottom(nativeEvent) && status !== 'loading') {
           handleLoadMore();
         }
       }}
@@ -147,7 +150,13 @@ const PrivateWork = ({navigation}) => {
             Get the best Sub-Contractor for your work
           </Text>
           <View style={styles.bannerBody}>
-            <View style={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '33%'}}>
+            <View
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                width: '33%',
+              }}>
               <Image
                 style={styles.bannerImage}
                 source={require('../../assets/handIcon.png')}
@@ -159,7 +168,13 @@ const PrivateWork = ({navigation}) => {
                 Post Your Work
               </Text>
             </View>
-            <View style={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '33%'}}>
+            <View
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                width: '33%',
+              }}>
               <Image
                 style={styles.bannerImage}
                 source={require('../../assets/mens.png')}
@@ -171,7 +186,13 @@ const PrivateWork = ({navigation}) => {
                 Find Workers
               </Text>
             </View>
-            <View style={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '33%'}}>
+            <View
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                width: '33%',
+              }}>
               <Image
                 style={styles.bannerImage}
                 source={require('../../assets/tools.png')}
@@ -186,7 +207,9 @@ const PrivateWork = ({navigation}) => {
           </View>
         </View>
         {data?.data?.map((items, index) => (
-          <View key={index} style={styles.CardContainer}>
+          <View
+            key={items?.id || items?.pk || `private-work-${index}`}
+            style={styles.CardContainer}>
             <View
               style={{
                 display: 'flex',

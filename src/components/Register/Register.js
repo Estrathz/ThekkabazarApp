@@ -1,4 +1,15 @@
-import {View, Text, TextInput, ScrollView, ActivityIndicator, Keyboard, KeyboardAvoidingView, TouchableWithoutFeedback, Platform, SafeAreaView} from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  ScrollView,
+  ActivityIndicator,
+  Keyboard,
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+  Platform,
+  SafeAreaView,
+} from 'react-native';
 import React, {useState} from 'react';
 import styles from './RegisterStyle';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -21,7 +32,7 @@ const Register = ({navigation}) => {
   const handleRegister = async () => {
     // Dismiss keyboard immediately when registration starts
     Keyboard.dismiss();
-    
+
     if (
       !username.trim() ||
       !password ||
@@ -53,7 +64,7 @@ const Register = ({navigation}) => {
     }
 
     try {
-      const result = await dispatch(
+      await dispatch(
         register({
           username: username.trim(),
           password: password,
@@ -64,10 +75,10 @@ const Register = ({navigation}) => {
           email: email.trim(),
         }),
       ).unwrap();
-      
+
       // Dismiss keyboard before navigation
       Keyboard.dismiss();
-      
+
       // Registration successful, navigate to login
       navigation.navigate('Login');
     } catch (error) {
@@ -78,20 +89,24 @@ const Register = ({navigation}) => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
-      >
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <ScrollView style={styles.scrollContainer} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+          <ScrollView
+            style={styles.scrollContainer}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}>
             <View style={styles.registerForm}>
               <View style={styles.headerContainer}>
                 <Icon name="how-to-reg" size={32} color="#0375B7" />
                 <Text style={styles.titletext}>Create Account</Text>
               </View>
-              
-              <Text style={styles.subtitle}>Please fill in your details to register</Text>
+
+              <Text style={styles.subtitle}>
+                Please fill in your details to register
+              </Text>
 
               <View style={styles.sectionContainer}>
                 <View style={styles.sectionHeader}>
@@ -200,7 +215,7 @@ const Register = ({navigation}) => {
                 <Custombutton title="Create Account" onPress={handleRegister} />
               )}
 
-              <View style={styles.lineform}></View>
+              <View style={styles.lineform} />
               <View style={styles.textContainer}>
                 <Text style={styles.text6}>Already have an account?</Text>
                 <Text

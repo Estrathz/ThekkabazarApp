@@ -1,4 +1,8 @@
-import { LOGGING_CONFIG, isProduction, isDevelopment } from '../config/environment';
+import {
+  LOGGING_CONFIG,
+  isProduction,
+  isDevelopment,
+} from '../config/environment';
 
 // Log levels
 const LOG_LEVELS = {
@@ -13,12 +17,15 @@ class LoggingService {
     this.logs = [];
     this.maxLogs = LOGGING_CONFIG.maxLogs;
     this.enabled = LOGGING_CONFIG.enabled;
-    this.level = LOG_LEVELS[LOGGING_CONFIG.level.toUpperCase()] || LOG_LEVELS.ERROR;
+    this.level =
+      LOG_LEVELS[LOGGING_CONFIG.level.toUpperCase()] || LOG_LEVELS.ERROR;
   }
 
   // Add log entry
   addLog(level, message, data = null, error = null) {
-    if (!this.enabled) return;
+    if (!this.enabled) {
+      return;
+    }
 
     const logEntry = {
       timestamp: new Date().toISOString(),
@@ -48,7 +55,7 @@ class LoggingService {
   consoleLog(level, message, data, error) {
     const timestamp = new Date().toISOString();
     const prefix = `[${timestamp}] [${level.toUpperCase()}]`;
-    
+
     switch (level) {
       case 'ERROR':
         console.error(prefix, message, data || '', error || '');
@@ -69,7 +76,9 @@ class LoggingService {
 
   // Sanitize error object for logging
   sanitizeError(error) {
-    if (!error) return null;
+    if (!error) {
+      return null;
+    }
 
     return {
       name: error.name,
@@ -113,7 +122,11 @@ class LoggingService {
 
   logApiResponse(method, url, status, duration, data = null) {
     const level = status >= 400 ? 'ERROR' : 'DEBUG';
-    this.addLog(level, `API Response: ${method} ${url} - ${status} (${duration}ms)`, data);
+    this.addLog(
+      level,
+      `API Response: ${method} ${url} - ${status} (${duration}ms)`,
+      data,
+    );
   }
 
   logApiError(method, url, error) {
@@ -141,10 +154,14 @@ class LoggingService {
 
   // Error boundary logging
   logErrorBoundary(error, errorInfo) {
-    this.error('React Error Boundary Caught Error', {
-      componentStack: errorInfo.componentStack,
-      errorInfo,
-    }, error);
+    this.error(
+      'React Error Boundary Caught Error',
+      {
+        componentStack: errorInfo.componentStack,
+        errorInfo,
+      },
+      error,
+    );
   }
 
   // Get all logs
@@ -180,15 +197,17 @@ class LoggingService {
 
   // Send logs to remote service (for production)
   async sendLogsToRemote() {
-    if (!isProduction()) return;
+    if (!isProduction()) {
+      return;
+    }
 
     try {
       const logData = this.exportLogs();
-      
+
       // Here you would send logs to your remote logging service
       // Example: Sentry, LogRocket, etc.
       console.log('Sending logs to remote service:', logData);
-      
+
       // Clear logs after successful send
       this.clearLogs();
     } catch (error) {
@@ -202,4 +221,4 @@ const loggingService = new LoggingService();
 
 // Export singleton and class
 export default loggingService;
-export { LoggingService }; 
+export {LoggingService};

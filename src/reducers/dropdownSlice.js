@@ -1,25 +1,22 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import axios from 'axios';
-import {BASE_URL} from './apiUrl';
+import {BASE_URL, API_HEADERS} from './apiUrl';
 
 export const fetchDropdownData = createAsyncThunk(
   'dropdown/fetchDropdownData',
-  async (_, { rejectWithValue }) => {
+  async (_, {rejectWithValue}) => {
     try {
       const url = `${BASE_URL}/tender/apis/master/list/`;
-      
+
       const response = await axios.get(url, {
-        headers: {
-          'accept': 'application/json',
-          'X-CSRFToken': 'bwQJROlt74LsvQqQuOi10XS8WEyGPgpVSfLN7HfQbsFEAu5NMRk3KkYuNsIenqFO'
-        }
+        headers: API_HEADERS,
       });
-      
+
       return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
-  }
+  },
 );
 
 const dropdownSlice = createSlice({
@@ -31,9 +28,9 @@ const dropdownSlice = createSlice({
     loading: false,
   },
   reducers: {},
-  extraReducers: (builder) => {
+  extraReducers: builder => {
     builder
-      .addCase(fetchDropdownData.pending, (state) => {
+      .addCase(fetchDropdownData.pending, state => {
         state.loading = true;
         state.status = 'loading';
         state.dropdownerror = null;

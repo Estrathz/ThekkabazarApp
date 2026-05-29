@@ -1,5 +1,5 @@
-import { StyleSheet } from 'react-native';
-import { colors, fonts } from '../../theme';
+import {StyleSheet} from 'react-native';
+import {colors, fonts} from '../../theme';
 
 const styles = StyleSheet.create({
   ResultContainer: {
@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#0375B7',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 5,
@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     elevation: 3,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },

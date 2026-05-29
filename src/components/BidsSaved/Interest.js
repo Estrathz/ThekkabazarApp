@@ -1,16 +1,15 @@
-import {View, Text, FlatList} from 'react-native';
-import React, {useEffect, useState} from 'react';
+import {View, Text} from 'react-native';
+import React, {useEffect} from 'react';
 import styles from './SaveBidsStyle';
 import Custombutton from '../../Containers/Button/button';
 import Icon from 'react-native-vector-icons/Octicons';
 import {fetchInterestData} from '../../reducers/interestSlice';
 import {useDispatch, useSelector} from 'react-redux';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Interest = () => {
   const dispatch = useDispatch();
   const {interestdata, interesterror} = useSelector(state => state.interest);
-  const { isAuthenticated } = useSelector(state => state.users);
+  const {isAuthenticated} = useSelector(state => state.users);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -25,8 +24,6 @@ const Interest = () => {
   useEffect(() => {
     console.log(interestdata);
   });
-
-
 
   return (
     <View style={styles.container}>

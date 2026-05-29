@@ -1,28 +1,28 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {View, Text, TouchableOpacity, StyleSheet, Alert} from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { 
-      hasError: false, 
-      error: null, 
+    this.state = {
+      hasError: false,
+      error: null,
       errorInfo: null,
-      retryCount: 0 
+      retryCount: 0,
     };
   }
 
   static getDerivedStateFromError(error) {
     // Update state so the next render will show the fallback UI
-    return { hasError: true };
+    return {hasError: true};
   }
 
   componentDidCatch(error, errorInfo) {
     // Log the error
     console.error('Error Boundary caught an error:', error, errorInfo);
-    
+
     this.setState({
       error,
       errorInfo,
@@ -30,7 +30,7 @@ class ErrorBoundary extends React.Component {
   }
 
   handleRetry = () => {
-    const { retryCount } = this.state;
+    const {retryCount} = this.state;
     const maxRetries = 3;
 
     if (retryCount < maxRetries) {
@@ -38,7 +38,7 @@ class ErrorBoundary extends React.Component {
         hasError: false,
         error: null,
         errorInfo: null,
-        retryCount: prevState.retryCount + 1
+        retryCount: prevState.retryCount + 1,
       }));
     } else {
       // After max retries, show a different message
@@ -50,17 +50,17 @@ class ErrorBoundary extends React.Component {
             text: 'OK',
             onPress: () => {
               // You could implement app restart logic here
-              this.setState({ hasError: false });
-            }
-          }
-        ]
+              this.setState({hasError: false});
+            },
+          },
+        ],
       );
     }
-  }
+  };
 
   handleReportError = () => {
-    const { error, errorInfo } = this.state;
-    
+    const {error, errorInfo} = this.state;
+
     // In a real app, you would send this to your error reporting service
     const errorReport = {
       error: error?.toString(),
@@ -77,9 +77,9 @@ class ErrorBoundary extends React.Component {
     Alert.alert(
       'Error Reported',
       'Thank you for reporting this issue. We will investigate and fix it.',
-      [{ text: 'OK' }]
+      [{text: 'OK'}],
     );
-  }
+  };
 
   render() {
     if (this.state.hasError) {
@@ -89,11 +89,12 @@ class ErrorBoundary extends React.Component {
             <View style={styles.iconContainer}>
               <Icon name="alert-circle-outline" size={80} color="#FF6B6B" />
             </View>
-            
+
             <Text style={styles.title}>Oops! Something went wrong</Text>
-            
+
             <Text style={styles.message}>
-              We're sorry, but something unexpected happened. Don't worry, your data is safe.
+              We're sorry, but something unexpected happened. Don't worry, your
+              data is safe.
             </Text>
 
             {__DEV__ && this.state.error && (
@@ -111,29 +112,28 @@ class ErrorBoundary extends React.Component {
             )}
 
             <View style={styles.buttonContainer}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.retryButton}
                 onPress={this.handleRetry}
-                activeOpacity={0.8}
-              >
+                activeOpacity={0.8}>
                 <Icon name="refresh" size={20} color="#FFFFFF" />
                 <Text style={styles.retryButtonText}>
                   Try Again ({this.state.retryCount}/3)
                 </Text>
               </TouchableOpacity>
 
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.reportButton}
                 onPress={this.handleReportError}
-                activeOpacity={0.8}
-              >
+                activeOpacity={0.8}>
                 <Icon name="bug-outline" size={20} color="#0375B7" />
                 <Text style={styles.reportButtonText}>Report Issue</Text>
               </TouchableOpacity>
             </View>
 
             <Text style={styles.helpText}>
-              If the problem persists, please restart the app or contact support.
+              If the problem persists, please restart the app or contact
+              support.
             </Text>
           </View>
         </SafeAreaView>
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 16,
     shadowColor: '#0375B7',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 4,
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#0375B7',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,

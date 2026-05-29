@@ -1,14 +1,17 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import axios from 'axios';
-import { createAction } from '@reduxjs/toolkit';
-import { BASE_URL } from './apiUrl';
+import {createAction} from '@reduxjs/toolkit';
+import {BASE_URL} from './apiUrl';
 
 // Fetch bazar categories data
 export const fetchbazarData = createAsyncThunk(
   'bazar/fetchbazarData',
-  async (_, { rejectWithValue }) => {
+  async (_, {rejectWithValue}) => {
     try {
-      console.log('Fetching bazar data from:', `${BASE_URL}/products/apis/products/category/list/`);
+      console.log(
+        'Fetching bazar data from:',
+        `${BASE_URL}/products/apis/products/category/list/`,
+      );
       const response = await axios.get(
         `${BASE_URL}/products/apis/products/category/list/`,
       );
@@ -16,8 +19,15 @@ export const fetchbazarData = createAsyncThunk(
       console.log('Bazar data response:', data);
       return data.data;
     } catch (error) {
-      console.error('Bazar data fetch error:', error.response?.data || error.message);
-      return rejectWithValue(error.response?.data?.message || error.message || 'Failed to fetch categories');
+      console.error(
+        'Bazar data fetch error:',
+        error.response?.data || error.message,
+      );
+      return rejectWithValue(
+        error.response?.data?.message ||
+          error.message ||
+          'Failed to fetch categories',
+      );
     }
   },
 );
@@ -25,7 +35,10 @@ export const fetchbazarData = createAsyncThunk(
 // Fetch product list data
 export const fetchproductListData = createAsyncThunk(
   'bazar/fetchproductListData',
-  async ({ mainCategory, businessType, location, subcategory, page, search }, { rejectWithValue }) => {
+  async (
+    {mainCategory, businessType, location, subcategory, page, search},
+    {rejectWithValue},
+  ) => {
     try {
       const params = new URLSearchParams();
 
@@ -56,16 +69,30 @@ export const fetchproductListData = createAsyncThunk(
 
       const url = `${BASE_URL}/products/apis/products/list/?${params.toString()}`;
       console.log('Fetching product list from:', url);
-      console.log('Parameters:', { mainCategory, businessType, location, subcategory, page, search });
-      
+      console.log('Parameters:', {
+        mainCategory,
+        businessType,
+        location,
+        subcategory,
+        page,
+        search,
+      });
+
       const response = await axios.get(url);
       const data = response.data;
-      
+
       console.log('Product list response:', data);
       return data;
     } catch (error) {
-      console.error('Product list fetch error:', error.response?.data || error.message);
-      return rejectWithValue(error.response?.data?.message || error.message || 'Failed to fetch products');
+      console.error(
+        'Product list fetch error:',
+        error.response?.data || error.message,
+      );
+      return rejectWithValue(
+        error.response?.data?.message ||
+          error.message ||
+          'Failed to fetch products',
+      );
     }
   },
 );
@@ -82,23 +109,23 @@ const bazarSlice = createSlice({
     data: [],
     categoriesStatus: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
     categoriesError: null,
-    
+
     // Product list data
     productList: [],
     productListStatus: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
     productListError: null,
-    
+
     // General state
     status: 'idle', // Legacy status for backward compatibility
     error: null, // Legacy error for backward compatibility
   },
   reducers: {
-    clearError: (state) => {
+    clearError: state => {
       state.error = null;
       state.categoriesError = null;
       state.productListError = null;
     },
-    resetState: (state) => {
+    resetState: state => {
       state.data = [];
       state.productList = [];
       state.categoriesStatus = 'idle';
@@ -112,7 +139,7 @@ const bazarSlice = createSlice({
   extraReducers: builder => {
     builder
       // Categories data cases
-      .addCase(fetchbazarData.pending, (state) => {
+      .addCase(fetchbazarData.pending, state => {
         state.categoriesStatus = 'loading';
         state.status = 'loading'; // Legacy
         state.categoriesError = null;
@@ -131,9 +158,9 @@ const bazarSlice = createSlice({
         state.categoriesError = action.payload || action.error.message;
         state.error = action.payload || action.error.message; // Legacy
       })
-      
+
       // Product list data cases
-      .addCase(fetchproductListData.pending, (state) => {
+      .addCase(fetchproductListData.pending, state => {
         state.productListStatus = 'loading';
         state.status = 'loading'; // Legacy
         state.productListError = null;
@@ -152,14 +179,14 @@ const bazarSlice = createSlice({
         state.productListError = action.payload || action.error.message;
         state.error = action.payload || action.error.message; // Legacy
       })
-      
+
       // Action creators
-      .addCase(clearBazarError, (state) => {
+      .addCase(clearBazarError, state => {
         state.error = null;
         state.categoriesError = null;
         state.productListError = null;
       })
-      .addCase(resetBazarState, (state) => {
+      .addCase(resetBazarState, state => {
         state.data = [];
         state.productList = [];
         state.categoriesStatus = 'idle';

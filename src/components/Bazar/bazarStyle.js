@@ -1,6 +1,6 @@
-import { StyleSheet } from 'react-native';
-import { colors, fonts } from '../../theme';
-import { wp, hp, normalize, spacing, deviceInfo } from '../../utils/responsive';
+import {StyleSheet} from 'react-native';
+import {colors, fonts} from '../../theme';
+import {wp, hp, normalize, spacing, deviceInfo} from '../../utils/responsive';
 
 const styles = StyleSheet.create({
   Bazarcontainer: {
@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
     width: '100%',
     borderRadius: wp(3),
     shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 3 },
+    shadowOffset: {width: 0, height: 3},
     shadowOpacity: 0.3,
     shadowRadius: 5,
     elevation: 6,
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.md,
     elevation: 3,
     shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.3,
     shadowRadius: 3,
   },

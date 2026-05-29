@@ -9,11 +9,11 @@ export const getProfile = createAsyncThunk(
   async (_, {getState}) => {
     const state = getState();
     const token = state.users.access_token;
-    
+
     if (!token) {
       throw new Error('No access token available');
     }
-    
+
     const config = {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -54,24 +54,27 @@ export const changePassword = createAsyncThunk(
 
 export const updateProfile = createAsyncThunk(
   'data/updateProfile',
-  async ({
-    fullname,
-    company_name,
-    office_name,
-    office_contact_number,
-    website_url,
-    district,
-    municipality,
-    phone_number,
-    gender,
-  }, {getState}) => {
+  async (
+    {
+      fullname,
+      company_name,
+      office_name,
+      office_contact_number,
+      website_url,
+      district,
+      municipality,
+      phone_number,
+      gender,
+    },
+    {getState},
+  ) => {
     const state = getState();
     const token = state.users.access_token;
-    
+
     if (!token) {
       throw new Error('No access token available');
     }
-    
+
     const config = {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -119,11 +122,11 @@ export const getSavedBids = createAsyncThunk(
   async (_, {getState}) => {
     const state = getState();
     const token = state.users.access_token;
-    
+
     if (!token) {
       throw new Error('No access token available');
     }
-    
+
     const config = {
       headers: {
         Authorization: `Bearer ${token}`,

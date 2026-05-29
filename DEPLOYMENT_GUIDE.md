@@ -7,6 +7,7 @@ This guide walks you through deploying ThekkabazarApp to production on both Goog
 ## 🔧 Prerequisites
 
 ### Required Tools
+
 - [ ] Node.js 18+ installed
 - [ ] React Native CLI installed
 - [ ] Android Studio (for Android builds)
@@ -15,11 +16,13 @@ This guide walks you through deploying ThekkabazarApp to production on both Goog
 - [ ] Git configured
 
 ### Required Accounts
+
 - [ ] Google Play Console account
 - [ ] Apple Developer account
 - [ ] App Store Connect access
 
 ### Required Certificates
+
 - [ ] Android signing keystore
 - [ ] iOS distribution certificate
 - [ ] iOS provisioning profile
@@ -51,7 +54,7 @@ android {
         versionName "1.0.0"
         multiDexEnabled true
     }
-    
+
     buildTypes {
         release {
             minifyEnabled true
@@ -277,6 +280,7 @@ npm prune
 ### 1. Set Up Alerts
 
 Configure alerts for:
+
 - High crash rates
 - Performance degradation
 - API failures
@@ -293,6 +297,7 @@ Configure alerts for:
 ### 3. Error Tracking
 
 Monitor and categorize errors:
+
 - Network errors
 - Authentication errors
 - UI/UX errors
@@ -310,6 +315,7 @@ If critical issues are discovered:
 ### 2. Hot Fixes
 
 For minor issues:
+
 - Use over-the-air updates (if configured)
 - Submit patch releases
 
@@ -322,24 +328,29 @@ For minor issues:
 ## 📞 Support & Contacts
 
 ### Development Team
+
 - **Lead Developer**: [Contact Info]
 - **QA Lead**: [Contact Info]
 - **DevOps Engineer**: [Contact Info]
 
 ### App Store Support
+
 - **Google Play Support**: [Contact Info]
 - **Apple Developer Support**: [Contact Info]
 
 ### Emergency Contacts
+
 - **On-Call Developer**: [Contact Info]
 - **System Administrator**: [Contact Info]
 
 ## 📝 Release Notes Template
 
 ### Version 1.0.0
+
 **Release Date**: [Date]
 
 #### 🆕 New Features
+
 - Initial release of ThekkabazarApp
 - User authentication and registration
 - Product browsing and search
@@ -347,6 +358,7 @@ For minor issues:
 - Product details and supplier information
 
 #### 🔧 Technical Features
+
 - Responsive design for all screen sizes
 - Offline functionality
 - Push notifications
@@ -354,10 +366,11 @@ For minor issues:
 - Performance optimizations
 
 #### 📱 Platform Support
+
 - Android 6.0+ (API level 23+)
 - iOS 12.0+
 
 ---
 
 **Next Release**: [Planned Date]
-**Support**: [Support Contact] 
+**Support**: [Support Contact]

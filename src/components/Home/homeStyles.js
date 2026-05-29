@@ -1,7 +1,6 @@
 import {StyleSheet} from 'react-native';
 import {colors, fonts} from '../../theme';
 import {wp, hp, normalize, spacing, deviceInfo} from '../../utils/responsive';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 const styles = StyleSheet.create({
   HomeContainer: {
@@ -70,7 +69,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     position: 'relative',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
@@ -93,7 +92,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#FF0000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.3,
     shadowRadius: 2,
     elevation: 3,
@@ -120,7 +119,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#0375B7',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.3,
     shadowRadius: 2,
     elevation: 3,
@@ -155,7 +154,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: wp(5),
     borderTopRightRadius: wp(5),
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: -3 },
+    shadowOffset: {width: 0, height: -3},
     shadowOpacity: 0.1,
     shadowRadius: 6,
     elevation: 10,
@@ -212,7 +211,7 @@ const styles = StyleSheet.create({
     marginBottom: hp(1.5), // Reduced from 2
     paddingHorizontal: spacing.lg,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.08,
     shadowRadius: 4,
     elevation: 3,
@@ -224,7 +223,7 @@ const styles = StyleSheet.create({
     shadowColor: colors.primary,
     shadowOpacity: 0.15,
     elevation: 5,
-    transform: [{ scale: 1.02 }], // Subtle scale effect for selected state
+    transform: [{scale: 1.02}], // Subtle scale effect for selected state
   },
   dropdown1BtnTxtStyle: {
     color: '#555',
@@ -256,7 +255,7 @@ const styles = StyleSheet.create({
     borderLeftWidth: 4,
     borderLeftColor: colors.primary,
     shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
@@ -278,7 +277,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
     maxHeight: hp(35), // Reduced max height for better mobile experience
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
+    shadowOffset: {width: 0, height: 6},
     shadowOpacity: 0.15,
     shadowRadius: 10,
     elevation: 12,
@@ -299,7 +298,7 @@ const styles = StyleSheet.create({
     color: '#555',
     fontWeight: '500',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.08,
     shadowRadius: 4,
     elevation: 3,
@@ -390,7 +389,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.08,
     shadowRadius: 4,
     elevation: 3,
@@ -478,7 +477,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#0375B7',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
@@ -511,7 +510,7 @@ const styles = StyleSheet.create({
     borderRadius: wp(6),
     marginTop: hp(1),
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
@@ -569,7 +568,7 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: '#E1E5E9',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.08,
     shadowRadius: 4,
     elevation: 3,
@@ -586,7 +585,7 @@ const styles = StyleSheet.create({
     paddingVertical: hp(2),
     borderRadius: wp(3),
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.08,
     shadowRadius: 4,
     elevation: 3,
@@ -611,7 +610,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     elevation: 3,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
   },
@@ -643,7 +642,7 @@ const styles = StyleSheet.create({
     minHeight: hp(deviceInfo.isTablet ? 6 : 5), // Reduced from 7.5:6.5
     maxHeight: hp(deviceInfo.isTablet ? 7 : 6), // Reduced from 9:8
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.06,
     shadowRadius: 2,
     elevation: 2,
@@ -675,7 +674,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#0375B7',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.25,
     shadowRadius: 2,
     elevation: 3,
@@ -699,7 +698,7 @@ const styles = StyleSheet.create({
     minWidth: wp(deviceInfo.isTablet ? 14.4 : 12), // Increased by 20%
     justifyContent: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.08,
     shadowRadius: 2,
     elevation: 2,
@@ -716,7 +715,7 @@ const styles = StyleSheet.create({
     shadowColor: colors.primary,
     shadowOpacity: 0.25, // Reduced shadow opacity
     elevation: 3, // Reduced elevation
-    transform: [{ scale: 1.02 }], // Minimal scale for compact design
+    transform: [{scale: 1.02}], // Minimal scale for compact design
   },
   buttonIcon: {
     marginRight: wp(1.5),
@@ -743,7 +742,7 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: '#E1E5E9',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,

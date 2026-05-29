@@ -1,15 +1,15 @@
-import { useState, useEffect } from 'react';
-import { Dimensions } from 'react-native';
+import {useState, useEffect} from 'react';
+import {Dimensions} from 'react-native';
 
 export const useOrientation = () => {
   const [orientation, setOrientation] = useState(
-    Dimensions.get('window').width > Dimensions.get('window').height 
-      ? 'landscape' 
-      : 'portrait'
+    Dimensions.get('window').width > Dimensions.get('window').height
+      ? 'landscape'
+      : 'portrait',
   );
 
   useEffect(() => {
-    const subscription = Dimensions.addEventListener('change', ({ window }) => {
+    const subscription = Dimensions.addEventListener('change', ({window}) => {
       setOrientation(window.width > window.height ? 'landscape' : 'portrait');
     });
 
@@ -17,4 +17,4 @@ export const useOrientation = () => {
   }, []);
 
   return orientation;
-}; 
+};

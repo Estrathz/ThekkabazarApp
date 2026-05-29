@@ -1,19 +1,24 @@
-import { View, Text, TextInput, ScrollView, TouchableOpacity } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import React, { useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  ScrollView,
+  TouchableOpacity,
+} from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import React, {useState} from 'react';
 import styles from './editProfileStyle';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { useSelector, useDispatch } from 'react-redux';
+import {useSelector, useDispatch} from 'react-redux';
 import Custombutton from '../../../../Containers/Button/button';
 import SelectDropdown from 'react-native-select-dropdown';
 import Icon2 from 'react-native-vector-icons/Ionicons';
-import { updateProfile } from '../../../../reducers/profileSlice';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {updateProfile} from '../../../../reducers/profileSlice';
 
-const EditProfile = ({ navigation }) => {
+const EditProfile = ({navigation}) => {
   const dispatch = useDispatch();
-  const { data, error } = useSelector(state => state.userprofile);
-  
+  const {data, error} = useSelector(state => state.userprofile);
+
   // State Variables
   const [fullname, setFullname] = useState(data?.fullname || '');
   const [phone, setPhone] = useState(data?.phone_number || '');
@@ -29,11 +34,11 @@ const EditProfile = ({ navigation }) => {
         company_name: companyName,
         phone_number: phone,
         gender,
-      })
+      }),
     );
 
     if (!error) {
-      navigation.navigate('UserProfile', { profileUpdated: true });
+      navigation.navigate('UserProfile', {profileUpdated: true});
     }
   };
 
@@ -41,19 +46,38 @@ const EditProfile = ({ navigation }) => {
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       {/* Header Section */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}>
           <Icon name="arrow-back-ios-new" size={28} color="black" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Edit Profile</Text>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}>
         <View style={styles.cardContainer}>
           {/* Input Fields */}
           {[
-            { label: 'Full Name', value: fullname, setter: setFullname, placeholder: 'Enter full name' },
-            { label: 'Phone Number', value: phone, setter: setPhone, placeholder: 'Enter phone number' },
-            { label: 'Company Name', value: companyName, setter: setCompanyName, placeholder: 'Enter company name' },
+            {
+              label: 'Full Name',
+              value: fullname,
+              setter: setFullname,
+              placeholder: 'Enter full name',
+            },
+            {
+              label: 'Phone Number',
+              value: phone,
+              setter: setPhone,
+              placeholder: 'Enter phone number',
+            },
+            {
+              label: 'Company Name',
+              value: companyName,
+              setter: setCompanyName,
+              placeholder: 'Enter company name',
+            },
           ].map((item, index) => (
             <View key={index} style={styles.inputWrapper}>
               <Text style={styles.inputLabel}>{item.label}:</Text>
@@ -72,14 +96,18 @@ const EditProfile = ({ navigation }) => {
             <Text style={styles.inputLabel}>Gender:</Text>
             <SelectDropdown
               data={genderData}
-              onSelect={(selectedItem) => setGender(selectedItem)}
+              onSelect={selectedItem => setGender(selectedItem)}
               defaultButtonText={gender || 'Select Gender'}
-              buttonTextAfterSelection={(selectedItem) => selectedItem}
-              rowTextForSelection={(item) => item}
+              buttonTextAfterSelection={selectedItem => selectedItem}
+              rowTextForSelection={item => item}
               buttonStyle={styles.dropdownButton}
               buttonTextStyle={styles.dropdownText}
               renderDropdownIcon={isOpened => (
-                <Icon2 name={isOpened ? 'chevron-up' : 'chevron-down'} color="#444" size={18} />
+                <Icon2
+                  name={isOpened ? 'chevron-up' : 'chevron-down'}
+                  color="#444"
+                  size={18}
+                />
               )}
               dropdownIconPosition="right"
               dropdownStyle={styles.dropdownStyle}
@@ -89,7 +117,11 @@ const EditProfile = ({ navigation }) => {
           </View>
 
           {/* Update Button */}
-          <Custombutton title="Update Profile" onPress={handleProfileUpdate} style={styles.updateButton} />
+          <Custombutton
+            title="Update Profile"
+            onPress={handleProfileUpdate}
+            style={styles.updateButton}
+          />
         </View>
       </ScrollView>
     </SafeAreaView>

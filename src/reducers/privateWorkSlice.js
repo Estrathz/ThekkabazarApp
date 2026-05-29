@@ -66,7 +66,7 @@ const privateWorkSlice = createSlice({
         state.error = action.error.message;
       })
       .addCase(getPrivateWork.pending, state => {
-        state.state = 'loading';
+        state.status = 'loading';
       })
       .addCase(getPrivateWork.fulfilled, (state, action) => {
         state.status = 'succeeded';

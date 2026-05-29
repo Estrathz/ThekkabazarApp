@@ -1,6 +1,12 @@
-import { StyleSheet } from 'react-native';
-import { colors, fonts } from '../../../theme';
-import { wp, hp, normalize, spacing, deviceInfo } from '../../../utils/responsive';
+import {StyleSheet} from 'react-native';
+import {colors, fonts} from '../../../theme';
+import {
+  wp,
+  hp,
+  normalize,
+  spacing,
+  deviceInfo,
+} from '../../../utils/responsive';
 
 const styles = StyleSheet.create({
   // Container styles

@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState } from 'react';
+import React, {useEffect, useCallback, useState} from 'react';
 import {
   View,
   Text,
@@ -12,52 +12,68 @@ import {
   TouchableOpacity,
   Modal,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchOneResultData, clearSingleResult } from '../../../reducers/resultSlice';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import {useDispatch, useSelector} from 'react-redux';
+import {
+  fetchOneResultData,
+  clearSingleResult,
+} from '../../../reducers/resultSlice';
 import Custombutton from '../../../Containers/Button/button';
 import HTML from 'react-native-render-html';
-import { useWindowDimensions } from 'react-native';
+import {useWindowDimensions} from 'react-native';
 import RNFS from 'react-native-fs';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import styles from './resultdetailStyle';
 
-const Detail = ({ route, navigation }) => {
+const Detail = ({route, navigation}) => {
   const dispatch = useDispatch();
-  const { one: items, error: apiError, loading: cardLoading, currentId } = useSelector(state => state.result);
-  const { width } = useWindowDimensions();
-  const { tenderData } = route.params;
+  const {
+    one: items,
+    error: apiError,
+    loading: cardLoading,
+    currentId,
+  } = useSelector(state => state.result);
+  const {width} = useWindowDimensions();
+  const tenderData = route?.params?.tenderData;
+  const routeId = route?.params?.id;
   const [downloadModal, setDownloadModal] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [downloadingFileName, setDownloadingFileName] = useState('');
 
   // Memoized fetch function
-  const fetchDetails = useCallback(async (id) => {
-    try {
-      const result = await dispatch(fetchOneResultData({ tenderId: id })).unwrap();
-      
-      if (!result) {
-        Alert.alert('Error', 'No data received from the server');
-        navigation.goBack();
-        return;
+  const fetchDetails = useCallback(
+    async id => {
+      try {
+        const result = await dispatch(
+          fetchOneResultData({tenderId: id}),
+        ).unwrap();
+
+        if (!result) {
+          Alert.alert('Error', 'No data received from the server');
+          navigation.goBack();
+          return;
+        }
+      } catch (error) {
+        if (error.status === 404) {
+          Alert.alert('Not Found', 'This tender result could not be found.');
+          navigation.goBack();
+        } else {
+          Alert.alert(
+            'Error',
+            error.message || 'Failed to load tender details',
+          );
+        }
       }
-    } catch (error) {
-      if (error.status === 404) {
-        Alert.alert('Not Found', 'This tender result could not be found.');
-        navigation.goBack();
-      } else {
-        Alert.alert('Error', error.message || 'Failed to load tender details');
-      }
-    }
-  }, [dispatch, navigation]);
+    },
+    [dispatch, navigation],
+  );
 
   // Effect for fetching data only if we don't have tenderData
   useEffect(() => {
-    const { id } = route.params;
-    if (!tenderData && id && (!currentId || currentId !== id)) {
-      fetchDetails(id);
+    if (!tenderData && routeId && (!currentId || currentId !== routeId)) {
+      fetchDetails(routeId);
     }
-  }, [route.params?.id, currentId, fetchDetails, tenderData]);
+  }, [routeId, currentId, fetchDetails, tenderData]);
 
   // Effect for handling errors
   useEffect(() => {
@@ -66,7 +82,10 @@ const Detail = ({ route, navigation }) => {
         Alert.alert('Not Found', 'This tender result could not be found.');
         navigation.goBack();
       } else {
-        Alert.alert('Error', apiError.message || 'Failed to load tender details');
+        Alert.alert(
+          'Error',
+          apiError.message || 'Failed to load tender details',
+        );
       }
     }
   }, [apiError, navigation]);
@@ -79,7 +98,7 @@ const Detail = ({ route, navigation }) => {
     };
   }, [dispatch]);
 
-  const handleDownload = async (imageUrl) => {
+  const handleDownload = async imageUrl => {
     try {
       if (Platform.OS === 'android') {
         const granted = await PermissionsAndroid.requestMultiple([
@@ -98,7 +117,7 @@ const Detail = ({ route, navigation }) => {
           return;
         }
       }
-      
+
       // Validate the URL
       if (!imageUrl || typeof imageUrl !== 'string' || imageUrl.trim() === '') {
         Alert.alert('Download Failed', 'Invalid image URL provided');
@@ -118,10 +137,10 @@ const Detail = ({ route, navigation }) => {
       setDownloadingFileName(imageName);
       setDownloadProgress(0);
       setDownloadModal(true);
-      
+
       let path;
       let folderName;
-      
+
       if (Platform.OS === 'android') {
         // For Android: Save to DCIM directory (public, appears in gallery)
         const dcimDir = RNFS.DCIMDirectoryPath;
@@ -131,7 +150,7 @@ const Detail = ({ route, navigation }) => {
             await RNFS.mkdir(dcimDir);
             console.log('Created DCIM directory:', dcimDir);
           }
-          
+
           // Create a subfolder for the app
           const appFolder = `${dcimDir}/ThekkaBazar`;
           const appFolderExists = await RNFS.exists(appFolder);
@@ -139,11 +158,13 @@ const Detail = ({ route, navigation }) => {
             await RNFS.mkdir(appFolder);
             console.log('Created app folder:', appFolder);
           }
-          
+
           path = `${appFolder}/${imageName}`;
           folderName = 'DCIM/ThekkaBazar (Gallery)';
         } catch (dirError) {
-          console.log('DCIM directory creation failed, trying Downloads directory');
+          console.log(
+            'DCIM directory creation failed, trying Downloads directory',
+          );
           // Fallback to Downloads directory
           const downloadsDir = RNFS.DownloadDirectoryPath;
           try {
@@ -157,7 +178,7 @@ const Detail = ({ route, navigation }) => {
             // Final fallback to Documents directory
             const documentsDir = RNFS.DocumentDirectoryPath;
             path = `${documentsDir}/${imageName}`;
-            folderName = 'app\'s Documents folder';
+            folderName = "app's Documents folder";
           }
         }
       } else {
@@ -166,36 +187,38 @@ const Detail = ({ route, navigation }) => {
         path = `${documentsDir}/${imageName}`;
         folderName = 'Photos app (via Files)';
       }
-      
+
       console.log('Downloading image to:', path);
 
       // Download with progress tracking
       const downloadJob = RNFS.downloadFile({
         fromUrl: imageUrl,
         toFile: path,
-        progress: (res) => {
-          const progressPercent = Math.round((res.bytesWritten / res.contentLength) * 100);
+        progress: res => {
+          const progressPercent = Math.round(
+            (res.bytesWritten / res.contentLength) * 100,
+          );
           setDownloadProgress(progressPercent);
           console.log(`Download progress: ${progressPercent}%`);
         },
         progressDivider: 1,
       });
 
-      const { statusCode } = await downloadJob.promise;
+      const {statusCode} = await downloadJob.promise;
 
       setDownloadModal(false);
 
       if (statusCode === 200) {
         // Show single completion alert
         Alert.alert(
-          'Download Complete', 
+          'Download Complete',
           `${imageName} has been saved to ${folderName}.`,
           [
             {
               text: 'OK',
-              style: 'cancel'
-            }
-          ]
+              style: 'cancel',
+            },
+          ],
         );
       } else {
         Alert.alert('Download Failed', 'Failed to download image.');
@@ -203,33 +226,39 @@ const Detail = ({ route, navigation }) => {
     } catch (error) {
       setDownloadModal(false);
       console.error('Error downloading image: ', error);
-      
+
       // Fallback to browser
       try {
-        const { Linking } = require('react-native');
+        const {Linking} = require('react-native');
         await Linking.openURL(imageUrl);
-        Alert.alert('Opened in Browser', 'Image opened in browser. You can save it from there.');
+        Alert.alert(
+          'Opened in Browser',
+          'Image opened in browser. You can save it from there.',
+        );
       } catch (browserError) {
-        Alert.alert('Download Failed', 'Failed to download image and cannot open in browser.');
+        Alert.alert(
+          'Download Failed',
+          'Failed to download image and cannot open in browser.',
+        );
       }
     }
   };
 
-  const handlePdfDownload = async (fileUrl) => {
+  const handlePdfDownload = async fileUrl => {
     try {
       console.log('Opening file URL in browser:', fileUrl);
-      
+
       // Validate the URL before attempting to open
       if (!fileUrl) {
         Alert.alert('Error', 'No file URL provided');
         return;
       }
-      
+
       if (typeof fileUrl !== 'string') {
         Alert.alert('Error', `Invalid file URL type: ${typeof fileUrl}`);
         return;
       }
-      
+
       if (fileUrl.trim() === '') {
         Alert.alert('Error', 'File URL is empty');
         return;
@@ -237,9 +266,12 @@ const Detail = ({ route, navigation }) => {
 
       // Clean and format the URL
       let processedUrl = fileUrl.trim();
-      
+
       // Add protocol if missing
-      if (!processedUrl.startsWith('http://') && !processedUrl.startsWith('https://')) {
+      if (
+        !processedUrl.startsWith('http://') &&
+        !processedUrl.startsWith('https://')
+      ) {
         processedUrl = 'https://' + processedUrl;
         console.log('Added https:// to URL:', processedUrl);
       }
@@ -254,12 +286,14 @@ const Detail = ({ route, navigation }) => {
       }
 
       // Import Linking from react-native and open URL directly
-      const { Linking } = require('react-native');
-      
+      const {Linking} = require('react-native');
+
       console.log('Opening URL in browser:', processedUrl);
       await Linking.openURL(processedUrl);
-      Alert.alert('Success', 'File opened in browser. The download should start automatically.');
-      
+      Alert.alert(
+        'Success',
+        'File opened in browser. The download should start automatically.',
+      );
     } catch (error) {
       console.error('Error opening file URL: ', error);
       Alert.alert('Error', `Failed to open file: ${error.message}`);
@@ -269,17 +303,14 @@ const Detail = ({ route, navigation }) => {
   // Use tenderData if available, otherwise use items from Redux
   const displayData = tenderData || items;
 
-  // Debug: Log the complete data structure
-  console.log('=== COMPLETE DATA DEBUG ===');
-  console.log('DisplayData:', JSON.stringify(displayData, null, 2));
-  console.log('Tender files:', displayData?.tender_files);
-  console.log('Tender files length:', displayData?.tender_files?.length);
-  console.log('=== END COMPLETE DATA DEBUG ===');
-
   if (!tenderData && cardLoading) {
     return (
       <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-        <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <View
+          style={[
+            styles.container,
+            {justifyContent: 'center', alignItems: 'center'},
+          ]}>
           <ActivityIndicator size="large" color="#0375B7" />
           <Text style={styles.loadingText}>Loading details...</Text>
         </View>
@@ -290,12 +321,15 @@ const Detail = ({ route, navigation }) => {
   if (!tenderData && apiError) {
     return (
       <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-        <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-          <Text style={styles.errorText}>{apiError.message || 'Failed to load details'}</Text>
-          <Custombutton 
-            title="Retry" 
-            onPress={() => fetchDetails(route.params.id)} 
-          />
+        <View
+          style={[
+            styles.container,
+            {justifyContent: 'center', alignItems: 'center'},
+          ]}>
+          <Text style={styles.errorText}>
+            {apiError.message || 'Failed to load details'}
+          </Text>
+          <Custombutton title="Retry" onPress={() => fetchDetails(routeId)} />
         </View>
       </SafeAreaView>
     );
@@ -304,7 +338,11 @@ const Detail = ({ route, navigation }) => {
   if (!displayData) {
     return (
       <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-        <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <View
+          style={[
+            styles.container,
+            {justifyContent: 'center', alignItems: 'center'},
+          ]}>
           <Text style={styles.errorText}>No details available</Text>
         </View>
       </SafeAreaView>
@@ -313,9 +351,13 @@ const Detail = ({ route, navigation }) => {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.backButton}>
             <Icon name="arrow-back" size={24} color="#000" />
           </TouchableOpacity>
           <Text style={styles.headerText}>Result Details</Text>
@@ -324,7 +366,11 @@ const Detail = ({ route, navigation }) => {
         <View style={styles.detailCardContainer}>
           <View style={styles.imageContainer}>
             <Image
-              source={displayData.image ? { uri: displayData.image } : require('../../../assets/dummy-image.png')}
+              source={
+                displayData.image
+                  ? {uri: displayData.image}
+                  : require('../../../assets/dummy-image.png')
+              }
               style={styles.image}
               resizeMode="contain"
             />
@@ -332,7 +378,10 @@ const Detail = ({ route, navigation }) => {
 
           <View style={styles.buttonContainer}>
             {displayData.image && (
-              <Custombutton title="Download Image" onPress={() => handleDownload(displayData.image)} />
+              <Custombutton
+                title="Download Image"
+                onPress={() => handleDownload(displayData.image)}
+              />
             )}
           </View>
 
@@ -349,38 +398,52 @@ const Detail = ({ route, navigation }) => {
 
             <View style={styles.dateContainer}>
               <Icon name="calendar-month" size={23} color="red" />
-              <Text style={styles.dateText}><Text style={styles.boldText}>Published Date: </Text>{displayData.published_date}</Text>
+              <Text style={styles.dateText}>
+                <Text style={styles.boldText}>Published Date: </Text>
+                {displayData.published_date}
+              </Text>
             </View>
 
-            <Text style={styles.sourceText}><Text style={styles.boldText}>Source: </Text>{displayData.source}</Text>
+            <Text style={styles.sourceText}>
+              <Text style={styles.boldText}>Source: </Text>
+              {displayData.source}
+            </Text>
 
             {displayData?.organization_sector?.map((org, index) => (
               <Text key={index} style={styles.organizationText}>
-                <Text style={styles.boldText}>Organization Sector: </Text>{org.name}
+                <Text style={styles.boldText}>Organization Sector: </Text>
+                {org.name}
               </Text>
             ))}
 
             {displayData?.district?.map((location, index) => (
               <Text key={index} style={styles.locationText}>
-                <Text style={styles.boldText}>Location: </Text>{location.name}
+                <Text style={styles.boldText}>Location: </Text>
+                {location.name}
               </Text>
             ))}
 
             {displayData?.project_type?.map((project, index) => (
               <Text key={index} style={styles.projectTypeText}>
-                <Text style={styles.boldText}>Project Type: </Text>{project.name}
+                <Text style={styles.boldText}>Project Type: </Text>
+                {project.name}
               </Text>
             ))}
 
             {displayData?.procurement_type?.map((pro, index) => (
               <Text key={index} style={styles.procurementTypeText}>
-                <Text style={styles.boldText}>Procurement Type: </Text>{pro.name}
+                <Text style={styles.boldText}>Procurement Type: </Text>
+                {pro.name}
               </Text>
             ))}
 
             <Text style={styles.awardedToText}>Awarded To:</Text>
             {displayData.description ? (
-              <HTML contentWidth={width} source={{ html: displayData.description }} style={styles.htmlContent} />
+              <HTML
+                contentWidth={width}
+                source={{html: displayData.description}}
+                style={styles.htmlContent}
+              />
             ) : (
               <Text style={styles.detailText}>No description available</Text>
             )}
@@ -389,26 +452,29 @@ const Detail = ({ route, navigation }) => {
               <View style={styles.fileContainer}>
                 <Text style={styles.fileSectionTitle}>Attached Files:</Text>
                 {displayData.tender_files.map((file, index) => {
-                  console.log('=== FILE DEBUG INFO ===');
-                  console.log('File object:', JSON.stringify(file, null, 2));
-                  console.log('File.files value:', file.files);
-                  console.log('File.file value:', file.file);
-                  console.log('File.url value:', file.url);
-                  console.log('File.download_url value:', file.download_url);
-                  console.log('File.link value:', file.link);
-                  console.log('All file properties:', Object.keys(file));
-                  console.log('=== END FILE DEBUG ===');
-                  
                   // Try different possible property names for the file URL
-                  const fileUrl = file.files || file.file || file.url || file.download_url || file.link;
-                  
+                  const fileUrl =
+                    file.files ||
+                    file.file ||
+                    file.url ||
+                    file.download_url ||
+                    file.link;
+
                   return (
-                    <View key={index} style={styles.fileRow}>
+                    <View
+                      key={file?.id || file?.pk || fileUrl || `file-${index}`}
+                      style={styles.fileRow}>
                       <Text style={styles.fileTitle}>{file.title}</Text>
                       {fileUrl && fileUrl.trim() !== '' ? (
-                        <Button color="#0375B7" title="Open in Browser" onPress={() => handlePdfDownload(fileUrl)} />
+                        <Button
+                          color="#0375B7"
+                          title="Open in Browser"
+                          onPress={() => handlePdfDownload(fileUrl)}
+                        />
                       ) : (
-                        <Text style={{ color: '#999', fontSize: 12 }}>No file available</Text>
+                        <Text style={{color: '#999', fontSize: 12}}>
+                          No file available
+                        </Text>
                       )}
                     </View>
                   );
@@ -423,16 +489,23 @@ const Detail = ({ route, navigation }) => {
         visible={downloadModal}
         transparent={true}
         animationType="fade"
-        onRequestClose={() => setDownloadModal(false)}
-      >
+        onRequestClose={() => setDownloadModal(false)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Downloading {downloadingFileName}</Text>
+            <Text style={styles.modalTitle}>
+              Downloading {downloadingFileName}
+            </Text>
             <View style={styles.progressBarContainer}>
-              <View style={[styles.progressBar, { width: `${downloadProgress}%` }]} />
+              <View
+                style={[styles.progressBar, {width: `${downloadProgress}%`}]}
+              />
             </View>
             <Text style={styles.progressText}>{downloadProgress}%</Text>
-            <ActivityIndicator size="small" color="#0375B7" style={styles.activityIndicator} />
+            <ActivityIndicator
+              size="small"
+              color="#0375B7"
+              style={styles.activityIndicator}
+            />
           </View>
         </View>
       </Modal>

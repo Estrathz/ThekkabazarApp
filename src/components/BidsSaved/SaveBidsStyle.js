@@ -1,5 +1,5 @@
-import { StyleSheet } from 'react-native';
-import { colors, fonts } from '../../theme';
+import {StyleSheet} from 'react-native';
+import {colors} from '../../theme';
 
 const styles = StyleSheet.create({
   container: {
@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     flexDirection: 'row',
     padding: 10,
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
     height: 35,
     borderWidth: 1,
     borderColor: colors.gray,
-    shadowOffset: { width: 1, height: 2 },
+    shadowOffset: {width: 1, height: 2},
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,

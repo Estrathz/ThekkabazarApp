@@ -1,5 +1,5 @@
-import { StyleSheet } from 'react-native';
-import { colors, fonts } from '../../../../theme';
+import {StyleSheet} from 'react-native';
+import {colors} from '../../../../theme';
 
 const styles = StyleSheet.create({
   container: {
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     elevation: 3,
     shadowColor: '#000',
     shadowOpacity: 0.3,
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowRadius: 4,
   },
   dropdownRowStyle: {

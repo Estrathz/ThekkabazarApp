@@ -1,5 +1,5 @@
 import {Text, View, Modal, Image, TouchableOpacity} from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import styles from './cardStyle';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Custombutton from '../Button/button';

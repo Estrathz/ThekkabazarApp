@@ -31,7 +31,7 @@ const getEnvironment = () => {
   if (__DEV__) {
     return 'development';
   }
-  
+
   // You can set this via build configuration
   const buildConfig = process.env.BUILD_ENV || 'production';
   return buildConfig;
@@ -72,4 +72,4 @@ export const CRASH_REPORTING_CONFIG = {
   dsn: isProduction() ? 'PROD_DSN' : 'DEV_DSN',
 };
 
-export default config; 
+export default config;

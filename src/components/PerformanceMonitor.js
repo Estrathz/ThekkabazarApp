@@ -1,17 +1,17 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
-import { wp, hp, normalize } from '../utils/responsive';
+import React, {useEffect, useRef, useState} from 'react';
+import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {useFocusEffect} from '@react-navigation/native';
+import {wp, hp, normalize} from '../utils/responsive';
 import loggingService from '../services/loggingService';
 
-const PerformanceMonitor = ({ children, componentName = 'Unknown' }) => {
+const PerformanceMonitor = ({children, componentName = 'Unknown'}) => {
   const [metrics, setMetrics] = useState({
     renderCount: 0,
     renderTime: 0,
     memoryUsage: 0,
     lastRenderTime: 0,
   });
-  
+
   const renderStartTime = useRef(0);
   const renderCount = useRef(0);
   const focusStartTime = useRef(0);
@@ -25,7 +25,7 @@ const PerformanceMonitor = ({ children, componentName = 'Unknown' }) => {
     return () => {
       const endTime = performance.now();
       const renderTime = endTime - startTime;
-      
+
       setMetrics(prev => ({
         ...prev,
         renderCount: renderCount.current,
@@ -34,7 +34,8 @@ const PerformanceMonitor = ({ children, componentName = 'Unknown' }) => {
       }));
 
       // Log slow renders
-      if (renderTime > 16) { // 60fps threshold
+      if (renderTime > 16) {
+        // 60fps threshold
         loggingService.warn(`Slow render detected in ${componentName}`, {
           renderTime,
           renderCount: renderCount.current,
@@ -58,13 +59,13 @@ const PerformanceMonitor = ({ children, componentName = 'Unknown' }) => {
       return () => {
         const endTime = performance.now();
         const focusDuration = endTime - startTime;
-        
+
         loggingService.info(`Screen unfocused: ${componentName}`, {
           focusDuration,
           componentName,
         });
       };
-    }, [componentName])
+    }, [componentName]),
   );
 
   // Memory usage monitoring (simplified)
@@ -72,7 +73,7 @@ const PerformanceMonitor = ({ children, componentName = 'Unknown' }) => {
     const memoryInterval = setInterval(() => {
       // In a real app, you'd use a native module to get actual memory usage
       const estimatedMemory = Math.random() * 100; // Placeholder
-      
+
       setMetrics(prev => ({
         ...prev,
         memoryUsage: estimatedMemory,
@@ -102,36 +103,35 @@ const PerformanceMonitor = ({ children, componentName = 'Unknown' }) => {
   return (
     <View style={styles.container}>
       {children}
-      
+
       {/* Performance warnings overlay */}
       {(isSlowRender || isHighMemory || isFrequentRenders) && (
         <View style={styles.warningOverlay}>
           <Text style={styles.warningTitle}>Performance Warnings:</Text>
-          
+
           {isSlowRender && (
             <Text style={styles.warningText}>
               ⚠️ Slow render: {metrics.lastRenderTime.toFixed(2)}ms
             </Text>
           )}
-          
+
           {isHighMemory && (
             <Text style={styles.warningText}>
               ⚠️ High memory: {metrics.memoryUsage.toFixed(1)}%
             </Text>
           )}
-          
+
           {isFrequentRenders && (
             <Text style={styles.warningText}>
               ⚠️ Frequent renders: {metrics.renderCount}
             </Text>
           )}
-          
+
           <TouchableOpacity
             style={styles.dismissButton}
             onPress={() => {
               // Dismiss warnings
-            }}
-          >
+            }}>
             <Text style={styles.dismissText}>Dismiss</Text>
           </TouchableOpacity>
         </View>
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
     padding: wp(3),
     maxWidth: wp(40),
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
@@ -182,4 +182,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PerformanceMonitor; 
+export default PerformanceMonitor;

@@ -1,5 +1,4 @@
-import {View, Text, Image} from 'react-native';
-import React, {useEffect} from 'react';
+import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Home from '../../components/Home/home';
 import Bazar from '../../components/Bazar/bazar';
@@ -20,11 +19,10 @@ import SavedBids from '../../components/BidsSaved/Index';
 import AboutUs from '../../components/AboutUs/About';
 import Register from '../../components/Register/Register';
 import ImageGallery from '../../components/Home/ImageGallery';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useFocusEffect} from '@react-navigation/native';
-import {useDispatch, useSelector} from 'react-redux';
+import {useDispatch} from 'react-redux';
 import {checkAuthStatus} from '../../reducers/userSlice';
-import { deviceInfo, normalize } from '../../utils/responsive';
+import {deviceInfo, normalize} from '../../utils/responsive';
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createStackNavigator();
@@ -172,13 +170,9 @@ const BazarStackScreen = () => {
 
 const BottomNav = () => {
   const dispatch = useDispatch();
-  const {isAuthenticated} = useSelector(state => state.users);
-
-  console.log('BottomNav - isAuthenticated:', isAuthenticated);
 
   useFocusEffect(
     React.useCallback(() => {
-      console.log('BottomNav - Component focused, checking auth status...');
       // Check authentication status when component focuses
       dispatch(checkAuthStatus());
     }, [dispatch]),
@@ -203,7 +197,11 @@ const BottomNav = () => {
           tabBarActiveTintColor: '#0375B7',
           headerBackTitleVisible: false,
           tabBarInactiveTintColor: '#8E8E93',
-          tabBarLabelStyle: {fontSize: normalize(14), marginTop: deviceInfo.isTablet ? 4 : 3, fontWeight: '600'}, // Increased from 12 and added fontWeight
+          tabBarLabelStyle: {
+            fontSize: normalize(14),
+            marginTop: deviceInfo.isTablet ? 4 : 3,
+            fontWeight: '600',
+          }, // Increased from 12 and added fontWeight
           tabBarIconStyle: {marginTop: deviceInfo.isTablet ? 4 : 3}, // Increased from 2:1
           tabBarStyle: {
             height: deviceInfo.isTablet ? 85 : 75, // Increased from 65:55
@@ -213,12 +211,12 @@ const BottomNav = () => {
             borderTopWidth: 2,
             borderTopColor: '#E0E0E0',
             shadowColor: '#000',
-            shadowOffset: { width: 0, height: -3 },
+            shadowOffset: {width: 0, height: -3},
             shadowOpacity: 0.15,
             shadowRadius: 6,
             elevation: 8,
           },
-          unmountOnBlur: true,
+          unmountOnBlur: false,
         }}
       />
       <Tab.Screen
@@ -227,18 +225,22 @@ const BottomNav = () => {
         options={{
           headerShown: false,
           tabBarIcon: ({focused, color}) => {
-                          return (
-                <Icon
-                  name={focused ? 'document-text' : 'document-text-outline'}
-                  size={28}
-                  color={color}
-                />
-              );
+            return (
+              <Icon
+                name={focused ? 'document-text' : 'document-text-outline'}
+                size={28}
+                color={color}
+              />
+            );
           },
           tabBarActiveTintColor: '#0375B7',
           headerBackTitleVisible: false,
           tabBarInactiveTintColor: '#8E8E93',
-          tabBarLabelStyle: {fontSize: normalize(14), marginTop: deviceInfo.isTablet ? 4 : 3, fontWeight: '600'}, // Increased from 12 and added fontWeight
+          tabBarLabelStyle: {
+            fontSize: normalize(14),
+            marginTop: deviceInfo.isTablet ? 4 : 3,
+            fontWeight: '600',
+          }, // Increased from 12 and added fontWeight
           tabBarIconStyle: {marginTop: deviceInfo.isTablet ? 4 : 3}, // Increased from 2:1
           tabBarStyle: {
             height: deviceInfo.isTablet ? 85 : 75, // Increased from 65:55
@@ -248,12 +250,12 @@ const BottomNav = () => {
             borderTopWidth: 2,
             borderTopColor: '#E0E0E0',
             shadowColor: '#000',
-            shadowOffset: { width: 0, height: -3 },
+            shadowOffset: {width: 0, height: -3},
             shadowOpacity: 0.15,
             shadowRadius: 6,
             elevation: 8,
           },
-          unmountOnBlur: true,
+          unmountOnBlur: false,
         }}
       />
       <Tab.Screen
@@ -273,7 +275,11 @@ const BottomNav = () => {
           tabBarActiveTintColor: '#0375B7',
           headerBackTitleVisible: false,
           tabBarInactiveTintColor: '#8E8E93',
-          tabBarLabelStyle: {fontSize: normalize(14), marginTop: deviceInfo.isTablet ? 4 : 3, fontWeight: '600'}, // Increased from 12 and added fontWeight
+          tabBarLabelStyle: {
+            fontSize: normalize(14),
+            marginTop: deviceInfo.isTablet ? 4 : 3,
+            fontWeight: '600',
+          }, // Increased from 12 and added fontWeight
           tabBarIconStyle: {marginTop: deviceInfo.isTablet ? 4 : 3}, // Increased from 2:1
           tabBarStyle: {
             height: deviceInfo.isTablet ? 85 : 75, // Increased from 65:55
@@ -283,12 +289,12 @@ const BottomNav = () => {
             borderTopWidth: 2,
             borderTopColor: '#E0E0E0',
             shadowColor: '#000',
-            shadowOffset: { width: 0, height: -3 },
+            shadowOffset: {width: 0, height: -3},
             shadowOpacity: 0.15,
             shadowRadius: 6,
             elevation: 8,
           },
-          unmountOnBlur: true,
+          unmountOnBlur: false,
         }}
       />
       <Tab.Screen
@@ -308,7 +314,11 @@ const BottomNav = () => {
           tabBarActiveTintColor: '#0375B7',
           headerBackTitleVisible: false,
           tabBarInactiveTintColor: '#8E8E93',
-          tabBarLabelStyle: {fontSize: normalize(14), marginTop: deviceInfo.isTablet ? 4 : 3, fontWeight: '600'}, // Increased from 12 and added fontWeight
+          tabBarLabelStyle: {
+            fontSize: normalize(14),
+            marginTop: deviceInfo.isTablet ? 4 : 3,
+            fontWeight: '600',
+          }, // Increased from 12 and added fontWeight
           tabBarIconStyle: {marginTop: deviceInfo.isTablet ? 4 : 3}, // Increased from 2:1
           tabBarStyle: {
             height: deviceInfo.isTablet ? 85 : 75, // Increased from 65:55
@@ -318,12 +328,12 @@ const BottomNav = () => {
             borderTopWidth: 2,
             borderTopColor: '#E0E0E0',
             shadowColor: '#000',
-            shadowOffset: { width: 0, height: -3 },
+            shadowOffset: {width: 0, height: -3},
             shadowOpacity: 0.15,
             shadowRadius: 6,
             elevation: 8,
           },
-          unmountOnBlur: true,
+          unmountOnBlur: false,
         }}
       />
       <Tab.Screen
@@ -343,7 +353,11 @@ const BottomNav = () => {
           tabBarActiveTintColor: '#0375B7',
           headerBackTitleVisible: false,
           tabBarInactiveTintColor: '#8E8E93',
-          tabBarLabelStyle: {fontSize: normalize(14), marginTop: deviceInfo.isTablet ? 4 : 3, fontWeight: '600'}, // Increased from 12 and added fontWeight
+          tabBarLabelStyle: {
+            fontSize: normalize(14),
+            marginTop: deviceInfo.isTablet ? 4 : 3,
+            fontWeight: '600',
+          }, // Increased from 12 and added fontWeight
           tabBarIconStyle: {marginTop: deviceInfo.isTablet ? 4 : 3}, // Increased from 2:1
           tabBarStyle: {
             height: deviceInfo.isTablet ? 85 : 75, // Increased from 65:55
@@ -353,12 +367,12 @@ const BottomNav = () => {
             borderTopWidth: 2,
             borderTopColor: '#E0E0E0',
             shadowColor: '#000',
-            shadowOffset: { width: 0, height: -3 },
+            shadowOffset: {width: 0, height: -3},
             shadowOpacity: 0.15,
             shadowRadius: 6,
             elevation: 8,
           },
-          unmountOnBlur: true,
+          unmountOnBlur: false,
         }}
       />
     </Tab.Navigator>

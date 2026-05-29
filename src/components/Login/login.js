@@ -1,6 +1,17 @@
 // Login.js
 import React, {useEffect, useState} from 'react';
-import {View, Text, TextInput, TouchableOpacity, Image, ActivityIndicator, Keyboard, KeyboardAvoidingView, TouchableWithoutFeedback, Platform} from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Image,
+  ActivityIndicator,
+  Keyboard,
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+  Platform,
+} from 'react-native';
 import styles from './loginStyle';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {login, checkAuthStatus} from '../../reducers/userSlice';
@@ -15,37 +26,42 @@ const Login = ({navigation}) => {
   const [hasNavigated, setHasNavigated] = useState(false);
   const dispatch = useDispatch();
 
-  const {isAuthenticated, loading, error} = useSelector(state => state.users || {});
+  const {isAuthenticated, loading} = useSelector(state => state.users || {});
 
   // Check if user is already logged in on component mount
   useEffect(() => {
     dispatch(checkAuthStatus());
   }, [dispatch]);
 
-  // Navigate to home if already authenticated
+  // Navigate to Home once authenticated. Login lives inside several inner
+  // stacks (Home/Bazar/BizTax/Profile), so navigate('Home') resolves to the
+  // Home screen in the Home stack and bubbles up to the Home tab otherwise.
   useEffect(() => {
-    console.log('Login component - isAuthenticated changed:', isAuthenticated);
+    let navigationTimeout;
+
     if (isAuthenticated && !hasNavigated) {
-      console.log('User is authenticated, automatically navigating to home...');
       setHasNavigated(true);
-      
+
       // Dismiss keyboard before navigation
       Keyboard.dismiss();
-      
+
       // Small delay to ensure the success toast is shown
-      setTimeout(() => {
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'MainScreen' }],
-        });
+      navigationTimeout = setTimeout(() => {
+        navigation.navigate('Home');
       }, 500);
     }
+
+    return () => {
+      if (navigationTimeout) {
+        clearTimeout(navigationTimeout);
+      }
+    };
   }, [isAuthenticated, navigation, hasNavigated]);
 
   const handleLogin = async () => {
     // Dismiss keyboard immediately when login starts
     Keyboard.dismiss();
-    
+
     if (!username.trim() || !password.trim()) {
       Toast.show({
         type: 'error',
@@ -58,12 +74,9 @@ const Login = ({navigation}) => {
     }
 
     try {
-      console.log('Attempting login...');
-      const result = await dispatch(login({username: username.trim(), password})).unwrap();
-      console.log('Login successful, will automatically navigate to home...');
+      await dispatch(login({username: username.trim(), password})).unwrap();
       // Navigation will be handled automatically by the useEffect above
     } catch (error) {
-      console.log('Login failed:', error);
       // Error is already handled by the Redux slice with Toast
     }
   };
@@ -73,11 +86,10 @@ const Login = ({navigation}) => {
   };
 
   return (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
-    >
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.container}>
           <View style={styles.imageContainer}>
@@ -131,9 +143,9 @@ const Login = ({navigation}) => {
                 />
               </TouchableOpacity>
             </View>
-            
+
             <Text style={styles.text4}>Forget Password ?</Text>
-            
+
             {loading ? (
               <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color="#0375B7" />
@@ -143,7 +155,7 @@ const Login = ({navigation}) => {
               <Custombutton title="Login" onPress={handleLogin} />
             )}
 
-            <View style={styles.lineform}></View>
+            <View style={styles.lineform} />
             <View style={styles.textContainer}>
               <Text style={styles.text6}>Don't have an account?</Text>
               <Text

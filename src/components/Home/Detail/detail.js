@@ -23,7 +23,7 @@ import Custombutton from '../../../Containers/Button/button';
 import {getTenderImageSource} from '../../../utils/tenderImage';
 import HTML from 'react-native-render-html';
 import {useWindowDimensions} from 'react-native';
-import RNFS from 'react-native-fs';
+import RNFS from '@dr.pogodin/react-native-fs';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import styles from './detailStyle';
 

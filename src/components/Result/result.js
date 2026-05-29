@@ -20,7 +20,7 @@ import {fetchDropdownData} from '../../reducers/dropdownSlice';
 import {fetchresultData, fetchOneResultData} from '../../reducers/resultSlice';
 import Icon2 from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useFocusEffect} from '@react-navigation/native';
-import FastImage from 'react-native-fast-image';
+import FastImage from '@d11/react-native-fast-image';
 import {getErrorMessage} from '../../utils/errorMessage';
 
 // Constants

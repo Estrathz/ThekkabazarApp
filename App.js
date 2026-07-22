@@ -8,8 +8,9 @@ import Toast, {BaseToast, ErrorToast} from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LoadingScreen from './src/Containers/Loading/loading';
 import ErrorBoundary from './src/components/ErrorBoundary';
-import {Provider} from 'react-redux';
 import store, {hydrateStore} from './src/reducers/store';
+import {checkAuthStatus, resetAuthState} from './src/reducers/userSlice';
+import {clearProfileState} from './src/reducers/profileSlice';
 
 const Stack = createStackNavigator();
 
@@ -69,6 +70,17 @@ export default function App() {
 
       const token = await AsyncStorage.getItem('access_token');
       setUser(token);
+
+      if (token) {
+        try {
+          await store.dispatch(checkAuthStatus({silent: true})).unwrap();
+        } catch (error) {
+          store.dispatch(resetAuthState());
+          store.dispatch(clearProfileState());
+        }
+      } else {
+        store.dispatch(clearProfileState());
+      }
 
       if (__DEV__) {
         console.log('App initialized successfully', {
@@ -144,9 +156,8 @@ export default function App() {
   }
 
   return (
-    <Provider store={store}>
-      <ErrorBoundary>
-        <NavigationContainer
+    <ErrorBoundary>
+      <NavigationContainer
           onStateChange={state => {
             if (__DEV__) {
               console.log('Navigation state changed', {state});
@@ -177,8 +188,7 @@ export default function App() {
             />
           </Stack.Navigator>
         </NavigationContainer>
-        <Toast config={toastConfig} />
-      </ErrorBoundary>
-    </Provider>
+      <Toast config={toastConfig} />
+    </ErrorBoundary>
   );
 }

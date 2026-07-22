@@ -7,13 +7,11 @@ import {BASE_URL} from './apiUrl';
 export const aboutUsform = createAsyncThunk(
   'data/aboutUsform',
   async ({name, email, phone_number, subject, message}) => {
-    console.log(name, email, phone_number, subject, message);
     const response = await axios.post(
       `${BASE_URL}/thekkabazar/apis/contactus/`,
       {name, email, phone_number, subject, message},
     );
-    const data = response.message;
-    return data;
+    return response.data;
   },
 );
 

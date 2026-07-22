@@ -19,21 +19,21 @@ import {
   clearSingleResult,
 } from '../../../reducers/resultSlice';
 import Custombutton from '../../../Containers/Button/button';
-import HTML from 'react-native-render-html';
-import {useWindowDimensions} from 'react-native';
+import SafeHtmlContent from '../../../components/common/SafeHtmlContent';
 import RNFS from '@dr.pogodin/react-native-fs';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import styles from './resultdetailStyle';
+import useRequireTenderLogin from '../../../hooks/useRequireTenderLogin';
 
 const Detail = ({route, navigation}) => {
   const dispatch = useDispatch();
+  const isLoggedIn = useRequireTenderLogin(navigation, route);
   const {
     one: items,
     error: apiError,
     loading: cardLoading,
     currentId,
   } = useSelector(state => state.result);
-  const {width} = useWindowDimensions();
   const tenderData = route?.params?.tenderData;
   const routeId = route?.params?.id;
   const [downloadModal, setDownloadModal] = useState(false);
@@ -303,6 +303,10 @@ const Detail = ({route, navigation}) => {
   // Use tenderData if available, otherwise use items from Redux
   const displayData = tenderData || items;
 
+  if (!isLoggedIn) {
+    return null;
+  }
+
   if (!tenderData && cardLoading) {
     return (
       <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
@@ -438,15 +442,12 @@ const Detail = ({route, navigation}) => {
             ))}
 
             <Text style={styles.awardedToText}>Awarded To:</Text>
-            {displayData.description ? (
-              <HTML
-                contentWidth={width}
-                source={{html: displayData.description}}
-                style={styles.htmlContent}
-              />
-            ) : (
-              <Text style={styles.detailText}>No description available</Text>
-            )}
+            <SafeHtmlContent
+              html={displayData.description}
+              baseStyle={styles.htmlContent}
+              emptyText="No description available"
+              emptyStyle={styles.detailText}
+            />
 
             {displayData?.tender_files?.length > 0 && (
               <View style={styles.fileContainer}>

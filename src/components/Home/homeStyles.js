@@ -531,6 +531,20 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
     fontWeight: '500',
   },
+  searchLoadingStrip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.md,
+    backgroundColor: colors.background,
+    gap: spacing.sm,
+  },
+  searchLoadingStripText: {
+    color: '#0375B7',
+    fontSize: normalize(12),
+    fontWeight: '500',
+  },
   loadingContainer: {
     flex: 1,
     alignItems: 'center',

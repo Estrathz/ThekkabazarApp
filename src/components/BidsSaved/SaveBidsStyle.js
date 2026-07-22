@@ -6,15 +6,46 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
+  listWrapper: {
+    flex: 1,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 15,
+  },
+  headerTitle: {
+    fontSize: 20,
+    marginLeft: 10,
+    color: 'black',
+    fontWeight: '600',
+  },
   listContent: {
     padding: 10,
   },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
+  listContentEmpty: {
+    flexGrow: 1,
+  },
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+    paddingVertical: 48,
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: '600',
     color: '#333',
-    marginBottom: 10,
+    marginTop: 12,
     textAlign: 'center',
+  },
+  emptyText: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 8,
+    textAlign: 'center',
+    lineHeight: 20,
   },
   Card: {
     backgroundColor: colors.white,

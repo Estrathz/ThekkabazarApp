@@ -1,5 +1,5 @@
 import {StyleSheet} from 'react-native';
-import {colors} from '../../../theme';
+import {colors} from '../../../../theme';
 
 const styles = StyleSheet.create({
   container: {
@@ -30,66 +30,66 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
   },
-  profileCard: {
+  cardContainer: {
     backgroundColor: colors.white,
     borderRadius: 10,
     padding: 20,
-    marginTop: 20,
+    marginTop: 15,
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 3,
   },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  inputWrapper: {
     marginBottom: 15,
   },
-  cardTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#0375B7',
-    textDecorationLine: 'underline',
-  },
-  profileInfo: {
-    marginTop: 10,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-    borderBottomWidth: 0.8,
-    borderBottomColor: '#ddd',
-    paddingBottom: 5,
-  },
-  infoLabel: {
+  inputLabel: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
-    flex: 1,
+    marginBottom: 5,
   },
-  infoValue: {
+  textInput: {
+    backgroundColor: '#F0F0F0',
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
     fontSize: 16,
-    color: '#666',
-    flex: 2,
-    marginLeft: 10,
+    color: '#333',
+    borderWidth: 1,
+    borderColor: '#D1D1D1',
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F0F0F0',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#D1D1D1',
+    paddingHorizontal: 10,
+  },
+  passwordInput: {
+    flex: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 5,
+    fontSize: 16,
+    color: '#333',
+  },
+  eyeIcon: {
+    padding: 8,
+  },
+  updateButton: {
+    marginTop: 20,
   },
   loadingContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 30,
+    paddingVertical: 24,
   },
   loadingText: {
     marginTop: 10,
     fontSize: 14,
     color: '#666',
-  },
-  errorText: {
-    fontSize: 14,
-    color: '#c62828',
-    textAlign: 'center',
-    paddingHorizontal: 10,
   },
 });
 

@@ -12,7 +12,6 @@ export const fetchInterestData = createAsyncThunk(
       throw new Error('No access token available');
     }
 
-    console.log(token, 'sdfvkajsdvfkajsdv');
     const response = await axios.get(
       `${BASE_URL}/accounts/apis/usermanagement/intrest/`,
       {

@@ -9,11 +9,12 @@ import {
   dedupeTendersByPk,
 } from '../utils/newspaperTenders';
 
+export const HOME_TENDER_TABS = ['All', 'PPMO/EGP', 'Others'];
+
 // Cache for API responses
 const cache = new Map();
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
-// Helper function to check cache
 const getCachedData = key => {
   const cached = cache.get(key);
   if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
@@ -22,7 +23,6 @@ const getCachedData = key => {
   return null;
 };
 
-// Helper function to set cache
 const setCachedData = (key, data) => {
   cache.set(key, {
     data,
@@ -30,23 +30,76 @@ const setCachedData = (key, data) => {
   });
 };
 
-const buildQueryKey = params => {
+const emptyTabBucket = () => ({
+  data: null,
+  loading: false,
+  error: null,
+  listQueryKey: null,
+});
+
+const createInitialTabLists = () =>
+  HOME_TENDER_TABS.reduce((acc, tab) => {
+    acc[tab] = emptyTabBucket();
+    return acc;
+  }, {});
+
+export const resolveHomeTab = (params = {}) => {
+  if (params.homeTab && HOME_TENDER_TABS.includes(params.homeTab)) {
+    return params.homeTab;
+  }
+  if (params.activeFilter && HOME_TENDER_TABS.includes(params.activeFilter)) {
+    return params.activeFilter;
+  }
+  if (params.source === 'PPMO/EGP') {
+    return 'PPMO/EGP';
+  }
+  if (params.exclude_source === 'PPMO/EGP') {
+    return 'Others';
+  }
+  return 'All';
+};
+
+const shouldStoreInTabLists = params => params?.storeInTabLists !== false;
+
+const buildQueryKey = (params, {isSearch = false} = {}) => {
   const queryParams = {...(params || {})};
   delete queryParams.page;
   delete queryParams.forceRefresh;
-  return JSON.stringify(queryParams);
+  delete queryParams.homeTab;
+  delete queryParams.storeInTabLists;
+  const tab = resolveHomeTab(params);
+  const prefix = isSearch ? 'search' : 'list';
+  return `${tab}:${prefix}:${JSON.stringify(queryParams)}`;
 };
 
-const TENDER_LIST_HEADERS = API_HEADERS;
+export const buildHomeTabQueryKey = (params, options) =>
+  buildQueryKey(params, options);
+
+const mergeListPayload = (existingData, payload, incomingData) => {
+  const merged = [...(existingData || []), ...incomingData];
+  const uniqueByPk = new Map();
+  merged.forEach(item => {
+    const key = item?.pk ?? item?.id ?? `${item?.title}-${item?.published_date}`;
+    uniqueByPk.set(key, item);
+  });
+  return {
+    ...payload,
+    data: Array.from(uniqueByPk.values()),
+  };
+};
+
+const ensureTabBucket = (state, tabKey) => {
+  if (!state.tabLists[tabKey]) {
+    state.tabLists[tabKey] = emptyTabBucket();
+  }
+  return state.tabLists[tabKey];
+};
 
 const NEWSPAPER_LIST_URL = `${BASE_URL}/tender/apis/tender/list/`;
 const NEWSPAPER_PAGE_SIZE = 100;
 const NEWSPAPER_MAX_PAGES_PER_DAY = 50;
 const NEWSPAPER_REQUEST_TIMEOUT = 20000;
 
-// Fetch every page for a single published_date. Resilient: a failed page
-// (network/404/timeout) stops that day cleanly instead of throwing, so one
-// bad request never wipes out the whole newspaper dataset.
 const fetchTendersForPublishedDate = async publishedDate => {
   const collected = [];
   let page = 1;
@@ -61,7 +114,7 @@ const fetchTendersForPublishedDate = async publishedDate => {
           exclude_source: 'PPMO/EGP',
           published_date: publishedDate,
         },
-        headers: TENDER_LIST_HEADERS,
+        headers: API_HEADERS,
         timeout: NEWSPAPER_REQUEST_TIMEOUT,
       });
 
@@ -70,8 +123,6 @@ const fetchTendersForPublishedDate = async publishedDate => {
       collected.push(...batch);
       page += 1;
     } catch (error) {
-      // Out-of-range pages return 404; any transient failure should just
-      // stop pagination for this day and keep whatever we already collected.
       break;
     }
   }
@@ -96,7 +147,6 @@ export const fetchNewspaperTenderList = createAsyncThunk(
         moment().subtract(i, 'days').format('YYYY-MM-DD'),
       );
 
-      // allSettled so a single failed day doesn't reject the whole fetch.
       const dayResults = await Promise.allSettled(
         dateStrings.map(dateStr => fetchTendersForPublishedDate(dateStr)),
       );
@@ -105,9 +155,6 @@ export const fetchNewspaperTenderList = createAsyncThunk(
         result.status === 'fulfilled' ? result.value : [],
       );
 
-      // Server already filters by published_date + excludes PPMO, so trust it
-      // and only dedupe. No client-side date re-filtering (avoids dropping
-      // items at timezone/day boundaries).
       const deduped = dedupeTendersByPk(collected).filter(
         item => item?.source !== 'PPMO/EGP',
       );
@@ -127,7 +174,6 @@ export const fetchNewspaperTenderList = createAsyncThunk(
         previous: null,
       };
 
-      // Only cache a meaningful result; never overwrite good cache with empty.
       if (deduped.length > 0) {
         setCachedData(cacheKey, responseData);
       }
@@ -145,6 +191,8 @@ export const fetchTenderListData = createAsyncThunk(
       const requestParams = {...(params || {})};
       const forceRefresh = !!requestParams.forceRefresh;
       delete requestParams.forceRefresh;
+      delete requestParams.homeTab;
+      delete requestParams.storeInTabLists;
       const cacheKey = JSON.stringify(requestParams);
       const cachedData = getCachedData(cacheKey);
 
@@ -175,7 +223,6 @@ export const fetchTenderListData = createAsyncThunk(
   },
 );
 
-// New server-side search function
 export const searchTenderData = createAsyncThunk(
   'card/searchTenderData',
   async (searchParams, {rejectWithValue}) => {
@@ -194,18 +241,14 @@ export const searchTenderData = createAsyncThunk(
         activeFilter,
       } = searchParams;
 
-      // Build search parameters
       const params = {
         page,
         page_size,
       };
 
-      // Add search text if provided
       if (searchText && searchText.trim() !== '') {
         params.search = searchText.trim();
       }
-
-      // Add filter parameters
       if (organization_sector) {
         params.organization_sector = organization_sector;
       }
@@ -228,13 +271,18 @@ export const searchTenderData = createAsyncThunk(
         params.published_date = published_date;
       }
 
-      // Handle source filtering based on active filter
       if (activeFilter === 'PPMO/EGP') {
         params.source = 'PPMO/EGP';
       } else if (activeFilter === 'Others') {
-        // For "Others", we'll need to handle this on the server side
-        // or implement a workaround
         params.exclude_source = 'PPMO/EGP';
+      }
+
+      const cacheKey = `search:${buildQueryKey(searchParams, {isSearch: true})}`;
+      if (page === 1) {
+        const cachedData = getCachedData(cacheKey);
+        if (cachedData) {
+          return {...cachedData, searchParams};
+        }
       }
 
       const url = `${BASE_URL}/tender/apis/tender/list/`;
@@ -250,8 +298,12 @@ export const searchTenderData = createAsyncThunk(
         count: response.data.count,
         next: response.data.next,
         previous: response.data.previous,
-        searchParams: searchParams, // Store search params for reference
+        searchParams,
       };
+
+      if (page === 1) {
+        setCachedData(cacheKey, responseData);
+      }
 
       return responseData;
     } catch (error) {
@@ -264,7 +316,6 @@ export const fetchOneTenderData = createAsyncThunk(
   'data/fetchOneTenderData',
   async ({tenderId}, {rejectWithValue}) => {
     try {
-      console.log('Fetching tender details for ID:', tenderId);
       const response = await axios.get(
         `${BASE_URL}/tender/apis/tenders/${tenderId}/`,
         {
@@ -272,12 +323,8 @@ export const fetchOneTenderData = createAsyncThunk(
         },
       );
 
-      const data = response.data;
-      console.log('Tender details fetched:', data);
-      return data;
+      return response.data;
     } catch (error) {
-      console.error('API Error:', error);
-
       if (error.response?.status === 404) {
         return rejectWithValue({
           message: 'Tender not found',
@@ -298,7 +345,6 @@ export const fetchOneTenderData = createAsyncThunk(
 export const savebid = createAsyncThunk(
   'data/savebid',
   async ({id}, {getState}) => {
-    console.log('savebid', id);
     const state = getState();
     const token = state.users.access_token;
 
@@ -317,18 +363,47 @@ export const savebid = createAsyncThunk(
         null,
         config,
       );
-      const data = response.data;
-      return data.message;
+      return response.data.message;
     } catch (error) {
-      console.error('Error while saving bid:', error);
-      throw error; // Rethrow the error to be caught by the caller
+      throw error;
     }
   },
 );
 
+const applyListToTab = (state, action, {isSearch = false} = {}) => {
+  const arg = action.meta.arg || {};
+  if (!shouldStoreInTabLists(arg)) {
+    return;
+  }
+
+  const tabKey = resolveHomeTab(arg);
+  const bucket = ensureTabBucket(state, tabKey);
+  const page = Number(arg.page || 1);
+  const queryKey = buildQueryKey(arg, {isSearch});
+  const incomingData = action.payload?.data || [];
+
+  bucket.loading = false;
+  bucket.error = null;
+
+  if (
+    page > 1 &&
+    bucket.listQueryKey === queryKey &&
+    Array.isArray(bucket.data?.data)
+  ) {
+    bucket.data = mergeListPayload(bucket.data.data, action.payload, incomingData);
+  } else {
+    bucket.data = action.payload;
+  }
+
+  bucket.listQueryKey = queryKey;
+  state.data = bucket.data;
+  state.error = null;
+};
+
 const cardSlice = createSlice({
   name: 'card',
   initialState: {
+    tabLists: createInitialTabLists(),
     data: null,
     newspaperData: null,
     one: null,
@@ -345,8 +420,12 @@ const cardSlice = createSlice({
   reducers: {
     clearError: state => {
       state.error = null;
+      Object.values(state.tabLists).forEach(bucket => {
+        bucket.error = null;
+      });
     },
     clearData: state => {
+      state.tabLists = createInitialTabLists();
       state.data = null;
       state.one = null;
       state.currentId = null;
@@ -355,11 +434,33 @@ const cardSlice = createSlice({
     clearSingleTender: state => {
       state.one = null;
       state.currentId = null;
-      // Don't clear state.data to preserve the list
     },
     hydrateTenderListFromCache: (state, action) => {
       if (action.payload?.data && Array.isArray(action.payload.data)) {
+        const bucket = ensureTabBucket(state, 'All');
+        bucket.data = action.payload;
+        bucket.loading = false;
+        bucket.error = null;
         state.data = action.payload;
+        state.status = 'succeeded';
+        state.loading = false;
+        state.error = null;
+      }
+    },
+    hydrateHomeTabFromCache: (state, action) => {
+      const {tab, payload} = action.payload || {};
+      if (!tab || !HOME_TENDER_TABS.includes(tab)) {
+        return;
+      }
+      if (!payload?.data || !Array.isArray(payload.data)) {
+        return;
+      }
+      const bucket = ensureTabBucket(state, tab);
+      bucket.data = payload;
+      bucket.loading = false;
+      bucket.error = null;
+      if (tab === 'All') {
+        state.data = payload;
         state.status = 'succeeded';
         state.loading = false;
         state.error = null;
@@ -376,46 +477,41 @@ const cardSlice = createSlice({
   },
   extraReducers: builder => {
     builder
-      .addCase(fetchTenderListData.pending, state => {
+      .addCase(fetchTenderListData.pending, (state, action) => {
+        if (!shouldStoreInTabLists(action.meta.arg)) {
+          return;
+        }
+        const tabKey = resolveHomeTab(action.meta.arg);
+        const bucket = ensureTabBucket(state, tabKey);
+        const forceRefresh = !!action.meta.arg?.forceRefresh;
+        const hasExistingData =
+          Array.isArray(bucket.data?.data) && bucket.data.data.length > 0;
+        if (!forceRefresh && hasExistingData) {
+          bucket.error = null;
+          return;
+        }
+        bucket.loading = true;
+        bucket.error = null;
         state.loading = true;
         state.status = 'loading';
         state.error = null;
       })
       .addCase(fetchTenderListData.fulfilled, (state, action) => {
+        applyListToTab(state, action);
         state.loading = false;
         state.status = 'succeeded';
-        const page = Number(action.meta.arg?.page || 1);
-        const queryKey = buildQueryKey(action.meta.arg);
-        const incomingData = action.payload?.data || [];
-
-        if (
-          page > 1 &&
-          state.listQueryKey === queryKey &&
-          Array.isArray(state.data?.data)
-        ) {
-          const merged = [...state.data.data, ...incomingData];
-          const uniqueByPk = new Map();
-          merged.forEach(item => {
-            const key =
-              item?.pk ?? item?.id ?? `${item?.title}-${item?.published_date}`;
-            uniqueByPk.set(key, item);
-          });
-
-          state.data = {
-            ...action.payload,
-            data: Array.from(uniqueByPk.values()),
-          };
-        } else {
-          state.data = action.payload;
-        }
-
-        state.listQueryKey = queryKey;
       })
       .addCase(fetchTenderListData.rejected, (state, action) => {
+        if (!shouldStoreInTabLists(action.meta.arg)) {
+          return;
+        }
+        const tabKey = resolveHomeTab(action.meta.arg);
+        const bucket = ensureTabBucket(state, tabKey);
+        bucket.loading = false;
+        bucket.error = action.payload;
         state.loading = false;
         state.status = 'failed';
         state.error = action.payload;
-        console.error('Tender list error in state:', action.payload);
       })
       .addCase(fetchNewspaperTenderList.pending, (state, action) => {
         const days = action.meta.arg?.days ?? NEWSPAPER_DAYS_WINDOW;
@@ -441,46 +537,43 @@ const cardSlice = createSlice({
           state.newspaperError = action.payload;
         }
       })
-      .addCase(searchTenderData.pending, state => {
+      .addCase(searchTenderData.pending, (state, action) => {
+        if (!shouldStoreInTabLists(action.meta.arg)) {
+          return;
+        }
+        const tabKey = resolveHomeTab(action.meta.arg);
+        const bucket = ensureTabBucket(state, tabKey);
+        const page = Number(action.meta.arg?.page || 1);
+        const hasExistingData =
+          page === 1 &&
+          Array.isArray(bucket.data?.data) &&
+          bucket.data.data.length > 0;
+        if (hasExistingData) {
+          bucket.error = null;
+          return;
+        }
+        bucket.loading = true;
+        bucket.error = null;
         state.loading = true;
         state.status = 'loading';
         state.error = null;
       })
       .addCase(searchTenderData.fulfilled, (state, action) => {
+        applyListToTab(state, action, {isSearch: true});
         state.loading = false;
         state.status = 'succeeded';
-        const page = Number(action.meta.arg?.page || 1);
-        const queryKey = `search:${buildQueryKey(action.meta.arg)}`;
-        const incomingData = action.payload?.data || [];
-
-        if (
-          page > 1 &&
-          state.listQueryKey === queryKey &&
-          Array.isArray(state.data?.data)
-        ) {
-          const merged = [...state.data.data, ...incomingData];
-          const uniqueByPk = new Map();
-          merged.forEach(item => {
-            const key =
-              item?.pk ?? item?.id ?? `${item?.title}-${item?.published_date}`;
-            uniqueByPk.set(key, item);
-          });
-
-          state.data = {
-            ...action.payload,
-            data: Array.from(uniqueByPk.values()),
-          };
-        } else {
-          state.data = action.payload;
-        }
-
-        state.listQueryKey = queryKey;
       })
       .addCase(searchTenderData.rejected, (state, action) => {
+        if (!shouldStoreInTabLists(action.meta.arg)) {
+          return;
+        }
+        const tabKey = resolveHomeTab(action.meta.arg);
+        const bucket = ensureTabBucket(state, tabKey);
+        bucket.loading = false;
+        bucket.error = action.payload;
         state.loading = false;
         state.status = 'failed';
         state.error = action.payload;
-        console.error('Tender search error in state:', action.payload);
       })
       .addCase(fetchOneTenderData.pending, (state, action) => {
         state.status = 'loading';
@@ -517,11 +610,15 @@ const cardSlice = createSlice({
   },
 });
 
+export const selectHomeTabBucket = (state, tab) =>
+  state.card.tabLists?.[tab] || emptyTabBucket();
+
 export const {
   clearError,
   clearData,
   clearSingleTender,
   hydrateTenderListFromCache,
+  hydrateHomeTabFromCache,
   hydrateNewspaperFromCache,
 } = cardSlice.actions;
 

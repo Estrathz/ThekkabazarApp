@@ -77,6 +77,11 @@ const About = ({navigation}) => {
     });
 
     dispatch(aboutUsdata());
+
+    return () => subscription?.remove();
+  }, [dispatch]);
+
+  useEffect(() => {
     if (error) {
       Toast.show({
         type: 'error',
@@ -86,9 +91,7 @@ const About = ({navigation}) => {
         autoHide: true,
       });
     }
-
-    return () => subscription?.remove();
-  }, [dispatch, error]);
+  }, [error]);
 
   const handleInputChange = (name, value) => {
     setFormData({...formData, [name]: value});

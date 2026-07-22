@@ -1,18 +1,20 @@
-import {View, Text, FlatList, Image, TouchableOpacity} from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import React, {useEffect, useState} from 'react';
+import {View, Text, FlatList, TouchableOpacity, ActivityIndicator} from 'react-native';
+import FastImage from '@d11/react-native-fast-image';
+import React, {useCallback, useEffect, useState} from 'react';
 import styles from './SaveBidsStyle';
 import Icon3 from 'react-native-vector-icons/MaterialCommunityIcons';
 import Icon2 from 'react-native-vector-icons/Ionicons';
 import {useDispatch, useSelector} from 'react-redux';
 import {getSavedBids} from '../../reducers/profileSlice';
 import {savebid} from '../../reducers/cardSlice';
-import {getTenderImageSource} from '../../utils/tenderImage';
+import {resolveFastImageSource} from '../../utils/tenderImage';
 import Toast from 'react-native-toast-message';
 
 const BidsSaved = () => {
   const dispatch = useDispatch();
-  const {savedBids} = useSelector(state => state.userprofile);
+  const {savedBids, savedBidsLoading, error} = useSelector(
+    state => state.userprofile,
+  );
   const {isAuthenticated} = useSelector(state => state.users);
   const [filteredBids, setFilteredBids] = useState([]);
 
@@ -25,44 +27,73 @@ const BidsSaved = () => {
   useEffect(() => {
     if (savedBids?.data) {
       setFilteredBids(savedBids.data);
+    } else {
+      setFilteredBids([]);
     }
   }, [savedBids]);
 
-  const handleUnSaveBids = async id => {
-    // Remove locally first for instant feedback.
+  const handleUnSaveBids = useCallback(async id => {
     setFilteredBids(prevBids =>
       prevBids.filter(item => item?.tender?.pk !== id),
     );
 
-    Toast.show({
-      type: 'success',
-      text1: 'Bid Unsaved Successfully',
-    });
-
     try {
-      await Promise.resolve(dispatch(savebid({id})));
-    } finally {
-      // Refresh the shared saved-bids state so other screens (e.g. Home Save
-      // button) reflect the removal.
+      await dispatch(savebid({id})).unwrap();
       dispatch(getSavedBids());
+    } catch (unsaveError) {
+      dispatch(getSavedBids());
+      Toast.show({
+        type: 'error',
+        text1: 'Could not remove bid',
+        text2: 'Please try again',
+        visibilityTime: 3000,
+      });
     }
-  };
+  }, [dispatch]);
 
-  const renderHeader = () => <Text style={styles.title}>Saved Bids</Text>;
+  const renderEmpty = useCallback(() => {
+    if (savedBidsLoading) {
+      return (
+        <View style={styles.emptyContainer}>
+          <ActivityIndicator size="large" color="#0375B7" />
+          <Text style={styles.emptyText}>Loading saved bids...</Text>
+        </View>
+      );
+    }
 
-  const renderItem = ({item}) => {
+    if (error) {
+      return (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyTitle}>Could not load saved bids</Text>
+          <Text style={styles.emptyText}>Please go back and try again.</Text>
+        </View>
+      );
+    }
+
+    return (
+      <View style={styles.emptyContainer}>
+        <Icon2 name="bookmark-outline" size={48} color="#999" />
+        <Text style={styles.emptyTitle}>No saved bids yet</Text>
+        <Text style={styles.emptyText}>
+          Save tenders from the home screen to see them here.
+        </Text>
+      </View>
+    );
+  }, [savedBidsLoading, error]);
+
+  const renderItem = useCallback(({item}) => {
     const tender = item?.tender;
 
     if (!tender?.pk) {
       return null;
     }
 
+    const imageSource = resolveFastImageSource(tender, FastImage);
+
     return (
       <View style={styles.Card}>
-        {/* Image Section */}
-        <Image source={getTenderImageSource(tender)} style={styles.image} />
+        <FastImage source={imageSource} style={styles.image} />
 
-        {/* Details Section */}
         <View style={{padding: 8, flex: 1}}>
           <Text
             numberOfLines={2}
@@ -79,7 +110,6 @@ const BidsSaved = () => {
             {tender.public_entry_name}
           </Text>
 
-          {/* Services */}
           <View style={{flexDirection: 'row', marginTop: 8}}>
             <Icon2 name="bag-handle" size={18} color="black" />
             <Text
@@ -101,7 +131,6 @@ const BidsSaved = () => {
             </Text>
           </View>
 
-          {/* Published Date */}
           <View style={{flexDirection: 'row', marginTop: 8}}>
             <Icon3 name="update" size={18} color="black" />
             <Text
@@ -119,7 +148,6 @@ const BidsSaved = () => {
             </Text>
           </View>
 
-          {/* Source */}
           <View style={{flexDirection: 'row', marginTop: 8}}>
             <Icon2 name="newspaper" size={18} color="black" />
             <Text
@@ -134,7 +162,6 @@ const BidsSaved = () => {
             <Text style={styles.CardText}>{tender.source}</Text>
           </View>
 
-          {/* Location */}
           <View style={{flexDirection: 'row', marginTop: 8}}>
             <Icon2 name="location" size={18} color="black" />
             <Text
@@ -156,7 +183,6 @@ const BidsSaved = () => {
             </Text>
           </View>
 
-          {/* Unsave Button */}
           <TouchableOpacity
             onPress={() => handleUnSaveBids(tender.pk)}
             style={styles.cusBottom}>
@@ -168,20 +194,27 @@ const BidsSaved = () => {
         </View>
       </View>
     );
-  };
+  }, [handleUnSaveBids]);
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+    <View style={styles.listWrapper}>
       <FlatList
         data={filteredBids}
         renderItem={renderItem}
         keyExtractor={(item, index) =>
           item?.tender?.pk?.toString() || `saved-bid-${index}`
         }
-        ListHeaderComponent={renderHeader}
-        contentContainerStyle={styles.listContent}
+        ListEmptyComponent={renderEmpty}
+        initialNumToRender={8}
+        maxToRenderPerBatch={8}
+        windowSize={7}
+        removeClippedSubviews
+        contentContainerStyle={[
+          styles.listContent,
+          filteredBids.length === 0 && styles.listContentEmpty,
+        ]}
       />
-    </SafeAreaView>
+    </View>
   );
 };
 

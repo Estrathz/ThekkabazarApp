@@ -93,6 +93,16 @@ const styles = StyleSheet.create({
   updateButton: {
     marginTop: 20,
   },
+  loadingContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 24,
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 14,
+    color: '#666',
+  },
 });
 
 export default styles;

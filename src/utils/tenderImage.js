@@ -16,3 +16,21 @@ const hasValidImage = item =>
 // default. Use this for lists that display the actual tender image.
 export const getTenderImageSource = item =>
   hasValidImage(item) ? {uri: item.image} : getTenderDefaultImage(item);
+
+export const resolveFastImageSource = (item, FastImage) => {
+  const source = getTenderImageSource(item);
+  if (typeof source === 'number') {
+    return source;
+  }
+  return {
+    uri: source.uri,
+    priority: FastImage.priority.normal,
+    cache: FastImage.cacheControl.immutable,
+  };
+};
+
+export const resolveUriFastImageSource = (uri, FastImage) => ({
+  uri,
+  priority: FastImage.priority.normal,
+  cache: FastImage.cacheControl.immutable,
+});

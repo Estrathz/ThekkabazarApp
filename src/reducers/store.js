@@ -48,8 +48,8 @@ const store = configureStore({
     }).concat(createPersistMiddleware()),
 });
 
-// Loads last-session display data and merges it into the store so screens can
-// render instantly while fresh data is fetched in the background.
+// Loads last-session display data (including Home tabLists) and merges it into
+// the store so screens can render instantly while fresh data is fetched.
 export const hydrateStore = async () => {
   const persisted = await loadPersistedState();
   if (persisted) {

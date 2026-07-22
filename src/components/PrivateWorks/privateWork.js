@@ -3,13 +3,15 @@ import {
   Text,
   ImageBackground,
   Image,
-  ScrollView,
+  FlatList,
   Modal,
   TouchableOpacity,
   TextInput,
   RefreshControl,
+  ActivityIndicator,
+  ScrollView,
 } from 'react-native';
-import React, {useEffect, useState, useCallback} from 'react';
+import React, {useEffect, useState, useCallback, useMemo} from 'react';
 import styles from './privateWorkStyles';
 import Custombutton from '../../Containers/Button/button';
 import {getPrivateWork, postPrivateWork} from '../../reducers/privateWorkSlice';
@@ -17,7 +19,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Toast from 'react-native-toast-message';
 
-const PrivateWork = ({navigation}) => {
+const PrivateWork = () => {
   const dispatch = useDispatch();
   const {data, status} = useSelector(state => state.privateWork);
   const [isModalVisible, setModalVisible] = useState(false);
@@ -29,32 +31,35 @@ const PrivateWork = ({navigation}) => {
   const [page, setPage] = useState(1);
   const [refreshing, setRefreshing] = useState(false);
 
+  const workItems = data?.data || [];
+  const totalPages = data?.total_pages || 1;
+
   useEffect(() => {
-    dispatch(getPrivateWork({page: page}));
+    dispatch(getPrivateWork({page}));
   }, [dispatch, page]);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     setPage(1);
-    dispatch(getPrivateWork({page: 1})).then(() => {
+    dispatch(getPrivateWork({page: 1})).finally(() => {
       setRefreshing(false);
     });
   }, [dispatch]);
 
-  const openModal = () => {
-    setModalVisible(true);
-  };
-
-  const closeModal = () => {
-    setModalVisible(false);
-  };
-
-  const handleLoadMore = () => {
-    if (status === 'loading') {
+  const handleLoadMore = useCallback(() => {
+    if (status === 'loading' || refreshing || page >= totalPages) {
       return;
     }
     setPage(prevPage => prevPage + 1);
-  };
+  }, [status, refreshing, page, totalPages]);
+
+  const openModal = useCallback(() => {
+    setModalVisible(true);
+  }, []);
+
+  const closeModal = useCallback(() => {
+    setModalVisible(false);
+  }, []);
 
   const handleFormSubmit = () => {
     if (
@@ -74,11 +79,11 @@ const PrivateWork = ({navigation}) => {
     }
     dispatch(
       postPrivateWork({
-        work: work,
-        address: address,
-        company: company,
+        work,
+        address,
+        company,
         phone_number: phoneNumber,
-        rate: rate,
+        rate,
       }),
     )
       .then(() => {
@@ -95,9 +100,10 @@ const PrivateWork = ({navigation}) => {
         setCompany('');
         setPhoneNumber('');
         setRate('');
+        setPage(1);
+        dispatch(getPrivateWork({page: 1}));
       })
       .catch(error => {
-        console.log('Error', error);
         Toast.show({
           type: 'error',
           text1: 'Error',
@@ -108,17 +114,8 @@ const PrivateWork = ({navigation}) => {
       });
   };
 
-  return (
-    <ScrollView
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }
-      onScroll={({nativeEvent}) => {
-        if (isCloseToBottom(nativeEvent) && status !== 'loading') {
-          handleLoadMore();
-        }
-      }}
-      scrollEventThrottle={400}>
+  const listHeader = useMemo(
+    () => (
       <View style={styles.privateWorkContainer}>
         <ImageBackground
           style={styles.privateWorkBackground}
@@ -141,7 +138,7 @@ const PrivateWork = ({navigation}) => {
             margin: 15,
           }}>
           <View style={{width: '50%'}}>
-            <Custombutton title="Post Your Work" onPress={() => openModal()} />
+            <Custombutton title="Post Your Work" onPress={openModal} />
           </View>
         </View>
 
@@ -200,89 +197,123 @@ const PrivateWork = ({navigation}) => {
               <Text
                 numberOfLines={2}
                 ellipsizeMode="tail"
-                style={styles.subtitletext}>
+                style={[styles.subtitletext]}>
                 Complete Projects
               </Text>
             </View>
           </View>
         </View>
-        {data?.data?.map((items, index) => (
-          <View
-            key={items?.id || items?.pk || `private-work-${index}`}
-            style={styles.CardContainer}>
-            <View
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-              }}>
-              <View style={{display: 'flex', flexDirection: 'row'}}>
-                <Icon name="calendar" size={24} color="red" />
-                <Text style={{color: 'black', fontSize: 18, marginLeft: 10}}>
-                  Published Date:
-                </Text>
-              </View>
-              <View style={{display: 'flex', flexDirection: 'row'}}>
-                <Icon name="pricetag" size={24} color="black" />
-                <Text
-                  style={{
-                    color: 'black',
-                    fontSize: 18,
-                    marginRight: 10,
-                    marginLeft: 10,
-                  }}>
-                  {items.rate}
-                </Text>
-              </View>
-            </View>
-            <View style={{display: 'flex', flexDirection: 'row'}}>
-              <View
-                style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  marginTop: 10,
-                  marginBottom: 10,
-                }}>
-                <Icon name="call-outline" size={24} color="black" />
-                <Text style={{color: 'black', fontSize: 18, marginLeft: 5}}>
-                  {items.phone_number}
-                </Text>
-              </View>
-              <View
-                style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  marginTop: 10,
-                  marginBottom: 10,
-                  marginLeft: 15,
-                  flex: 1,
-                }}>
-                <Icon name="location-outline" size={24} color="black" />
-                <Text
-                  numberOfLines={2}
-                  ellipsizeMode="tail"
-                  style={{
-                    color: 'black',
-                    fontSize: 18,
-                    marginLeft: 5,
-                    flexWrap: 'wrap',
-                    flex: 1,
-                  }}>
-                  {items.address}
-                </Text>
-              </View>
-            </View>
-            <View style={{padding: 5}}>
-              <Text style={{color: 'black', fontSize: 18, fontWeight: 'bold'}}>
-                {items.work}
-              </Text>
-              <Text style={{color: 'black', fontSize: 18}}>
-                {items.company}
-              </Text>
-            </View>
-          </View>
-        ))}
       </View>
+    ),
+    [openModal],
+  );
+
+  const renderWorkItem = useCallback(({item}) => (
+    <View style={styles.CardContainer}>
+      <View
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+        }}>
+        <View style={{display: 'flex', flexDirection: 'row'}}>
+          <Icon name="calendar" size={24} color="red" />
+          <Text style={{color: 'black', fontSize: 18, marginLeft: 10}}>
+            Published Date:
+          </Text>
+        </View>
+        <View style={{display: 'flex', flexDirection: 'row'}}>
+          <Icon name="pricetag" size={24} color="black" />
+          <Text
+            style={{
+              color: 'black',
+              fontSize: 18,
+              marginRight: 10,
+              marginLeft: 10,
+            }}>
+            {item.rate}
+          </Text>
+        </View>
+      </View>
+      <View style={{display: 'flex', flexDirection: 'row'}}>
+        <View
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            marginTop: 10,
+            marginBottom: 10,
+          }}>
+          <Icon name="call-outline" size={24} color="black" />
+          <Text style={{color: 'black', fontSize: 18, marginLeft: 5}}>
+            {item.phone_number}
+          </Text>
+        </View>
+        <View
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            marginTop: 10,
+            marginBottom: 10,
+            marginLeft: 15,
+            flex: 1,
+          }}>
+          <Icon name="location-outline" size={24} color="black" />
+          <Text
+            numberOfLines={2}
+            ellipsizeMode="tail"
+            style={{
+              color: 'black',
+              fontSize: 18,
+              marginLeft: 5,
+              flexWrap: 'wrap',
+              flex: 1,
+            }}>
+            {item.address}
+          </Text>
+        </View>
+      </View>
+      <View style={{padding: 5}}>
+        <Text style={{color: 'black', fontSize: 18, fontWeight: 'bold'}}>
+          {item.work}
+        </Text>
+        <Text style={{color: 'black', fontSize: 18}}>{item.company}</Text>
+      </View>
+    </View>
+  ), []);
+
+  const listFooter = useCallback(() => {
+    if (status !== 'loading' || page <= 1) {
+      return null;
+    }
+
+    return (
+      <View style={{paddingVertical: 16}}>
+        <ActivityIndicator size="small" color="#0375B7" />
+      </View>
+    );
+  }, [status, page]);
+
+  return (
+    <>
+      <FlatList
+        data={workItems}
+        keyExtractor={(item, index) =>
+          item?.id?.toString() || item?.pk?.toString() || `private-work-${index}`
+        }
+        renderItem={renderWorkItem}
+        ListHeaderComponent={listHeader}
+        ListFooterComponent={listFooter}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.3}
+        initialNumToRender={8}
+        maxToRenderPerBatch={8}
+        windowSize={7}
+        removeClippedSubviews
+      />
+
       <Modal visible={isModalVisible} animationType="slide" transparent={true}>
         <ScrollView style={styles.modalContainer}>
           <View
@@ -292,8 +323,7 @@ const PrivateWork = ({navigation}) => {
               justifyContent: 'space-between',
               marginTop: 10,
             }}>
-            <View
-              style={{display: 'flex', flexDirection: 'row', marginLeft: 20}}>
+            <View style={{display: 'flex', flexDirection: 'row', marginLeft: 20}}>
               <Icon
                 name="link"
                 size={20}
@@ -355,15 +385,7 @@ const PrivateWork = ({navigation}) => {
           </View>
         </ScrollView>
       </Modal>
-    </ScrollView>
-  );
-};
-
-const isCloseToBottom = ({layoutMeasurement, contentOffset, contentSize}) => {
-  const paddingToBottom = 20;
-  return (
-    layoutMeasurement.height + contentOffset.y >=
-    contentSize.height - paddingToBottom
+    </>
   );
 };
 

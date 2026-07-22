@@ -84,8 +84,8 @@ android {
         applicationId "com.thekkabazar"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 33
-        versionName "33.0"
+        versionCode 35
+        versionName "35.0"
     }
     signingConfigs {
         release {

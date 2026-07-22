@@ -4,27 +4,35 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
 import {BASE_URL} from './apiUrl';
 
+const clearStoredSession = async () => {
+  await AsyncStorage.removeItem('access_token');
+  delete axios.defaults.headers.common.Authorization;
+};
+
+const applyAuthToken = async token => {
+  if (!token) {
+    return;
+  }
+  await AsyncStorage.setItem('access_token', token);
+  axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+};
+
 export const login = createAsyncThunk(
   'users/login',
   async ({username, password}, {rejectWithValue}) => {
     try {
-      console.log('Attempting login with:', username);
       const response = await axios.post(
         `${BASE_URL}/accounts/apis/usermanagement/login/`,
         {username, password},
       );
       const data = response.data;
       const token = data.access_token;
-      if (token) {
-        await AsyncStorage.setItem('access_token', token);
-        axios.defaults.headers.common.Authorization = `Bearer ${token}`;
-        console.log('Login successful, token stored');
-      } else {
+      if (!token) {
         throw new Error('No access token received');
       }
+      await applyAuthToken(token);
       return data;
     } catch (error) {
-      console.log('Login error:', error.response?.data || error.message);
       return rejectWithValue(
         error.response?.data?.message ||
           error.response?.data?.detail ||
@@ -39,16 +47,9 @@ export const logout = createAsyncThunk(
   'users/logout',
   async (_, {rejectWithValue}) => {
     try {
-      // Clear token from AsyncStorage
-      await AsyncStorage.removeItem('access_token');
-
-      // Clear axios default headers
-      delete axios.defaults.headers.common.Authorization;
-
-      console.log('Logout successful, token cleared');
+      await clearStoredSession();
       return true;
     } catch (error) {
-      console.log('Logout error:', error.message);
       return rejectWithValue(error.message);
     }
   },
@@ -81,10 +82,8 @@ export const register = createAsyncThunk(
           company_name,
         },
       );
-      const data = response.data;
-      return data;
+      return response.data;
     } catch (error) {
-      console.log('Registration error:', error.response?.data || error.message);
       return rejectWithValue(
         error.response?.data?.message ||
           error.response?.data?.detail ||
@@ -95,20 +94,39 @@ export const register = createAsyncThunk(
   },
 );
 
-// Check if user is already logged in
+// Validate stored token against the profile API (not just AsyncStorage presence).
 export const checkAuthStatus = createAsyncThunk(
   'users/checkAuthStatus',
-  async (_, {rejectWithValue}) => {
+  async (_options = {}, {rejectWithValue}) => {
     try {
       const token = await AsyncStorage.getItem('access_token');
-      if (token) {
-        // Set axios default header
-        axios.defaults.headers.common.Authorization = `Bearer ${token}`;
-        return {access_token: token};
+      if (!token) {
+        return rejectWithValue('No token found');
       }
-      return rejectWithValue('No token found');
+
+      axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+
+      await axios.get(
+        `${BASE_URL}/accounts/apis/usermanagement/view/profile/`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      return {access_token: token};
     } catch (error) {
-      return rejectWithValue(error.message);
+      const status = error.response?.status;
+      if (status === 401 || status === 403) {
+        await clearStoredSession();
+      }
+      return rejectWithValue(
+        error.response?.data?.message ||
+          error.response?.data?.detail ||
+          error.message ||
+          'Session expired',
+      );
     }
   },
 );
@@ -136,11 +154,9 @@ const usersSlice = createSlice({
   },
   extraReducers: builder => {
     builder
-      // Login cases
       .addCase(login.pending, state => {
         state.status = 'loading';
         state.loading = true;
-        state.isAuthenticated = false;
         state.error = null;
       })
       .addCase(login.fulfilled, (state, action) => {
@@ -168,7 +184,6 @@ const usersSlice = createSlice({
           visibilityTime: 3000,
         });
       })
-      // Logout cases
       .addCase(logout.pending, state => {
         state.status = 'loading';
         state.loading = true;
@@ -197,10 +212,11 @@ const usersSlice = createSlice({
           visibilityTime: 3000,
         });
       })
-      // Check auth status cases
-      .addCase(checkAuthStatus.pending, state => {
-        state.status = 'loading';
-        state.loading = true;
+      .addCase(checkAuthStatus.pending, (state, action) => {
+        if (!action.meta.arg?.silent) {
+          state.status = 'loading';
+          state.loading = true;
+        }
       })
       .addCase(checkAuthStatus.fulfilled, (state, action) => {
         state.status = 'succeeded';
@@ -215,12 +231,11 @@ const usersSlice = createSlice({
         state.isAuthenticated = false;
         state.access_token = '';
       })
-      // Register cases
       .addCase(register.pending, state => {
         state.status = 'loading';
         state.loading = true;
       })
-      .addCase(register.fulfilled, (state, action) => {
+      .addCase(register.fulfilled, state => {
         state.status = 'succeeded';
         state.loading = false;
         Toast.show({

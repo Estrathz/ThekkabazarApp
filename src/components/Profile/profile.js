@@ -6,6 +6,7 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import React, {useCallback} from 'react';
 import styles from './profileStyle';
@@ -14,40 +15,37 @@ import Custombutton from '../../Containers/Button/button';
 import Icon2 from 'react-native-vector-icons/MaterialIcons';
 import Toast from 'react-native-toast-message';
 import {useDispatch, useSelector} from 'react-redux';
-import {getProfile, resetUserProfile} from '../../reducers/profileSlice';
-import {logout, checkAuthStatus} from '../../reducers/userSlice';
+import {getProfile} from '../../reducers/profileSlice';
+import {logout} from '../../reducers/userSlice';
+import {navigateToHomeAfterLogin} from '../../utils/navigationHelpers';
 import {useFocusEffect} from '@react-navigation/native';
+import {createRefreshThrottle} from '../../utils/refreshThrottle';
+
+const profileRefreshRef = createRefreshThrottle(60 * 1000);
 
 const Profile = ({navigation}) => {
   const dispatch = useDispatch();
-  const {data} = useSelector(state => state.userprofile);
+  const {data, profileLoading} = useSelector(state => state.userprofile);
   const {isAuthenticated, loading} = useSelector(state => state.users);
 
   useFocusEffect(
     useCallback(() => {
-      if (isAuthenticated) {
-        dispatch(getProfile());
+      if (
+        isAuthenticated &&
+        profileRefreshRef.shouldRefresh('profile-hub')
+      ) {
+        dispatch(getProfile()).finally(() => {
+          profileRefreshRef.markRefreshed('profile-hub');
+        });
       }
-      // Check authentication status
-      dispatch(checkAuthStatus());
     }, [dispatch, isAuthenticated]),
   );
 
   const handleLogout = async () => {
     try {
-      // Dispatch logout action
       await dispatch(logout()).unwrap();
-
-      // Reset profile data
-      dispatch(resetUserProfile());
-
-      // Navigate to home
-      navigation.navigate('MainScreen', {
-        screen: 'BottomNav',
-        params: {screen: 'Home', params: {screen: 'HomeScreen'}},
-      });
+      navigateToHomeAfterLogin(navigation);
     } catch (error) {
-      console.error('Logout error:', error);
       Toast.show({
         type: 'error',
         text1: 'Logout Failed',
@@ -57,6 +55,19 @@ const Profile = ({navigation}) => {
     }
   };
 
+  const authenticatedMenu = [
+    {icon: 'person-outline', label: 'Profile', route: 'UserProfile'},
+    {icon: 'bookmark-outline', label: 'Saved Bids', route: 'SavedBids'},
+    {icon: 'lock-closed-outline', label: 'Change Password', route: 'ChangePassword'},
+    {icon: 'information-circle-outline', label: 'About Us', route: 'Aboutus'},
+  ];
+
+  const guestMenu = [
+    {icon: 'information-circle-outline', label: 'About Us', route: 'Aboutus'},
+  ];
+
+  const menuItems = isAuthenticated ? authenticatedMenu : guestMenu;
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -64,16 +75,24 @@ const Profile = ({navigation}) => {
       <ScrollView
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}>
-        {/* Profile Section */}
         <View style={styles.profileCard}>
           <Icon name="person-circle-outline" size={85} color="#007AFF" />
-          <Text style={styles.profileName}>
-            {data?.fullname || 'Guest User'}
+          {profileLoading && isAuthenticated && !data?.fullname ? (
+            <ActivityIndicator
+              size="small"
+              color="#0375B7"
+              style={{marginTop: 8}}
+            />
+          ) : (
+            <Text style={styles.profileName}>
+              {isAuthenticated ? data?.fullname || 'User' : 'Guest User'}
+            </Text>
+          )}
+          <Text style={styles.accountType}>
+            {isAuthenticated ? 'Member Account' : 'Free Account'}
           </Text>
-          <Text style={styles.accountType}>Free Account</Text>
         </View>
 
-        {/* Upgrade or Login Button */}
         <Custombutton
           title={isAuthenticated ? 'View Plans' : 'Login'}
           onPress={() => {
@@ -88,35 +107,19 @@ const Profile = ({navigation}) => {
           style={styles.actionButton}
         />
 
-        {/* Profile Actions - Only show when logged in */}
-        {isAuthenticated && (
-          <View style={styles.section}>
-            {[
-              {icon: 'person-outline', label: 'Profile', route: 'UserProfile'},
-              {
-                icon: 'bookmark-outline',
-                label: 'Saved Bids',
-                route: 'SavedBids',
-              },
-              {
-                icon: 'information-circle-outline',
-                label: 'About Us',
-                route: 'Aboutus',
-              },
-            ].map((item, index) => (
-              <TouchableOpacity
-                key={index}
-                style={styles.optionItem}
-                onPress={() => navigation.navigate(item.route)}>
-                <Icon name={item.icon} size={28} color="#333" />
-                <Text style={styles.optionText}>{item.label}</Text>
-                <Icon2 name="arrow-forward-ios" size={18} color="#999" />
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
+        <View style={styles.section}>
+          {menuItems.map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.optionItem}
+              onPress={() => navigation.navigate(item.route)}>
+              <Icon name={item.icon} size={28} color="#333" />
+              <Text style={styles.optionText}>{item.label}</Text>
+              <Icon2 name="arrow-forward-ios" size={18} color="#999" />
+            </TouchableOpacity>
+          ))}
+        </View>
 
-        {/* Logout Button - Only show when logged in */}
         {isAuthenticated && (
           <TouchableOpacity
             style={styles.logoutButton}
@@ -129,7 +132,6 @@ const Profile = ({navigation}) => {
           </TouchableOpacity>
         )}
 
-        {/* Get In Touch */}
         <View style={styles.contactSection}>
           <Text style={styles.sectionTitle}>Get In Touch</Text>
           <View style={styles.divider} />

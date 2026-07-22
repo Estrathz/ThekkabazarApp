@@ -4,47 +4,80 @@ import {
   TextInput,
   ScrollView,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import styles from './editProfileStyle';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {useSelector, useDispatch} from 'react-redux';
 import Custombutton from '../../../../Containers/Button/button';
 import SelectDropdown from 'react-native-select-dropdown';
 import Icon2 from 'react-native-vector-icons/Ionicons';
-import {updateProfile} from '../../../../reducers/profileSlice';
+import {getProfile, updateProfile} from '../../../../reducers/profileSlice';
+import useRequireAuth from '../../../../hooks/useRequireAuth';
 
-const EditProfile = ({navigation}) => {
+const EditProfile = ({navigation, route}) => {
   const dispatch = useDispatch();
-  const {data, error} = useSelector(state => state.userprofile);
+  const isLoggedIn = useRequireAuth(navigation, route);
+  const {data, updateLoading, profileLoading} = useSelector(
+    state => state.userprofile,
+  );
 
-  // State Variables
-  const [fullname, setFullname] = useState(data?.fullname || '');
-  const [phone, setPhone] = useState(data?.phone_number || '');
-  const [companyName, setCompanyName] = useState(data?.company_name || '');
-  const [gender, setGender] = useState(data?.gender || '');
+  const [fullname, setFullname] = useState('');
+  const [phone, setPhone] = useState('');
+  const [companyName, setCompanyName] = useState('');
+  const [gender, setGender] = useState('');
 
   const genderData = ['Male', 'Female'];
 
-  const handleProfileUpdate = () => {
-    dispatch(
-      updateProfile({
-        fullname,
-        company_name: companyName,
-        phone_number: phone,
-        gender,
-      }),
-    );
+  useEffect(() => {
+    dispatch(getProfile());
+  }, [dispatch]);
 
-    if (!error) {
-      navigation.navigate('UserProfile', {profileUpdated: true});
+  useEffect(() => {
+    if (!data) {
+      return;
+    }
+    setFullname(data.fullname || '');
+    setPhone(data.phone_number || '');
+    setCompanyName(data.company_name || '');
+    setGender(data.gender || '');
+  }, [data]);
+
+  const handleProfileUpdate = async () => {
+    try {
+      await dispatch(
+        updateProfile({
+          fullname: fullname.trim(),
+          company_name: companyName.trim(),
+          phone_number: phone.trim(),
+          gender,
+        }),
+      ).unwrap();
+      navigation.goBack();
+    } catch (error) {
+      // Toast handled in profileSlice.
     }
   };
 
+  if (!isLoggedIn) {
+    return null;
+  }
+
+  if (profileLoading && !data) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0375B7" />
+          <Text style={styles.loadingText}>Loading profile...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-      {/* Header Section */}
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
@@ -58,7 +91,6 @@ const EditProfile = ({navigation}) => {
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}>
         <View style={styles.cardContainer}>
-          {/* Input Fields */}
           {[
             {
               label: 'Full Name',
@@ -87,11 +119,11 @@ const EditProfile = ({navigation}) => {
                 placeholderTextColor="#888"
                 value={item.value}
                 onChangeText={text => item.setter(text)}
+                editable={!updateLoading}
               />
             </View>
           ))}
 
-          {/* Gender Dropdown */}
           <View style={styles.inputWrapper}>
             <Text style={styles.inputLabel}>Gender:</Text>
             <SelectDropdown
@@ -113,15 +145,22 @@ const EditProfile = ({navigation}) => {
               dropdownStyle={styles.dropdownStyle}
               rowStyle={styles.dropdownRowStyle}
               rowTextStyle={styles.dropdownRowText}
+              disabled={updateLoading}
             />
           </View>
 
-          {/* Update Button */}
-          <Custombutton
-            title="Update Profile"
-            onPress={handleProfileUpdate}
-            style={styles.updateButton}
-          />
+          {updateLoading ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="small" color="#0375B7" />
+              <Text style={styles.loadingText}>Updating profile...</Text>
+            </View>
+          ) : (
+            <Custombutton
+              title="Update Profile"
+              onPress={handleProfileUpdate}
+              style={styles.updateButton}
+            />
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>

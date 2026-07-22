@@ -3,7 +3,6 @@ import {
   Text,
   TouchableOpacity,
   FlatList,
-  Image,
   RefreshControl,
   Modal,
   ScrollView,
@@ -11,6 +10,7 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
+import FastImage from '@d11/react-native-fast-image';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import React, {useEffect, useState, useCallback, useMemo} from 'react';
 import styles from './DetailStyle';
@@ -26,7 +26,6 @@ const Detail = ({route, navigation}) => {
 
   // Redux state selectors
   const {productList, error, status} = useSelector(state => state.bazar);
-  const {isAuthenticated, access_token} = useSelector(state => state.users);
 
   // Route parameters
   const pathname = route.params?.pathname;
@@ -40,7 +39,7 @@ const Detail = ({route, navigation}) => {
   const [search, setSearch] = useState('');
   const [businessType, setBusinessType] = useState('');
   const [page, setPage] = useState(1);
-  const [allProducts, setAllProducts] = useState([]);
+  const [allProducts, setAllProducts] = useState({products: []});
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   // Ensure page is always a valid positive integer
@@ -55,33 +54,49 @@ const Detail = ({route, navigation}) => {
     }
   }, [pathname, mainCategory, navigation]);
 
-  // Authentication check and data fetch
+  // Fetch product data when route params are available (open to all users)
   useEffect(() => {
-    console.log('Detail component - Auth state:', {
-      isAuthenticated,
-      hasToken: !!access_token,
-    });
+    if (!pathname || !mainCategory) {
+      return;
+    }
+    getProductData();
+  }, [pathname, mainCategory, validPage, getProductData]);
 
-    if (!isAuthenticated || !access_token || access_token.trim() === '') {
-      console.log('User not authenticated, redirecting to login');
-      Alert.alert('Login Required', 'Please login to view product details.', [
-        {text: 'Cancel', onPress: () => navigation.goBack()},
-        {text: 'Login', onPress: () => navigation.navigate('Login')},
-      ]);
+  // Merge paginated product pages into local list state.
+  useEffect(() => {
+    const products = productList?.data?.products;
+    if (!products) {
       return;
     }
 
-    getProductData();
-  }, [dispatch, route, validPage, isAuthenticated, access_token]);
+    const currentPage = productList?.current_page ?? validPage;
 
-  // Update allProducts when productList changes
-  useEffect(() => {
-    if (productList && productList.data) {
-      setAllProducts(prevData => {
-        return {...prevData, ...productList.data};
+    setAllProducts(prev => {
+      if (currentPage <= 1) {
+        return {
+          ...productList.data,
+          products,
+        };
+      }
+
+      const existing = prev?.products || [];
+      const seen = new Set(existing.map(product => product?.id));
+      const merged = [...existing];
+
+      products.forEach(product => {
+        if (product?.id != null && !seen.has(product.id)) {
+          merged.push(product);
+          seen.add(product.id);
+        }
       });
-    }
-  }, [productList]);
+
+      return {
+        ...productList.data,
+        products: merged,
+      };
+    });
+    setIsLoadingMore(false);
+  }, [productList, validPage]);
 
   // Error handling
   useEffect(() => {
@@ -95,27 +110,11 @@ const Detail = ({route, navigation}) => {
 
   // Fetch product data with error handling
   const getProductData = useCallback(async () => {
-    console.log('getProductData called - Auth state:', {
-      isAuthenticated,
-      hasToken: !!access_token,
-    });
-
-    if (!isAuthenticated || !access_token || access_token.trim() === '') {
-      console.log(
-        'User not authenticated in getProductData, redirecting to login',
-      );
-      navigation.navigate('Login');
-      return;
-    }
-
     if (!pathname || !mainCategory) {
-      console.log('Missing required parameters');
       return;
     }
 
     try {
-      console.log('Fetching product data for:', pathname, mainCategory);
-
       const params = {
         page: validPage,
       };
@@ -127,23 +126,16 @@ const Detail = ({route, navigation}) => {
       }
 
       await dispatch(fetchproductListData(params)).unwrap();
-    } catch (error) {
-      console.error('Failed to fetch product data:', error);
+    } catch (fetchError) {
       Alert.alert(
         'Error',
         'Failed to load products. Please check your internet connection and try again.',
         [{text: 'OK'}],
       );
+    } finally {
+      setIsLoadingMore(false);
     }
-  }, [
-    isAuthenticated,
-    access_token,
-    navigation,
-    pathname,
-    mainCategory,
-    validPage,
-    dispatch,
-  ]);
+  }, [pathname, mainCategory, validPage, dispatch]);
 
   // Modal handlers
   const openModal = useCallback(() => {
@@ -159,7 +151,7 @@ const Detail = ({route, navigation}) => {
     setRefreshing(true);
     setSearch('');
     setPage(1);
-    setAllProducts([]);
+    setAllProducts({products: []});
 
     try {
       await getProductData();
@@ -172,12 +164,6 @@ const Detail = ({route, navigation}) => {
 
   // Filter handler
   const handleFilter = useCallback(async () => {
-    if (!isAuthenticated || !access_token || access_token.trim() === '') {
-      console.log('User not authenticated for filter, redirecting to login');
-      navigation.navigate('Login');
-      return;
-    }
-
     try {
       const params = {};
 
@@ -197,48 +183,22 @@ const Detail = ({route, navigation}) => {
       console.error('Filter failed:', error);
       Alert.alert('Error', 'Failed to apply filter. Please try again.');
     }
-  }, [
-    isAuthenticated,
-    access_token,
-    navigation,
-    relatedCategory,
-    location,
-    businessType,
-    dispatch,
-    closeModal,
-  ]);
+  }, [relatedCategory, location, businessType, dispatch, closeModal]);
 
   // Pagination handler
-  const handleEndReached = useCallback(async () => {
-    console.log('End reached, page:', page);
-
-    if (!isAuthenticated || !access_token || access_token.trim() === '') {
-      console.log(
-        'User not authenticated for pagination, redirecting to login',
-      );
-      navigation.navigate('Login');
-      return;
-    }
-
+  const handleEndReached = useCallback(() => {
     if (
       isLoadingMore ||
+      status === 'loading' ||
       !productList?.total_pages ||
-      page >= productList.total_pages
+      validPage >= productList.total_pages
     ) {
       return;
     }
 
     setIsLoadingMore(true);
     setPage(prevPage => prevPage + 1);
-    setIsLoadingMore(false);
-  }, [
-    isAuthenticated,
-    access_token,
-    navigation,
-    page,
-    productList?.total_pages,
-    isLoadingMore,
-  ]);
+  }, [validPage, productList?.total_pages, isLoadingMore, status]);
 
   // Search handler
   const handleSearch = useCallback(
@@ -303,13 +263,18 @@ const Detail = ({route, navigation}) => {
     ({item, index}) => (
       <View key={`product-${index}`} style={styles.productCardList}>
         <View style={{flexDirection: 'row'}}>
-          <Image
+          <FastImage
             style={styles.ProductImage}
-            source={{uri: item.image}}
-            defaultSource={require('../../../assets/dummy-image.png')}
-            onError={error =>
-              console.log('Product image load error:', error.nativeEvent.error)
+            source={
+              item.image
+                ? {
+                    uri: item.image,
+                    priority: FastImage.priority.normal,
+                    cache: FastImage.cacheControl.immutable,
+                  }
+                : require('../../../assets/dummy-image.png')
             }
+            resizeMode={FastImage.resizeMode.cover}
           />
           <View style={styles.productInfo}>
             <Text style={styles.productName}>
@@ -536,7 +501,7 @@ const Detail = ({route, navigation}) => {
   );
 
   // Show loading state if initial load
-  if (status === 'loading' && !allProducts.products) {
+  if (status === 'loading' && !(allProducts.products?.length > 0)) {
     return (
       <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
         <View style={styles.loadingContainer}>
@@ -556,7 +521,11 @@ const Detail = ({route, navigation}) => {
         renderItem={renderProductItem}
         keyExtractor={(item, index) => `product-${item.id || index}`}
         onEndReached={handleEndReached}
-        onEndReachedThreshold={0.1}
+        onEndReachedThreshold={0.2}
+        initialNumToRender={8}
+        maxToRenderPerBatch={8}
+        windowSize={7}
+        removeClippedSubviews
         refreshControl={
           <RefreshControl
             refreshing={refreshing}

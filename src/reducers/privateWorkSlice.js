@@ -13,9 +13,7 @@ export const postPrivateWork = createAsyncThunk(
         `${BASE_URL}/subcontract/apis/private-works/`,
         {work, address, company, phone_number, rate},
       );
-      const data = response.data;
-      console.log('atasdausdg', data);
-      return data;
+      return response.data;
     } catch (error) {
       throw error;
     }
@@ -70,7 +68,29 @@ const privateWorkSlice = createSlice({
       })
       .addCase(getPrivateWork.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.data = action.payload;
+        const payload = action.payload;
+        const page = action.meta.arg?.page || 1;
+
+        if (page <= 1 || !state.data?.data?.length) {
+          state.data = payload;
+          return;
+        }
+
+        const existing = state.data.data || [];
+        const incoming = payload?.data || [];
+        const seen = new Set(existing.map(item => item?.id ?? item?.pk));
+        const merged = [
+          ...existing,
+          ...incoming.filter(item => {
+            const key = item?.id ?? item?.pk;
+            return key != null && !seen.has(key);
+          }),
+        ];
+
+        state.data = {
+          ...payload,
+          data: merged,
+        };
       })
       .addCase(getPrivateWork.rejected, (state, action) => {
         state.status = 'failed';

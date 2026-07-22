@@ -4,11 +4,31 @@ import {BASE_URL, API_HEADERS} from './apiUrl';
 
 const MAX_DETAIL_PAGES = 25;
 
+const cache = new Map();
+const CACHE_DURATION = 5 * 60 * 1000;
+
+const getCachedData = key => {
+  const cached = cache.get(key);
+  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+    return cached.data;
+  }
+  return null;
+};
+
+const setCachedData = (key, data) => {
+  cache.set(key, {
+    data,
+    timestamp: Date.now(),
+  });
+};
+
 const buildQueryKey = params => {
   const queryParams = {...(params || {})};
   delete queryParams.page;
   return JSON.stringify(queryParams);
 };
+
+export const buildResultListQueryKey = buildQueryKey;
 
 // Common error handler
 const handleApiError = error => {
@@ -37,6 +57,14 @@ export const fetchresultData = createAsyncThunk(
   'result/fetchresultData',
   async (params, {rejectWithValue}) => {
     try {
+      const cacheKey = `result:${buildQueryKey(params)}`;
+      if (params?.search) {
+        const cachedData = getCachedData(cacheKey);
+        if (cachedData) {
+          return cachedData;
+        }
+      }
+
       const response = await axios.get(
         `${BASE_URL}/tender/apis/tender-awarded-to/`,
         {
@@ -44,6 +72,11 @@ export const fetchresultData = createAsyncThunk(
           headers: API_HEADERS,
         },
       );
+
+      if (params?.search) {
+        setCachedData(cacheKey, response.data);
+      }
+
       return response.data;
     } catch (error) {
       return rejectWithValue(handleApiError(error));
@@ -139,7 +172,16 @@ const resultSlice = createSlice({
   extraReducers: builder => {
     builder
       // Handle fetchresultData
-      .addCase(fetchresultData.pending, state => {
+      .addCase(fetchresultData.pending, (state, action) => {
+        const page = Number(action.meta.arg?.page || 1);
+        const hasExistingData =
+          page === 1 &&
+          Array.isArray(state.data?.data) &&
+          state.data.data.length > 0;
+        if (hasExistingData) {
+          state.error = null;
+          return;
+        }
         state.loading = true;
         state.error = null;
       })

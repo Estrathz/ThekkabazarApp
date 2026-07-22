@@ -1,41 +1,26 @@
-import {View, Text} from 'react-native';
-import React, {useState} from 'react';
+import {View, Text, TouchableOpacity} from 'react-native';
+import React from 'react';
 import styles from './SaveBidsStyle';
 import Icon2 from 'react-native-vector-icons/MaterialIcons';
 import BidsComponent from './BidsSaved';
+import useRequireAuth from '../../hooks/useRequireAuth';
 
-const Index = ({navigation}) => {
-  const [active] = useState('bids');
+const Index = ({navigation, route}) => {
+  const isLoggedIn = useRequireAuth(navigation, route);
+
+  if (!isLoggedIn) {
+    return null;
+  }
 
   return (
     <View style={styles.container}>
-      <View style={{display: 'flex', flexDirection: 'row', padding: 15}}>
-        <Icon2
-          name="arrow-back"
-          size={30}
-          color="black"
-          onPress={() => navigation.goBack()}
-        />
-        <Text style={{fontSize: 20, marginLeft: 10, color: 'black'}}>
-          Saved Bids
-        </Text>
+      <View style={styles.headerRow}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Icon2 name="arrow-back" size={30} color="black" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Saved Bids</Text>
       </View>
-
-      {/* <Text style={{fontSize: 20, marginLeft: 10, color: '#1F2937'}}>
-        Saved Bids
-      </Text> */}
-      <View style={styles.bidsCard}>
-        <View
-          style={[styles.tabButton, active === 'bids' && styles.activeTab]}
-        />
-        {/* <TouchableOpacity
-          onPress={() => setActive('interest')}
-          style={[styles.tabButton, active === 'interest' && styles.activeTab]}>
-          <Text style={styles.tabButtonText}>Interested Area</Text>
-        </TouchableOpacity> */}
-      </View>
-      {active === 'bids' && <BidsComponent />}
-      {/* {active === 'interest' && <InterestComponent />} */}
+      <BidsComponent />
     </View>
   );
 };

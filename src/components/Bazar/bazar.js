@@ -22,7 +22,6 @@ const Bazar = ({navigation}) => {
 
   // Redux state selectors
   const {data, status} = useSelector(state => state.bazar);
-  const {isAuthenticated, access_token} = useSelector(state => state.users);
 
   // Component state
   const [isRefreshing, setIsRefreshing] = React.useState(false);
@@ -52,37 +51,19 @@ const Bazar = ({navigation}) => {
     setIsRefreshing(false);
   }, [fetchData]);
 
-  // Navigation handlers with authentication checks
+  // Navigation handlers — Bazar is open to all users
   const handleBazarDetail = useCallback(
     name => {
-      if (!isAuthenticated || !access_token || access_token.trim() === '') {
-        Alert.alert('Login Required', 'Please login to view product details.', [
-          {text: 'Cancel', style: 'cancel'},
-          {text: 'Login', onPress: () => navigation.navigate('Login')},
-        ]);
-        return;
-      }
       navigation.navigate('BazarDetail', {name, pathname: 'mainProduct'});
     },
-    [isAuthenticated, access_token, navigation],
+    [navigation],
   );
 
   const handleBazarSubDetail = useCallback(
     name => {
-      if (!isAuthenticated || !access_token || access_token.trim() === '') {
-        Alert.alert(
-          'Login Required',
-          'Please login to view subcategory details.',
-          [
-            {text: 'Cancel', style: 'cancel'},
-            {text: 'Login', onPress: () => navigation.navigate('Login')},
-          ],
-        );
-        return;
-      }
       navigation.navigate('BazarDetail', {name, pathname: 'subProduct'});
     },
-    [isAuthenticated, access_token, navigation],
+    [navigation],
   );
 
   // Render loading state

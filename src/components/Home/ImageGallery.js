@@ -2,7 +2,6 @@ import React, {useState, useCallback, useMemo, useEffect, useRef} from 'react';
 import {
   View,
   Text,
-  Image,
   TouchableOpacity,
   Modal,
   FlatList,
@@ -10,6 +9,7 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from 'react-native';
+import FastImage from '@d11/react-native-fast-image';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useDispatch} from 'react-redux';
 import {useFocusEffect} from '@react-navigation/native';
@@ -17,24 +17,30 @@ import ImageZoomViewer from 'react-native-image-zoom-viewer';
 import Icon from 'react-native-vector-icons/Ionicons';
 import moment from 'moment';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {fetchNewspaperTenderList} from '../../reducers/cardSlice';
+import {fetchTenderListData} from '../../reducers/cardSlice';
+import useRequireTenderLogin from '../../hooks/useRequireTenderLogin';
 import {
-  GALLERY_DAYS_WINDOW,
-  NEWSPAPER_CACHE_KEY,
+  dedupeTendersByPk,
   tenderHasGalleryImage,
 } from '../../utils/newspaperTenders';
+import {resolveUriFastImageSource} from '../../utils/tenderImage';
+import {DEFAULT_PAGE_SIZE} from '../../constants/pagination';
 import {wp, spacing, deviceInfo, getGridColumns} from '../../utils/responsive';
 
-const IMAGE_GALLERY_CACHE_KEY = 'image-gallery:tender:list:v1';
+const IMAGE_GALLERY_CACHE_KEY = 'image-gallery:tender:list:v2';
 
-const ImageGallery = () => {
+const ImageGallery = ({navigation, route}) => {
   const dispatch = useDispatch();
+  const isLoggedIn = useRequireTenderLogin(navigation, route);
   const [isGalleryLoading, setIsGalleryLoading] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [galleryTenders, setGalleryTenders] = useState([]);
   const [cachedTenders, setCachedTenders] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const isInitializedRef = useRef(false);
 
   const numColumns = getGridColumns();
@@ -43,8 +49,6 @@ const ImageGallery = () => {
     numColumns;
 
   const persistGalleryCache = useCallback(items => {
-    // newspaperData is already server-filtered to the window + PPMO-excluded;
-    // for the gallery we only keep entries that actually have an image.
     const cacheItems = (items || [])
       .filter(item => item?.source !== 'PPMO/EGP')
       .filter(tenderHasGalleryImage);
@@ -54,33 +58,56 @@ const ImageGallery = () => {
     ).catch(() => {});
   }, []);
 
+  const fetchGalleryPage = useCallback(
+    async (pageNum = 1, {forceRefresh = false, append = false} = {}) => {
+      const result = await dispatch(
+        fetchTenderListData({
+          page: pageNum,
+          page_size: DEFAULT_PAGE_SIZE,
+          exclude_source: 'PPMO/EGP',
+          forceRefresh,
+          storeInTabLists: false,
+        }),
+      ).unwrap();
+
+      const incoming = result?.data || [];
+      setGalleryTenders(prev => {
+        const merged =
+          append && pageNum > 1 ? dedupeTendersByPk([...prev, ...incoming]) : incoming;
+        persistGalleryCache(merged);
+        return merged;
+      });
+      setPage(pageNum);
+      setTotalPages(result?.total_pages || 1);
+
+      return result;
+    },
+    [dispatch, persistGalleryCache],
+  );
+
   const fetchGalleryData = useCallback(
-    async ({silent = false, showRefresh = false} = {}) => {
+    async ({silent = false, showRefresh = false, append = false, pageNum = 1} = {}) => {
       try {
         if (showRefresh) {
           setIsRefreshing(true);
+        } else if (append) {
+          setIsLoadingMore(true);
         } else if (!silent) {
           setIsGalleryLoading(true);
         }
 
-        const result = await dispatch(
-          fetchNewspaperTenderList({
-            days: GALLERY_DAYS_WINDOW,
-            forceRefresh: !silent,
-          }),
-        );
-
-        if (result.payload?.data?.length) {
-          setGalleryTenders(result.payload.data);
-          persistGalleryCache(result.payload.data);
-        }
+        await fetchGalleryPage(pageNum, {
+          forceRefresh: !append,
+          append,
+        });
       } catch (error) {
       } finally {
         setIsRefreshing(false);
+        setIsLoadingMore(false);
         setIsGalleryLoading(false);
       }
     },
-    [dispatch, persistGalleryCache],
+    [fetchGalleryPage],
   );
 
   useEffect(() => {
@@ -93,24 +120,12 @@ const ImageGallery = () => {
       let hasSeedData = false;
 
       try {
-        const [newspaperRaw, galleryRaw] = await Promise.all([
-          AsyncStorage.getItem(NEWSPAPER_CACHE_KEY),
-          AsyncStorage.getItem(IMAGE_GALLERY_CACHE_KEY),
-        ]);
-
-        if (newspaperRaw) {
-          const newspaperItems = JSON.parse(newspaperRaw);
-          if (Array.isArray(newspaperItems) && newspaperItems.length) {
-            hasSeedData = true;
-            setCachedTenders(newspaperItems);
-          }
-        }
-
+        const galleryRaw = await AsyncStorage.getItem(IMAGE_GALLERY_CACHE_KEY);
         if (galleryRaw) {
           const galleryItems = JSON.parse(galleryRaw);
           if (Array.isArray(galleryItems) && galleryItems.length) {
             hasSeedData = true;
-            setCachedTenders(prev => (prev.length ? prev : galleryItems));
+            setCachedTenders(galleryItems);
           }
         }
       } catch (error) {}
@@ -172,8 +187,26 @@ const ImageGallery = () => {
   }, []);
 
   const handleRefresh = useCallback(() => {
-    fetchGalleryData({silent: true, showRefresh: true});
+    fetchGalleryData({silent: true, showRefresh: true, pageNum: 1});
   }, [fetchGalleryData]);
+
+  const handleLoadMore = useCallback(() => {
+    if (isLoadingMore || isRefreshing || isGalleryLoading || page >= totalPages) {
+      return;
+    }
+    fetchGalleryData({
+      silent: true,
+      append: true,
+      pageNum: page + 1,
+    });
+  }, [
+    fetchGalleryData,
+    isGalleryLoading,
+    isLoadingMore,
+    isRefreshing,
+    page,
+    totalPages,
+  ]);
 
   const renderGridItem = useCallback(
     ({item, index}) => (
@@ -181,10 +214,10 @@ const ImageGallery = () => {
         style={[styles.gridItem, {width: imageSize, height: imageSize}]}
         onPress={() => handleImagePress(index)}
         activeOpacity={0.8}>
-        <Image
-          source={{uri: item.url}}
+        <FastImage
+          source={resolveUriFastImageSource(item.url, FastImage)}
           style={styles.gridImage}
-          resizeMode="cover"
+          resizeMode={FastImage.resizeMode.cover}
         />
       </TouchableOpacity>
     ),
@@ -205,12 +238,16 @@ const ImageGallery = () => {
   const showInitialLoader =
     (isGalleryLoading || isRefreshing) && tenderImages.length === 0;
 
+  if (!isLoggedIn) {
+    return null;
+  }
+
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Recent Tender Images</Text>
+        <Text style={styles.headerTitle}>Tender Images</Text>
         <Text style={styles.headerSubtitle}>
-          Last 5 days
+          Newspaper tenders (excluding PPMO)
           {tenderImages.length > 0 ? ` · ${tenderImages.length} images` : ''}
         </Text>
       </View>
@@ -232,6 +269,15 @@ const ImageGallery = () => {
           maxToRenderPerBatch={10}
           windowSize={7}
           initialNumToRender={10}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.2}
+          ListFooterComponent={
+            isLoadingMore ? (
+              <View style={styles.footerLoader}>
+                <ActivityIndicator size="small" color="#0375B7" />
+              </View>
+            ) : null
+          }
           refreshControl={
             <RefreshControl
               refreshing={isRefreshing}
@@ -244,11 +290,9 @@ const ImageGallery = () => {
       ) : (
         <View style={styles.emptyContainer}>
           <Icon name="images-outline" size={80} color="#ccc" />
-          <Text style={styles.emptyText}>
-            No recent tender images available
-          </Text>
+          <Text style={styles.emptyText}>No tender images available</Text>
           <Text style={styles.emptySubtext}>
-            Images from newspaper tenders in the last 5 days will appear here
+            Scanned images from non-PPMO newspaper tenders will appear here
           </Text>
         </View>
       )}
@@ -281,10 +325,10 @@ const ImageGallery = () => {
               )}
               backgroundColor="black"
               renderImage={props => (
-                <Image
+                <FastImage
                   {...props}
                   style={{width: '100%', height: '100%'}}
-                  resizeMode="contain"
+                  resizeMode={FastImage.resizeMode.contain}
                 />
               )}
             />
@@ -366,6 +410,10 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 16,
     color: '#666',
+  },
+  footerLoader: {
+    paddingVertical: spacing.md,
+    alignItems: 'center',
   },
   modalContainer: {
     flex: 1,

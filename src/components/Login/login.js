@@ -11,55 +11,47 @@ import {
   KeyboardAvoidingView,
   TouchableWithoutFeedback,
   Platform,
+  Linking,
 } from 'react-native';
 import styles from './loginStyle';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import {login, checkAuthStatus} from '../../reducers/userSlice';
+import {login} from '../../reducers/userSlice';
+import {getProfile} from '../../reducers/profileSlice';
 import {useDispatch, useSelector} from 'react-redux';
 import Custombutton from '../../Containers/Button/button';
 import Toast from 'react-native-toast-message';
+import {completePostLoginNavigation} from '../../utils/navigationHelpers';
+import {selectIsLoggedIn} from '../../utils/authAccess';
 
-const Login = ({navigation}) => {
+const Login = ({navigation, route}) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [hasNavigated, setHasNavigated] = useState(false);
   const dispatch = useDispatch();
 
-  const {isAuthenticated, loading} = useSelector(state => state.users || {});
+  const isLoggedIn = useSelector(selectIsLoggedIn);
+  const {loading} = useSelector(state => state.users || {});
 
-  // Check if user is already logged in on component mount
-  useEffect(() => {
-    dispatch(checkAuthStatus());
-  }, [dispatch]);
-
-  // Navigate to Home once authenticated. Login lives inside several inner
-  // stacks (Home/Bazar/BizTax/Profile), so navigate('Home') resolves to the
-  // Home screen in the Home stack and bubbles up to the Home tab otherwise.
-  useEffect(() => {
-    let navigationTimeout;
-
-    if (isAuthenticated && !hasNavigated) {
-      setHasNavigated(true);
-
-      // Dismiss keyboard before navigation
-      Keyboard.dismiss();
-
-      // Small delay to ensure the success toast is shown
-      navigationTimeout = setTimeout(() => {
-        navigation.navigate('Home');
-      }, 500);
+  const completeLoginNavigation = () => {
+    if (hasNavigated) {
+      return;
     }
+    setHasNavigated(true);
+    Keyboard.dismiss();
+    completePostLoginNavigation(
+      navigation,
+      route?.params?.redirectAfterLogin,
+    );
+  };
 
-    return () => {
-      if (navigationTimeout) {
-        clearTimeout(navigationTimeout);
-      }
-    };
-  }, [isAuthenticated, navigation, hasNavigated]);
+  useEffect(() => {
+    if (isLoggedIn && !hasNavigated) {
+      completeLoginNavigation();
+    }
+  }, [isLoggedIn, hasNavigated]);
 
   const handleLogin = async () => {
-    // Dismiss keyboard immediately when login starts
     Keyboard.dismiss();
 
     if (!username.trim() || !password.trim()) {
@@ -75,7 +67,8 @@ const Login = ({navigation}) => {
 
     try {
       await dispatch(login({username: username.trim(), password})).unwrap();
-      // Navigation will be handled automatically by the useEffect above
+      dispatch(getProfile());
+      setTimeout(() => completeLoginNavigation(), 300);
     } catch (error) {
       // Error is already handled by the Redux slice with Toast
     }
@@ -144,7 +137,14 @@ const Login = ({navigation}) => {
               </TouchableOpacity>
             </View>
 
-            <Text style={styles.text4}>Forget Password ?</Text>
+            <TouchableOpacity
+              onPress={() =>
+                Linking.openURL(
+                  'mailto:info@thekkabazar.com?subject=Password%20Reset%20Request',
+                )
+              }>
+              <Text style={styles.text4}>Forget Password ?</Text>
+            </TouchableOpacity>
 
             {loading ? (
               <View style={styles.loadingContainer}>
